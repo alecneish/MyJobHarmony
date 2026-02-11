@@ -1,0 +1,32 @@
+@model JobHarmony.Models.JobListingsViewModel
+@{
+    ViewData["Title"] = "Job Listings";
+}
+
+<div class="jh-jobs-container">
+    <div class="jh-section-header" style="margin-bottom: 2rem;">
+        <h2>Job Listings</h2>
+        <p>Jobs ranked by how well they match your personality profile.</p>
+    </div>
+
+    <div class="jh-search-bar">
+        <input type="text" class="jh-search-input" id="jh-search" placeholder="Search jobs by title, company, or tags..." />
+        <button class="jh-btn-secondary" id="jh-filter-toggle">Filters</button>
+    </div>
+
+    <div id="jh-job-list">
+        @foreach (var job in Model.Jobs)
+        {
+            @await Html.PartialAsync("_JobCard", job)
+        }
+    </div>
+
+    <div class="jh-no-results" id="jh-no-results">
+        <h3>No jobs match your filters</h3>
+        <p>Try adjusting your search or clearing filters.</p>
+    </div>
+</div>
+
+<!-- Filter Sidebar Drawer -->
+<div class="jh-filter-overlay" id="jh-filter-overlay"></div>
+@await Html.PartialAsync("_FilterPanel", Model)

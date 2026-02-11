@@ -1,0 +1,70 @@
+@model JobHarmony.Models.PersonalityResult
+@{
+    ViewData["Title"] = "Your Results";
+}
+
+<div class="jh-results-container">
+    <div class="jh-motivation-card">
+        <span class="jh-motivation-icon" id="jh-result-icon">@Model.MotivationIcon</span>
+        <h1 id="jh-result-type">@Model.MotivationType</h1>
+        <p id="jh-result-desc">@Model.MotivationDescription</p>
+    </div>
+
+    <div class="jh-traits-card">
+        <h3>Your Personality Profile</h3>
+
+        <div class="jh-trait-row">
+            <div class="jh-trait-label">
+                <span>Openness</span>
+                <span class="jh-trait-value" data-trait="openness">@Model.Openness%</span>
+            </div>
+            <div class="jh-trait-bar">
+                <div class="jh-trait-fill" data-trait="openness" data-default="@Model.Openness"></div>
+            </div>
+        </div>
+
+        <div class="jh-trait-row">
+            <div class="jh-trait-label">
+                <span>Conscientiousness</span>
+                <span class="jh-trait-value" data-trait="conscientiousness">@Model.Conscientiousness%</span>
+            </div>
+            <div class="jh-trait-bar">
+                <div class="jh-trait-fill" data-trait="conscientiousness" data-default="@Model.Conscientiousness"></div>
+            </div>
+        </div>
+
+        <div class="jh-trait-row">
+            <div class="jh-trait-label">
+                <span>Extraversion</span>
+                <span class="jh-trait-value" data-trait="extraversion">@Model.Extraversion%</span>
+            </div>
+            <div class="jh-trait-bar">
+                <div class="jh-trait-fill" data-trait="extraversion" data-default="@Model.Extraversion"></div>
+            </div>
+        </div>
+
+        <div class="jh-trait-row">
+            <div class="jh-trait-label">
+                <span>Agreeableness</span>
+                <span class="jh-trait-value" data-trait="agreeableness">@Model.Agreeableness%</span>
+            </div>
+            <div class="jh-trait-bar">
+                <div class="jh-trait-fill" data-trait="agreeableness" data-default="@Model.Agreeableness"></div>
+            </div>
+        </div>
+
+        <div class="jh-trait-row">
+            <div class="jh-trait-label">
+                <span>Emotional Stability</span>
+                <span class="jh-trait-value" data-trait="emotionalStability">@Model.EmotionalStability%</span>
+            </div>
+            <div class="jh-trait-bar">
+                <div class="jh-trait-fill" data-trait="emotionalStability" data-default="@Model.EmotionalStability"></div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 2.5rem;">
+        <a asp-controller="Jobs" asp-action="Index" class="jh-btn-primary">Browse Matching Jobs &#8594;</a>
+    </div>
+</div>
