@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet run:*)",
+      "Bash(dotnet build:*)",
+      "Bash(git add:*)",
+      "Bash(git -C /Users/quadehogan/RiderProjects/JobHarmony diff --cached --stat)",
+      "Bash(git -C /Users/quadehogan/RiderProjects/JobHarmony commit -m \"$\\(cat <<''EOF''\nInitial commit: JobHarmony Career Compass MVC app\n\nASP.NET Core MVC rebuild of a personality-based job matching app.\nFeatures quiz with Big Five scoring, job listings with filters,\nsaved jobs via localStorage, and a recruit dashboard.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}
