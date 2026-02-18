@@ -16,3 +16,11 @@ obj/
 ## OS
 .DS_Store
 Thumbs.db
+
+## SQLite database (runtime artifact — auto-created on startup)
+*.db
+*.db-shm
+*.db-wal
+
+## Claude Code settings
+.claude/

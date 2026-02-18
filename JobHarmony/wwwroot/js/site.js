@@ -159,8 +159,39 @@
             result.motivationDescription = motivation.description;
             result.motivationIcon = motivation.icon;
 
+            // Find dominant trait (highest scoring)
+            var traitNames = ['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'emotionalStability'];
+            var dominantTrait = traitNames.reduce(function (a, b) {
+                return result[b] > result[a] ? b : a;
+            });
+
             localStorage.setItem('jh-quiz-results', JSON.stringify(result));
-            window.location.href = '/Quiz/Results';
+
+            // POST results to the backend, then redirect
+            fetch('/api/quiz/results', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    openness: result.openness,
+                    conscientiousness: result.conscientiousness,
+                    extraversion: result.extraversion,
+                    agreeableness: result.agreeableness,
+                    emotionalStability: result.emotionalStability,
+                    dominantTrait: dominantTrait,
+                    motivationType: result.motivationType
+                })
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    JH.Snackbar.show('Your results have been saved!');
+                }
+                setTimeout(function () { window.location.href = '/Quiz/Results'; }, 1000);
+            })
+            .catch(function () {
+                // If the API call fails, redirect anyway so the user isn't stuck
+                window.location.href = '/Quiz/Results';
+            });
         }
 
         function determineMotivation(scores) {
