@@ -93,18 +93,23 @@ Supabase is the primary database. Dev runs against a local Docker Supabase/Postg
 
 ### Quick setup (non-technical)
 
-1. Start local Supabase: `supabase start` (this prints your local Postgres connection string).
-2. Copy the backend env template: `cp backend/.env.example backend/.env`.
-3. In `backend/.env`, set:
-   - `DATABASE_URL` to the **Database URL** (Postgres) from step 1 output (e.g., `postgres://postgres:postgres@127.0.0.1:54322/postgres`). Do not use the API/REST URL.
+1. Install backend deps (pulls Supabase client):
+   ```bash
+   cd backend
+   npm install
+   ```
+2. Start local Supabase: `supabase start` (this prints your local Postgres connection string).
+3. Copy the backend env template: `cp backend/.env.example backend/.env`.
+4. In `backend/.env`, set:
+   - `DATABASE_URL` to the **Database URL** (Postgres) from step 2 output (e.g., `postgres://postgres:postgres@127.0.0.1:54322/postgres`). Do not use the API/REST URL.
    - `SUPABASE_URL` to the REST base URL (e.g., `http://127.0.0.1:54321`).
    - `SUPABASE_SECRET_KEY` to the “Secret” key shown.
    - Optional: `SUPABASE_PUBLISHABLE_KEY` to the “Publishable” key (client-safe if needed).
    For prod, use the values from Supabase → Settings → Database / API.
-4. Install deps and run:
-   - Backend: `cd backend && npm install && npm run dev`
+5. Install frontend deps and run apps:
+   - Backend: `npm run dev` (from `backend`)
    - Frontend: `cd frontend && npm install && npm run dev`
-5. Migrations: `cd backend && npm run migrate`
+6. Migrations: `cd backend && npm run migrate`
    - Runs against whatever `DATABASE_URL` is set to (prod if prod URL, local if local).
 
 ### Start local Supabase/Postgres
