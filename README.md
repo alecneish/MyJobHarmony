@@ -51,7 +51,6 @@ JobHarmony is a career matching platform that helps people find jobs that fit wh
 | npm | 9+ | bundled with Node |
 | Git | any | https://git-scm.com |
 | Docker | latest | https://www.docker.com/get-started |
-| Supabase CLI | latest | `brew install supabase/tap/supabase` or see [docs](https://supabase.com/docs/guides/cli) |
 
 **Verify your installations:**
 
@@ -60,7 +59,6 @@ node --version    # should print 18.x or higher
 npm --version
 git --version
 docker --version
-supabase --version
 ```
 
 ---
@@ -76,25 +74,34 @@ git clone <your-repo-url>
 cd JobHarmony
 ```
 
-### 2. Start local Supabase
+### 2. Install dependencies
+
+```bash
+npm install --prefix backend
+npm install --prefix frontend
+```
+
+This installs everything, including the Supabase CLI (as a dev dependency in `backend/`).
+
+### 3. Start local Supabase
 
 Make sure Docker Desktop is running, then:
 
 ```bash
 cd backend
-supabase start
+npx supabase start
 cd ..
 ```
 
 This spins up a local Postgres database and prints output with URLs and keys. **Keep this terminal output open** — you'll need values from it in the next step.
 
-### 3. Set up the backend environment
+### 4. Set up the backend environment
 
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-Open `backend/.env` and fill in these values using the output from step 2:
+Open `backend/.env` and fill in these values using the output from step 3:
 
 | Variable | Where to find it |
 | --- | --- |
@@ -102,13 +109,6 @@ Open `backend/.env` and fill in these values using the output from step 2:
 | `SUPABASE_URL` | "APIs → Project URL" (e.g. `http://127.0.0.1:54321`) |
 | `SUPABASE_SECRET_KEY` | "Authentication Keys → Secret" |
 | `SUPABASE_PUBLISHABLE_KEY` | "Authentication Keys → Publishable" (optional) |
-
-### 4. Install dependencies
-
-```bash
-npm install --prefix backend
-npm install --prefix frontend
-```
 
 ### 5. Run migrations
 
@@ -142,11 +142,11 @@ When you're done developing:
 
 ```bash
 cd backend
-supabase stop
+npx supabase stop
 cd ..
 ```
 
-When resuming, run `supabase start` again from `backend/` (step 2). Your data is preserved between sessions. The Database URL and keys stay the same.
+When resuming, run `npx supabase start` again from `backend/` (step 3). Your data is preserved between sessions. The Database URL and keys stay the same.
 
 ---
 
@@ -184,9 +184,9 @@ When resuming, run `supabase start` again from `backend/` (step 2). Your data is
 
 **How to link (owner/CI):**
 
-1. Install Supabase CLI and log in: `supabase login` (opens browser for token).
-2. From the repo root, link the project: `supabase link --project-ref <your_project_ref>`.
-3. After linking, push migrations when needed (with prod `DATABASE_URL` set in env/CI): `npm run migrate --prefix backend` or `supabase db push`.
+1. Log in: `cd backend && npx supabase login` (opens browser for token).
+2. Link the project: `npx supabase link --project-ref <your_project_ref>` (still from `backend/`).
+3. After linking, push migrations when needed (with prod `DATABASE_URL` set in env/CI): `npm run migrate` or `npx supabase db push` (from `backend/`).
 
 **Responsibilities of the linking owner:**
 
