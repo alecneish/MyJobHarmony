@@ -160,7 +160,7 @@ When resuming, run `supabase start` again from `backend/` (step 2). Your data is
    ```
 
    This creates `backend/migrations/<timestamp>-add-quiz-results-table.js`.
-3. Edit the new file and add your `exports.up`/`exports.down` changes (tables/columns).
+3. Edit the new file and add your `exports.up`/`exports.down` changes (tables/columns). (This is when to use claude code or cursor to help generate the SQL. Just give it the name of the migration file and it will generate the SQL that you request.)
 4. Run migrations:
 
    ```bash
