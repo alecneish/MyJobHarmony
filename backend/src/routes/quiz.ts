@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import { getQuizQuestions } from '../data/seedData';
-import { insertQuizResult } from '../db/database';
 import { QuizResultDto } from '../types';
 
 const router = Router();
@@ -10,7 +9,7 @@ router.get('/questions', (_req: Request, res: Response) => {
   res.json(questions);
 });
 
-router.post('/results', (req: Request, res: Response) => {
+router.post('/results', async (req: Request, res: Response) => {
   const dto = req.body as QuizResultDto;
 
   if (
@@ -26,17 +25,8 @@ router.post('/results', (req: Request, res: Response) => {
     return;
   }
 
-  const id = insertQuizResult({
-    openness: dto.openness,
-    conscientiousness: dto.conscientiousness,
-    extraversion: dto.extraversion,
-    agreeableness: dto.agreeableness,
-    emotionalStability: dto.emotionalStability,
-    dominantTrait: dto.dominantTrait,
-    motivationType: dto.motivationType,
-  });
-
-  res.json({ success: true, resultId: id, message: 'Results saved!' });
+  // TODO: implement persistence via migrations-backed tables
+  res.status(501).json({ success: false, message: 'Persistence not yet implemented' });
 });
 
 export default router;
