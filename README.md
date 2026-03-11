@@ -12,7 +12,7 @@ JobHarmony is a career matching platform that helps people find jobs that fit wh
 | --- | --- |
 | Frontend | React 18, TypeScript, Vite, React Router |
 | Backend | Node.js, Express, TypeScript (ts-node-dev) |
-| Database | Supabase/Postgres (prod), SQLite (dev) |
+| Database | Supabase/Postgres (local + prod via REST API) |
 | Auth | Not yet implemented |
 | External APIs | None |
 
@@ -34,9 +34,9 @@ JobHarmony is a career matching platform that helps people find jobs that fit wh
       │ Vite dev server                 │   └──────┬───────┘   │
       │ (proxy /api → :3001)            │          │           │
 ┌─────┴───────┐                         │   ┌──────▼───────┐   │
-│  React App  │                         │   │  SQLite DB   │   │
-│  Vite :5173 │                         │   │ (better-     │   │
-│  TypeScript │                         │   │  sqlite3)    │   │
+│  React App  │                         │   │  Supabase    │   │
+│  Vite :5173 │                         │   │  REST API    │   │
+│  TypeScript │                         │   │  (Postgres)  │   │
 └─────────────┘                         │   └──────────────┘   │
                                         └──────────────────────┘
 ```
@@ -51,7 +51,7 @@ JobHarmony is a career matching platform that helps people find jobs that fit wh
 | npm | 9+ | bundled with Node |
 | Git | any | https://git-scm.com |
 | Docker | latest | https://www.docker.com/get-started |
-| SQLite | bundled | - |
+| Supabase CLI | latest | `brew install supabase/tap/supabase` or see [docs](https://supabase.com/docs/guides/cli) |
 
 **Verify your installations:**
 
@@ -60,139 +60,136 @@ node --version    # should print 18.x or higher
 npm --version
 git --version
 docker --version
+supabase --version
 ```
 
 ---
 
-## Installation and Setup
+## Getting Started (step-by-step)
 
-### 1. Clone the repository
+Run every command below **from the project root** (`JobHarmony/`) unless noted otherwise.
+
+### 1. Clone the repo
 
 ```bash
 git clone <your-repo-url>
 cd JobHarmony
 ```
 
-### 2. Install backend dependencies
+### 2. Start local Supabase
+
+Make sure Docker Desktop is running, then:
+
 ```bash
 cd backend
-npm install
-```
-
-### 3. Install frontend dependencies
-```bash
-cd ../frontend
-npm install
-```
-
----
-
-## Supabase / Postgres
-
-Supabase is the primary database. Dev runs against a local Docker Supabase/Postgres; prod uses the shared Supabase instance.
-
-### Quick setup (non-technical)
-
-1. Install backend deps (pulls Supabase client):
-   ```bash
-   cd backend
-   npm install
-   ```
-2. Start local Supabase: `supabase start` (this prints your local Postgres connection string).
-3. Copy the backend env template and fill it: `cp backend/.env.example backend/.env`, then set in `backend/.env`:
-   - `DATABASE_URL` to the **Database URL** (Postgres) from step 2 output (e.g., `postgres://postgres:postgres@127.0.0.1:54322/postgres`). Do not use the API/REST URL.
-   - `SUPABASE_URL` to the REST base URL (e.g., `http://127.0.0.1:54321`).
-   - `SUPABASE_SECRET_KEY` to the “Secret” key shown.
-   - Optional: `SUPABASE_PUBLISHABLE_KEY` to the “Publishable” key (client-safe if needed).
-   For prod, use the values from Supabase → Settings → Database / API.
-4. Install frontend deps and run apps:
-   - Backend: `npm run dev` (from `backend`)
-   - Frontend: `cd frontend && npm install && npm run dev`
-5. Migrations: `cd backend && npm run migrate`
-   - Runs against whatever `DATABASE_URL` is set to (prod if prod URL, local if local).
-
-### Start local Supabase/Postgres
-
-```bash
 supabase start
+cd ..
 ```
 
-This brings up the local Supabase stack (Postgres, auth, etc.). Use the Postgres connection string shown in the command output (typically `postgres://postgres:postgres@127.0.0.1:54322/postgres`).
+This spins up a local Postgres database and prints output with URLs and keys. **Keep this terminal output open** — you'll need values from it in the next step.
 
-To stop local Supabase when you’re done:
+### 3. Set up the backend environment
 
 ```bash
-supabase stop
+cp backend/.env.example backend/.env
 ```
 
-When resuming work, run `supabase start` again and reuse the Database URL/keys it prints.
+Open `backend/.env` and fill in these values using the output from step 2:
 
-### App connection behavior
+| Variable | Where to find it |
+| --- | --- |
+| `DATABASE_URL` | "Database → URL" (e.g. `postgresql://postgres:postgres@127.0.0.1:54322/postgres`) |
+| `SUPABASE_URL` | "APIs → Project URL" (e.g. `http://127.0.0.1:54321`) |
+| `SUPABASE_SECRET_KEY` | "Authentication Keys → Secret" |
+| `SUPABASE_PUBLISHABLE_KEY` | "Authentication Keys → Publishable" (optional) |
 
-- Dev: point the Node backend to the local Supabase/Postgres container (use the `SUPABASE_DB_*` vars). No automatic migrations will run against Supabase.
-- Prod: configure deployments to use the `*_PROD` Supabase settings. Do **not** auto-run migrations against prod.
+### 4. Install dependencies
 
----
+```bash
+npm install --prefix backend
+npm install --prefix frontend
+```
 
-## Running the Application
+### 5. Run migrations
 
-You need two terminals — one for the backend, one for the frontend.
+```bash
+npm run migrate --prefix backend
+```
 
-### Terminal 1 — Backend (port 3001)
+(Currently no migrations to run, but this ensures the setup works.)
+
+### 6. Start the app
+
+Open **two terminals**, both from the project root:
+
+**Terminal 1 — Backend (port 3001):**
+
+```bash
+npm run dev --prefix backend
+```
+
+**Terminal 2 — Frontend (port 5173):**
+
+```bash
+npm run dev --prefix frontend
+```
+
+Then open your browser to `http://localhost:5173`. All `/api/*` requests are automatically proxied to the backend.
+
+### Stopping and resuming
+
+When you're done developing:
+
 ```bash
 cd backend
-npm run dev
+supabase stop
+cd ..
 ```
 
-### Terminal 2 — Frontend (port 5173)
-```bash
-cd frontend
-npm run dev
-```
-
-Then open your browser to:
-
-```text
-http://localhost:5173
-```
-
-All `/api/*` requests from the frontend are automatically proxied to `http://localhost:3001` by Vite.
+When resuming, run `supabase start` again from `backend/` (step 2). Your data is preserved between sessions. The Database URL and keys stay the same.
 
 ---
 
 ## Migrations (how to create and run)
 
-1. Make sure `backend/.env` has the right `DATABASE_URL` (local Docker or Supabase).
-2. Create a new migration (example name):
+1. Make sure `backend/.env` has the right `DATABASE_URL` (local or prod).
+2. Create a new migration (from project root):
+
    ```bash
-   cd backend
-   npm run migrate:create -- add-quiz-results-table
+   npm run migrate:create --prefix backend -- add-quiz-results-table
    ```
+
    This creates `backend/migrations/<timestamp>-add-quiz-results-table.js`.
 3. Edit the new file and add your `exports.up`/`exports.down` changes (tables/columns).
-4. Run migrations against the current `DATABASE_URL` target:
+4. Run migrations:
+
    ```bash
-   npm run migrate
+   npm run migrate --prefix backend
    ```
-   - If `DATABASE_URL` points to prod, this runs on prod. If it points to local Docker, it runs locally.
-5. Commit the migration file (but do not commit `backend/.env`).
+
+   Runs against whatever `DATABASE_URL` is set to in `backend/.env`. If it points to prod, it runs on prod. If local, it runs locally.
+5. Commit the migration file (but do **not** commit `backend/.env`).
 
 ---
 
 ## Linking to the remote Supabase project (owner only)
 
-What linking does:
+**What linking does:**
+
 - Connects the Supabase CLI to a specific Supabase project so you can push migrations/seeds to that project via CLI.
 
-Who should do this:
+**Who should do this:**
+
 - Only one responsible person or CI. Non-technical teammates running locally should NOT link.
 
-How to link (owner/CI):
+**How to link (owner/CI):**
+
 1. Install Supabase CLI and log in: `supabase login` (opens browser for token).
 2. From the repo root, link the project: `supabase link --project-ref <your_project_ref>`.
-3. After linking, push migrations when needed (with prod `DATABASE_URL` set in env/CI): `cd backend && npm run migrate` or `supabase db push`.
+3. After linking, push migrations when needed (with prod `DATABASE_URL` set in env/CI): `npm run migrate --prefix backend` or `supabase db push`.
 
-Responsibilities of the linking owner:
+**Responsibilities of the linking owner:**
+
 - Keep the project ref/credentials secure; do not commit secrets.
 - Only run migrations on prod/stage when intended; double-check `DATABASE_URL`/context before running.
 - Inform the team which database is linked and when migrations were applied.
@@ -208,7 +205,7 @@ Set these in your hosting/CI secrets (do not commit to git):
 - `SUPABASE_SECRET_KEY`: Supabase Secret key (server-side only).
 - Optional: `SUPABASE_PUBLISHABLE_KEY` if any client surface needs it (keep out of git anyway).
 
-Migrations: run `cd backend && npm run migrate` in a linked/authorized context with these prod secrets set. Do not auto-run migrations on deploy unless you intentionally add that step.
+Migrations: run `npm run migrate --prefix backend` in a linked/authorized context with these prod secrets set. Do not auto-run migrations on deploy unless you intentionally add that step.
 
 ---
 
@@ -223,8 +220,8 @@ JobHarmony/
 │   │   │   ├── quiz.ts       ← GET/POST /api/quiz
 │   │   │   ├── jobs.ts       ← GET /api/jobs
 │   │   │   └── recruit.ts    ← GET /api/recruit
-│   │   ├── data/             ← In-memory or SQLite data access
-│   │   ├── db/               ← SQLite database file
+│   │   ├── data/             ← Seed / static data
+│   │   ├── db/               ← Supabase client (REST API)
 │   │   └── types/            ← Shared TypeScript interfaces
 │   ├── package.json
 │   └── tsconfig.json
@@ -239,8 +236,5 @@ JobHarmony/
 │   ├── vite.config.ts        ← Dev server + API proxy config
 │   ├── package.json
 │   └── tsconfig.json
-├── db/
-│   ├── schema.sql            ← Human-readable schema reference
-│   └── seed.sql              ← Sample INSERT statements
 └── README.md
 ```
