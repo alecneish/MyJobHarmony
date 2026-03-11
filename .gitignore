@@ -7,6 +7,16 @@ obj/
 *.dll
 *.exe
 
+## Node
+node_modules/
+dist/
+*.local
+
+## Environment
+.env
+.env.local
+.env.*.local
+
 ## IDE
 .idea/
 .vs/
