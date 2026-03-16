@@ -1,15 +1,62 @@
-export interface QuizOption {
-  id: number;
-  questionId: number;
-  label: string;
-  trait: string;
-  weight: number;
-}
-
 export interface QuizQuestion {
   id: number;
-  questionText: string;
-  options: QuizOption[];
+  text: string;
+  dimension: string;
+  subdimension: string;
+  section: string;
+  sectionOrder: number;
+  questionFormat: string;
+  isReverseScored: boolean;
+  weight: number;
+  tier: string;
+}
+
+export interface QuizResponse {
+  questionId: number;
+  answerValue: number; // 1–5
+}
+
+export interface DimensionScore {
+  dimension: string;
+  subdimension: string;
+  rawScore: number;
+  normalizedScore: number;
+}
+
+export interface CareerProfile {
+  id: number;
+  title: string;
+  description: string;
+  // OCEAN
+  openness: number;
+  conscientiousness: number;
+  extraversion: number;
+  agreeableness: number;
+  emotionalStability: number;
+  // RIASEC
+  realistic: number;
+  investigative: number;
+  artistic: number;
+  social: number;
+  enterprising: number;
+  conventional: number;
+  // Values
+  autonomy: number;
+  security: number;
+  challenge: number;
+  service: number;
+  workLifeBalance: number;
+  // Environment
+  pace: number;
+  collaboration: number;
+  structure: number;
+}
+
+export interface CareerMatch {
+  careerProfileId: number;
+  title: string;
+  matchScore: number;
+  rank: number;
 }
 
 export interface Job {
@@ -44,13 +91,7 @@ export interface Applicant {
 }
 
 export interface QuizResultDto {
-  openness: number;
-  conscientiousness: number;
-  extraversion: number;
-  agreeableness: number;
-  emotionalStability: number;
-  dominantTrait: string;
-  motivationType: string;
+  responses: QuizResponse[];
 }
 
 export interface PersonalityResult {
