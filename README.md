@@ -6,6 +6,15 @@ JobHarmony is a career matching platform that helps people find jobs that fit wh
 
 ---
 
+## Working Features
+
+- Career personality quiz with progress tracking and results visualization (`/quiz` → `/quiz/results`).
+- Quiz interface playground that demonstrates every common HTML form question/answer type in one page (`/quiz/interface`).
+- Job browsing with fit badges and saved jobs (`/jobs`, `/jobs/saved`).
+- Recruiter view of recommended candidates (`/recruit`).
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -173,7 +182,7 @@ When resuming, run `npx supabase start` again from `backend/` (step 3). Your dat
 ---
 
 ## Linking to the remote Supabase project (owner only)
-
+Yes, just commit them.
 **What linking does:**
 
 - Connects the Supabase CLI to a specific Supabase project so you can push migrations/seeds to that project via CLI.
