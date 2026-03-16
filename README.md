@@ -125,7 +125,7 @@ Open `backend/.env` and fill in these values using the output from step 3:
 npm run migrate --prefix backend
 ```
 
-(Currently no migrations to run, but this ensures the setup works.)
+This runs the scoring engine migration (`20260316000000_scoring_engine.sql`) which creates the `quiz_sessions`, `quiz_responses`, `dimension_scores`, `career_matches`, and `career_profiles` tables.
 
 ### 6. Start the app
 
@@ -218,6 +218,157 @@ Migrations: run `npm run migrate --prefix backend` in a linked/authorized contex
 
 ---
 
+## Scoring Engine
+
+The scoring system lives entirely in `backend/src/` and is the core of how JobHarmony matches users to careers. Here is everything you need to understand or extend it.
+
+### How it works (end-to-end)
+
+```
+User answers quiz (1–5 per question)
+        ↓
+POST /api/quiz/submit  { responses: [{questionId, answerValue}] }
+        ↓
+scoringEngine.ts  → dimension scores (subdimension + aggregate)
+        ↓
+careerMatchingService.ts  → top 15 career matches (ranked)
+        ↓
+Supabase  → persists session, responses, scores, matches
+        ↓
+Response: { sessionId, dimensionScores, careerMatches }
+```
+
+### Question format
+
+Questions are defined in `backend/src/data/seedData.ts`. Each is a Likert-scale (1–5) statement. Key fields:
+
+| Field | Type | Purpose |
+| --- | --- | --- |
+| `id` | `number` | Used to link a response to a question |
+| `dimension` | `string` | Top-level trait (e.g. `"Openness"`, `"Realistic"`, `"Autonomy"`) |
+| `subdimension` | `string` | Facet within the dimension (empty string `""` for single-facet dimensions) |
+| `isReverseScored` | `boolean` | If true, answer is flipped: `value = 6 - value` before scoring |
+| `weight` | `number` | Multiplier applied when computing weighted average (most are `1.0`) |
+| `tier` | `"Free"` \| `"Premium"` | Informational only — all questions are scored the same way |
+
+There are 62 questions across 4 sections and 18 dimensions. All 4 sections must be answered for a complete profile. You can submit a partial set — missing dimensions simply won't appear in the output.
+
+### Dimensions
+
+There are 18 scored dimensions organized into 4 categories. The category name controls the weight applied during career matching:
+
+| Category | Weight | Dimensions |
+| --- | --- | --- |
+| RIASEC | 1.2 | Realistic, Investigative, Artistic, Social, Enterprising, Conventional |
+| OCEAN | 1.0 | Openness, Conscientiousness, Extraversion, Agreeableness, EmotionalStability |
+| Values | 0.8 | Autonomy, Security, Challenge, Service, WorkLifeBalance |
+| Environment | 0.6 | Pace, Collaboration, Structure |
+
+### Scoring pipeline (`scoringEngine.ts`)
+
+1. For each response, look up the question's `isReverseScored` and `weight`.
+2. Apply reverse scoring if needed: `adjustedValue = isReverseScored ? 6 - answerValue : answerValue`
+3. Compute a **weighted average** per `(dimension, subdimension)` group:
+   `rawAvg = Σ(adjustedValue × weight) / Σ(weight)`
+4. **Normalize** to 0–100: `normalizedScore = ((rawAvg - 1.0) / 4.0) × 100`
+5. **Roll up**: average all subdimension scores within a dimension to produce an aggregate score (`subdimension = ""`). These aggregate scores are what career matching uses.
+
+Output is an array of `DimensionScore` objects — one per subdimension plus one aggregate per dimension.
+
+### Career matching pipeline (`careerMatchingService.ts`)
+
+1. Filter scores to aggregates only (`subdimension === ""`).
+2. Build a **user vector**: `{ [dimension]: { value: normalizedScore, weight: categoryWeight } }`
+3. For each of the 66 career profiles, build a **career vector** with the same structure.
+4. Compute **weighted Euclidean distance**:
+   `distance = √( Σ(weight × diff²) / Σ(weight) )`
+5. Convert to a **match percentage**:
+   `matchScore = max(0, (1 - distance / 100) × 100)`
+6. Sort descending by `matchScore`, assign `rank`, return top 15.
+
+### Career profiles (`backend/src/data/careerProfiles.ts`)
+
+66 profiles spanning Technology, Healthcare, Business, Creative, Education, Trades, Public Service, Science, Media, and Transportation. Each profile is a pre-defined vector of all 18 dimension scores (0–100 scale) representing the "ideal" trait profile for that career.
+
+To add a career: append an object to the array in `getCareerProfiles()`. All 18 dimension fields are required.
+
+### API contract
+
+**Submit quiz responses**
+
+```
+POST /api/quiz/submit
+Content-Type: application/json
+
+{
+  "responses": [
+    { "questionId": 1, "answerValue": 4 },
+    { "questionId": 2, "answerValue": 2 },
+    ...
+  ],
+  "userId": "optional-uuid"   // omit for anonymous sessions
+}
+```
+
+**Success response (200)**
+
+```json
+{
+  "success": true,
+  "sessionId": "uuid",
+  "dimensionScores": [
+    {
+      "dimension": "Openness",
+      "subdimension": "OpennessToIdeas",
+      "rawScore": 3.5,
+      "normalizedScore": 62.5
+    },
+    {
+      "dimension": "Openness",
+      "subdimension": "",
+      "rawScore": 3.5,
+      "normalizedScore": 62.5
+    },
+    ...
+  ],
+  "careerMatches": [
+    { "careerProfileId": 3, "title": "UX Designer", "matchScore": 87.4, "rank": 1 },
+    { "careerProfileId": 1, "title": "Software Developer", "matchScore": 83.1, "rank": 2 },
+    ...
+  ]
+}
+```
+
+If Supabase is unavailable, `sessionId` will be `null` but scores and matches are still returned.
+
+**Validation rules:**
+- `responses` must be a non-empty array
+- `answerValue` must be an integer between 1 and 5 (inclusive)
+- Unknown `questionId` values are silently ignored
+
+**Get questions**
+
+```
+GET /api/quiz/questions
+```
+
+Returns all 62 questions. Use `tier` to decide which to show (Free = shorter quiz, all = full quiz).
+
+### Database tables (migration: `backend/supabase/migrations/20260316000000_scoring_engine.sql`)
+
+| Table | Purpose |
+| --- | --- |
+| `quiz_sessions` | One row per quiz attempt; optionally tied to a `user_id` |
+| `quiz_responses` | Raw answers: `question_id` + `answer_value` per session |
+| `dimension_scores` | Computed scores: both subdimension and aggregate rows |
+| `career_matches` | Top-ranked career matches with `match_score` and `rank` |
+| `career_profiles` | Reference table for career metadata (mirrors `careerProfiles.ts`) |
+
+To apply the migration locally: `cd backend && npx supabase db push`
+To apply to production: run the SQL in the Supabase dashboard or via a linked CLI push.
+
+---
+
 ## Project Structure
 
 ```
@@ -229,9 +380,17 @@ JobHarmony/
 │   │   │   ├── quiz.ts       ← GET/POST /api/quiz
 │   │   │   ├── jobs.ts       ← GET /api/jobs
 │   │   │   └── recruit.ts    ← GET /api/recruit
-│   │   ├── data/             ← Seed / static data
+│   │   ├── data/
+│   │   │   ├── seedData.ts       ← Quiz questions (Likert) + jobs/applicants
+│   │   │   └── careerProfiles.ts ← 66 career profiles with 18 dimension scores each
+│   │   ├── services/
+│   │   │   ├── scoringEngine.ts        ← Weighted avg + normalize + roll-up
+│   │   │   └── careerMatchingService.ts← Weighted Euclidean distance + ranking
 │   │   ├── db/               ← Supabase client (REST API)
 │   │   └── types/            ← Shared TypeScript interfaces
+│   ├── supabase/
+│   │   └── migrations/
+│   │       └── 20260316000000_scoring_engine.sql
 │   ├── package.json
 │   └── tsconfig.json
 ├── frontend/
