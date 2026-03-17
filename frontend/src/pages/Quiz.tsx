@@ -41,6 +41,7 @@ export default function Quiz() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<number, Answer>>({});
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,6 +79,9 @@ export default function Quiz() {
   }
 
   function computeAndSave() {
+    if (submitting) return;
+    setSubmitting(true);
+
     const traits: Record<string, number> = {
       openness: 0, conscientiousness: 0, extraversion: 0,
       agreeableness: 0, emotionalStability: 0,
@@ -203,10 +207,10 @@ export default function Quiz() {
         <button
           className="jh-btn-primary"
           id="jh-quiz-next"
-          disabled={!currentAnswer}
+          disabled={!currentAnswer || submitting}
           onClick={next}
         >
-          {current >= total - 1 ? 'See Results' : 'Next →'}
+          {submitting ? 'Submitting…' : current >= total - 1 ? 'See Results' : 'Next →'}
         </button>
       </div>
     </div>
