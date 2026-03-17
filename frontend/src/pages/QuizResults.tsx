@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { QuizResults } from '../types';
 
 const DEFAULT_RESULT: QuizResults = {
@@ -25,6 +25,7 @@ export default function QuizResults() {
   const [results, setResults] = useState<QuizResults>(DEFAULT_RESULT);
   const [barsAnimated, setBarsAnimated] = useState(false);
   const animationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const stored = localStorage.getItem('jh-quiz-results');
@@ -44,6 +45,11 @@ export default function QuizResults() {
       if (animationTimer.current) clearTimeout(animationTimer.current);
     };
   }, []);
+
+  function handleRetake() {
+    localStorage.removeItem('jh-quiz-results');
+    navigate('/quiz');
+  }
 
   return (
     <div className="jh-results-container">
@@ -76,8 +82,9 @@ export default function QuizResults() {
         })}
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
+      <div style={{ textAlign: 'center', marginTop: '2.5rem', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link to="/jobs" className="jh-btn-primary">Browse Matching Jobs →</Link>
+        <button className="jh-btn-secondary" onClick={handleRetake}>Retake Quiz</button>
       </div>
     </div>
   );
