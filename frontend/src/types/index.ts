@@ -38,6 +38,13 @@ export interface Applicant {
   title: string;
 }
 
+export interface CareerMatch {
+  careerProfileId: number;
+  title: string;
+  matchScore: number;
+  rank: number;
+}
+
 export interface QuizResults {
   openness: number;
   conscientiousness: number;
@@ -47,6 +54,7 @@ export interface QuizResults {
   motivationType: string;
   motivationDescription: string;
   motivationIcon: string;
+  careerMatches?: CareerMatch[];
 }
 
 export interface SnackbarState {

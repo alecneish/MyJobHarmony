@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { QuizQuestion, QuizResults } from '../types';
+import { QuizQuestion, QuizResults, CareerMatch } from '../types';
 import { showSnackbar } from '../components/Snackbar';
 
 const LIKERT_OPTIONS = [
@@ -113,7 +113,7 @@ export default function Quiz() {
       body: JSON.stringify({ responses }),
     })
       .then((r) => r.json())
-      .then((data: { success: boolean; dimensionScores: DimensionScore[] }) => {
+      .then((data: { success: boolean; dimensionScores: DimensionScore[]; careerMatches: CareerMatch[] }) => {
         const oceanScores = buildOceanScores(data.dimensionScores ?? []);
         const dominantTrait = Object.keys(oceanScores).reduce((a, b) =>
           oceanScores[b] > oceanScores[a] ? b : a
@@ -129,6 +129,7 @@ export default function Quiz() {
           motivationType: motivation.type,
           motivationDescription: motivation.description,
           motivationIcon: motivation.icon,
+          careerMatches: data.careerMatches ?? [],
         };
 
         localStorage.setItem('jh-quiz-results', JSON.stringify(quizResults));
