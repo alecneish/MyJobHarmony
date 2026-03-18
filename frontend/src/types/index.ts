@@ -74,3 +74,12 @@ export interface RecruitApiResponse {
   recommendedApplicants: Applicant[];
   allApplicants: Applicant[];
 }
+
+// Auth (frontend-only demo)
+export type UserRole = 'candidate' | 'recruiter';
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  role: UserRole;
+}
