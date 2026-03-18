@@ -1,103 +1,124 @@
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { showSnackbar } from '../components/Snackbar';
-import { Link } from 'react-router-dom';
 
 export default function Signup() {
-  const { signUp, loading } = useAuth();
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  const [role, setRole] = useState<'recruiter' | 'candidate'>('candidate');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
-  const [role, setRole] = useState<'recruiter' | 'candidate'>('candidate');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (submitting) return;
+    setError(null);
     setSubmitting(true);
     try {
-      await signUp(email, password, username, role);
-      showSnackbar('Account created — check email if confirmations are enabled');
-      // Reset form
-      setEmail('');
-      setPassword('');
-      setUsername('');
-      setRole('candidate');
-    } catch (err: any) {
-      showSnackbar(err?.message ?? 'Sign up failed');
+      await auth.signUp(email, password, '', role); // username can be empty for now
+      // Navigate based on role after successful signup
+      if (role === 'recruiter') {
+        navigate('/recruit');
+      } else {
+        navigate('/jobs');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Sign up failed');
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="jh-auth">
-      <div className="jh-section-header" style={{ marginBottom: '1.5rem' }}>
-        <h2>Create Account</h2>
-        <p>Join JobHarmony and find your perfect career match.</p>
-      </div>
+    <div className="jh-auth-container">
+      <div className="jh-auth-card">
+        <div className="jh-section-header" style={{ marginBottom: '1.25rem' }}>
+          <h2>Create an account</h2>
+          <p>Enter your details, then choose whether you're a candidate or a recruiter.</p>
+        </div>
 
-      <div className="jh-card" style={{ padding: '1.5rem', maxWidth: '400px', margin: '0 auto' }}>
-        <form onSubmit={handleSubmit} className="jh-form" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <label className="jh-label">
-            Email
+        {error && (
+          <div className="jh-auth-error" role="alert">
+            {error}
+          </div>
+        )}
+
+        <form className="jh-auth-form" onSubmit={handleSubmit}>
+          <label className="jh-field">
+            <span>Email</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
               required
-              placeholder="you@example.com"
             />
           </label>
-          <label className="jh-label">
-            Username
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              placeholder="Choose a username"
-            />
-          </label>
-          <label className="jh-label">
-            Password
+
+          <label className="jh-field">
+            <span>Password</span>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
               required
-              placeholder="At least 6 characters"
-              minLength={6}
             />
+            <small>Minimum 6 characters.</small>
           </label>
-          <label className="jh-label">
-            I am a...
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value as 'recruiter' | 'candidate')}
-              required
-              style={{ width: '100%', padding: '0.5rem', border: '1px solid #ddd', borderRadius: '4px' }}
-            >
-              <option value="candidate">Candidate (Looking for jobs)</option>
-              <option value="recruiter">Recruiter (Hiring talent)</option>
-            </select>
-          </label>
-          <button className="jh-btn-primary" type="submit" disabled={submitting || loading}>
-            {submitting ? 'Creating account…' : 'Create Account'}
-          </button>
-        </form>
-        
-        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          <p style={{ marginBottom: '0.5rem' }}>
-            Already have an account?{' '}
-            <Link to="/login" className="jh-link">
-              Sign in
+
+          <div className="jh-field">
+            <span>Role</span>
+            <div className="jh-role-grid">
+              <label
+                className={
+                  'jh-role-card' + (role === 'candidate' ? ' selected' : '')
+                }
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value="candidate"
+                  checked={role === 'candidate'}
+                  onChange={() => setRole('candidate')}
+                />
+                <div className="jh-role-title">Candidate</div>
+                <div className="jh-role-body">
+                  I'm looking for roles that fit my personality and work style.
+                </div>
+              </label>
+
+              <label
+                className={
+                  'jh-role-card' + (role === 'recruiter' ? ' selected' : '')
+                }
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value="recruiter"
+                  checked={role === 'recruiter'}
+                  onChange={() => setRole('recruiter')}
+                />
+                <div className="jh-role-title">Recruiter</div>
+                <div className="jh-role-body">
+                  I'm hiring and want to see candidates that match my team.
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div className="jh-auth-actions">
+            <button className="jh-btn-primary" type="submit" disabled={submitting}>
+              {submitting ? 'Creating…' : 'Sign up'}
+            </button>
+            <Link to="/login" className="jh-btn-outline">
+              I already have an account
             </Link>
-          </p>
-          <Link to="/" className="jh-link" style={{ fontSize: '0.9rem' }}>
-            ← Back to Home
-          </Link>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );

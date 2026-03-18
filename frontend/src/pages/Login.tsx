@@ -1,74 +1,81 @@
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { showSnackbar } from '../components/Snackbar';
-import { Link } from 'react-router-dom';
 
 export default function Login() {
-  const { signIn, loading } = useAuth();
+  const auth = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (submitting) return;
+    setError(null);
     setSubmitting(true);
     try {
-      await signIn(email, password);
-      showSnackbar('Signed in successfully');
-    } catch (err: any) {
-      showSnackbar(err?.message ?? 'Sign in failed');
+      await auth.signIn(email, password);
+      // Navigate based on user role from profile
+      if (auth.userProfile?.role === 'recruiter') {
+        navigate('/recruit');
+      } else {
+        navigate('/jobs');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="jh-auth">
-      <div className="jh-section-header" style={{ marginBottom: '1.5rem' }}>
-        <h2>Sign In</h2>
-        <p>Welcome back! Sign in to your JobHarmony account.</p>
-      </div>
+    <div className="jh-auth-container">
+      <div className="jh-auth-card">
+        <div className="jh-section-header" style={{ marginBottom: '1.25rem' }}>
+          <h2>Log in</h2>
+          <p>Welcome back. Enter your email and password to continue.</p>
+        </div>
 
-      <div className="jh-card" style={{ padding: '1.5rem', maxWidth: '400px', margin: '0 auto' }}>
-        <form onSubmit={handleSubmit} className="jh-form" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <label className="jh-label">
-            Email
+        {error && (
+          <div className="jh-auth-error" role="alert">
+            {error}
+          </div>
+        )}
+
+        <form className="jh-auth-form" onSubmit={handleSubmit}>
+          <label className="jh-field">
+            <span>Email</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
               required
-              placeholder="you@example.com"
             />
           </label>
-          <label className="jh-label">
-            Password
+
+          <label className="jh-field">
+            <span>Password</span>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               required
-              placeholder="Enter your password"
-              minLength={6}
             />
+            <small>For this demo, accounts are stored in Supabase.</small>
           </label>
-          <button className="jh-btn-primary" type="submit" disabled={submitting || loading}>
-            {submitting ? 'Signing in…' : 'Sign In'}
-          </button>
-        </form>
-        
-        <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          <p style={{ marginBottom: '0.5rem' }}>
-            Don't have an account?{' '}
-            <Link to="/signup" className="jh-link">
-              Sign up
+
+          <div className="jh-auth-actions">
+            <button className="jh-btn-primary" type="submit" disabled={submitting}>
+              {submitting ? 'Logging in…' : 'Log in'}
+            </button>
+            <Link to="/signup" className="jh-btn-outline">
+              Create account
             </Link>
-          </p>
-          <Link to="/" className="jh-link" style={{ fontSize: '0.9rem' }}>
-            ← Back to Home
-          </Link>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );
