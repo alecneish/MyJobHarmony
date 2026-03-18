@@ -5,6 +5,7 @@ import FilterPanel from '../components/FilterPanel';
 
 export default function Jobs() {
   const [data, setData] = useState<JobsApiResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
@@ -13,9 +14,26 @@ export default function Jobs() {
   const [renderKey, setRenderKey] = useState(0);
 
   useEffect(() => {
-    fetch('/api/jobs')
-      .then((r) => r.json())
-      .then((d: JobsApiResponse) => setData(d));
+    let cancelled = false;
+    (async () => {
+      try {
+        setError(null);
+        const r = await fetch('/api/jobs');
+        if (!r.ok) {
+          throw new Error(`Failed to load jobs (${r.status})`);
+        }
+        const d = (await r.json()) as JobsApiResponse;
+        if (!cancelled) setData(d);
+      } catch (e) {
+        if (!cancelled) {
+          setData({ jobs: [], allTags: [], allTypes: [], allLocations: [] });
+          setError(e instanceof Error ? e.message : 'Failed to load jobs');
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Re-render job cards when save state changes
@@ -52,6 +70,13 @@ export default function Jobs() {
         <h2>Job Listings</h2>
         <p>Jobs ranked by how well they match your personality profile.</p>
       </div>
+
+      {error && (
+        <div className="jh-empty-state" style={{ marginBottom: '1.5rem' }}>
+          <h3>Couldn’t load jobs</h3>
+          <p>{error}</p>
+        </div>
+      )}
 
       <div className="jh-search-bar">
         <input

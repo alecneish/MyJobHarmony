@@ -16,11 +16,29 @@ function getSavedIds(): string[] {
 export default function SavedJobs() {
   const [allJobs, setAllJobs] = useState<Job[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>(getSavedIds());
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/jobs')
-      .then((r) => r.json())
-      .then((d: JobsApiResponse) => setAllJobs(d.jobs));
+    let cancelled = false;
+    (async () => {
+      try {
+        setError(null);
+        const r = await fetch('/api/jobs');
+        if (!r.ok) {
+          throw new Error(`Failed to load jobs (${r.status})`);
+        }
+        const d = (await r.json()) as Partial<JobsApiResponse>;
+        if (!cancelled) setAllJobs(d.jobs ?? []);
+      } catch (e) {
+        if (!cancelled) {
+          setAllJobs([]);
+          setError(e instanceof Error ? e.message : 'Failed to load jobs');
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleSaveToggle = useCallback(() => {
@@ -35,6 +53,13 @@ export default function SavedJobs() {
         <h2>Saved Jobs</h2>
         <p>Jobs you've bookmarked for later.</p>
       </div>
+
+      {error && (
+        <div className="jh-empty-state" style={{ marginBottom: '1.5rem' }}>
+          <h3>Couldn’t load jobs</h3>
+          <p>{error}</p>
+        </div>
+      )}
 
       <div id="jh-saved-job-list">
         {savedJobs.map((job) => (
