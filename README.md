@@ -8,6 +8,7 @@ JobHarmony is a career matching platform that helps people find jobs that fit wh
 
 ## Working Features
 
+- **User Authentication**: Supabase Auth with role-based signup (recruiter/candidate), username storage, and secure login
 - Career personality quiz with progress tracking and results visualization (`/quiz` → `/quiz/results`).
 - Quiz interface playground that demonstrates every common HTML form question/answer type in one page (`/quiz/interface`).
 - Job browsing with fit badges and saved jobs (`/jobs`, `/jobs/saved`).
@@ -22,7 +23,7 @@ JobHarmony is a career matching platform that helps people find jobs that fit wh
 | Frontend | React 18, TypeScript, Vite, React Router |
 | Backend | Node.js, Express, TypeScript (ts-node-dev) |
 | Database | Supabase/Postgres (local + prod via REST API) |
-| Auth | Not yet implemented |
+| Auth | Supabase Auth with role-based signup (recruiter/candidate) |
 | External APIs | None |
 
 ---
@@ -125,12 +126,18 @@ Open `backend/.env` and fill in these values using the output from step 3:
 cp frontend/.env.example frontend/.env
 ```
 
-Fill these with the values from `npx supabase start` (local) or the hosted project (prod):
+**Fill these with the values from `npx supabase start` output:**
 
-| Variable | What it is |
-| --- | --- |
-| `VITE_SUPABASE_URL` | Supabase project URL (e.g., `http://127.0.0.1:54321` locally, `https://<project>.supabase.co` in prod) |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | **Publishable (anon) key** from Supabase → Settings → API |
+| Variable | What to put | Example (local) |
+| --- | --- | --- |
+| `VITE_SUPABASE_URL` | "APIs → Project URL" from supabase start output | `http://127.0.0.1:54321` |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | "Authentication Keys → Publishable" from supabase start output | `sb_publishable_...` |
+
+**⚠️ IMPORTANT:**
+
+- The frontend `.env` file uses `VITE_` prefix (required by Vite)
+- Use the **PUBLISHABLE** key, not the SECRET key in the frontend
+- Never commit the actual `.env` file - only commit `.env.example`
 
 ### 5. Run migrations
 
