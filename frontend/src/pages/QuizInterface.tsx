@@ -1,165 +1,215 @@
-import type { Option } from '../components/questions/QuestionComponents';
+import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import QuestionStepper, { QuestionDef } from '../components/questions/QuestionStepper';
+import type { QuizQuestion, QuizResults } from '../types';
 
-interface QuizFormState {
-  shortAnswer: string;
-  longAnswer: string;
-  roleType: string;
-  strengths: string[];
-  shift: string;
-  tools: string[];
-  experienceYears: number;
-  salaryRange: number;
-  startDate: string;
-  startTime: string;
-  interviewDateTime: string;
-  availableMonth: string;
-  availableWeek: string;
-  favoriteColor: string;
-  email: string;
-  phone: string;
-  portfolio: string;
-  secretPhrase: string;
-  resumeFile?: File | null;
-  newsletter: boolean;
-  location: string;
-  city: string;
-}
+const LIKERT_OPTIONS = [
+  { value: '1', label: 'Strongly Disagree' },
+  { value: '2', label: 'Disagree' },
+  { value: '3', label: 'Neutral' },
+  { value: '4', label: 'Agree' },
+  { value: '5', label: 'Strongly Agree' },
+];
 
-const initialState: QuizFormState = {
-  shortAnswer: '',
-  longAnswer: '',
-  roleType: 'product',
-  strengths: [],
-  shift: 'hybrid',
-  tools: [],
-  experienceYears: 3,
-  salaryRange: 80,
-  startDate: '',
-  startTime: '',
-  interviewDateTime: '',
-  availableMonth: '',
-  availableWeek: '',
-  favoriteColor: '#e67e22',
-  email: '',
-  phone: '',
-  portfolio: '',
-  secretPhrase: '',
-  resumeFile: null,
-  newsletter: true,
-  location: 'remote',
-  city: '',
+const INTEREST_OPTIONS = [
+  { value: '1', label: 'Not at all' },
+  { value: '2', label: 'Slightly' },
+  { value: '3', label: 'Moderately' },
+  { value: '4', label: 'Very' },
+  { value: '5', label: 'Extremely' },
+];
+
+const MOTIVATION_TYPES: Record<string, { type: string; description: string; icon: string }> = {
+  Openness: {
+    type: 'The Innovator',
+    description: "You thrive on creativity and new ideas. You're driven by curiosity and love exploring uncharted territory.",
+    icon: '💡',
+  },
+  Conscientiousness: {
+    type: 'The Achiever',
+    description: "You're goal-oriented and detail-driven. You find satisfaction in completing tasks with precision and excellence.",
+    icon: '🎯',
+  },
+  Extraversion: {
+    type: 'The Connector',
+    description: "You're energized by people and thrive in collaborative environments. Building relationships is your superpower.",
+    icon: '🤝',
+  },
+  Agreeableness: {
+    type: 'The Harmonizer',
+    description: "You're empathetic and cooperative. You excel at creating supportive environments where everyone can succeed.",
+    icon: '💚',
+  },
+  EmotionalStability: {
+    type: 'The Anchor',
+    description: "You're calm under pressure and bring stability to any team. Your resilience and composure inspire confidence.",
+    icon: '⚓',
+  },
 };
 
-const STRENGTH_OPTIONS = [
-  'Leadership',
-  'Communication',
-  'Problem solving',
-  'Creativity',
-  'Analytical thinking',
+const OCEAN_DIMENSIONS = ['Openness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'EmotionalStability'];
+
+const TRAITS: { key: keyof QuizResults; label: string }[] = [
+  { key: 'openness', label: 'Openness' },
+  { key: 'conscientiousness', label: 'Conscientiousness' },
+  { key: 'extraversion', label: 'Extraversion' },
+  { key: 'agreeableness', label: 'Agreeableness' },
+  { key: 'emotionalStability', label: 'Emotional Stability' },
 ];
 
-const TOOL_OPTIONS = ['Figma', 'Jira', 'Notion', 'Excel', 'SQL'];
-const CITY_OPTIONS: Option[] = [
-  { value: 'New York', label: 'New York' },
-  { value: 'San Francisco', label: 'San Francisco' },
-  { value: 'London', label: 'London' },
-  { value: 'Toronto', label: 'Toronto' },
-  { value: 'Singapore', label: 'Singapore' },
-];
+interface DimensionScore {
+  dimension: string;
+  subdimension: string;
+  rawScore: number;
+  normalizedScore: number;
+}
 
-const STEPPER_QUESTIONS: QuestionDef[] = [
-  { id: 'shortAnswer', title: 'Short answer', type: 'text', placeholder: 'What motivates you at work?', required: true },
-  { id: 'longAnswer', title: 'Long answer', type: 'textarea', placeholder: 'Share a brief story about a project you enjoyed.' },
-  {
-    id: 'roleType',
-    title: 'Role type',
-    type: 'select',
-    options: [
-      { value: 'product', label: 'Product' },
-      { value: 'design', label: 'Design' },
-      { value: 'engineering', label: 'Engineering' },
-      { value: 'marketing', label: 'Marketing' },
-      { value: 'operations', label: 'Operations' },
-    ],
-  },
-  {
-    id: 'strengths',
-    title: 'Primary strengths',
-    type: 'checkbox-chips',
-    options: STRENGTH_OPTIONS.map((s) => ({ value: s, label: s })),
-    helper: 'Pick one or more',
-  },
-  {
-    id: 'shift',
-    title: 'Preferred shift',
-    type: 'radio-chips',
-    options: ['onsite', 'remote', 'hybrid'].map((v) => ({ value: v, label: v })),
-    required: true,
-  },
-  {
-    id: 'tools',
-    title: 'Daily tools',
-    type: 'checkbox-chips',
-    options: TOOL_OPTIONS.map((tool) => ({ value: tool, label: tool })),
-  },
-  {
-    id: 'experienceYears',
-    title: 'Years of experience',
-    type: 'input',
-    inputType: 'number',
-    min: 0,
-    max: 40,
-  },
-  {
-    id: 'salaryRange',
-    title: 'Desired salary range (k)',
-    type: 'range',
-    min: 40,
-    max: 200,
-    step: 5,
-    displayValue: (v) => `$${v}k`,
-  },
-  { id: 'startDate', title: 'Earliest start date', type: 'input', inputType: 'date' },
-  { id: 'startTime', title: 'Preferred daily start', type: 'input', inputType: 'time' },
-  { id: 'interviewDateTime', title: 'Interview slot', type: 'input', inputType: 'datetime-local' },
-  { id: 'availableMonth', title: 'Available month', type: 'input', inputType: 'month' },
-  { id: 'availableWeek', title: 'Available week', type: 'input', inputType: 'week' },
-  { id: 'email', title: 'Email', type: 'input', inputType: 'email', placeholder: 'you@example.com', required: true },
-  { id: 'phone', title: 'Phone', type: 'input', inputType: 'tel', placeholder: '(555) 123-4567' },
-  { id: 'portfolio', title: 'Portfolio URL', type: 'input', inputType: 'url', placeholder: 'https://your-site.com' },
-  { id: 'secretPhrase', title: 'Secret phrase', type: 'input', inputType: 'password' },
-  { id: 'favoriteColor', title: 'Accent color', type: 'input', inputType: 'color' },
-  { id: 'city', title: 'Preferred office city', type: 'datalist', options: CITY_OPTIONS, placeholder: 'Start typing...' },
-  { id: 'resumeFile', title: 'Upload resume', type: 'file', helper: '.pdf, .doc, .docx' },
-  { id: 'newsletter', title: 'Send me interview prep tips', type: 'toggle' },
-  {
-    id: 'location',
-    title: 'Location preference',
-    type: 'radio-chips',
-    options: [
-      { value: 'remote', label: 'Remote' },
-      { value: 'in-office', label: 'In-office' },
-    ],
-    required: true,
-  },
-];
+function buildOceanScores(dimensionScores: DimensionScore[]): Record<string, number> {
+  const totals: Record<string, number[]> = {};
+  for (const dim of OCEAN_DIMENSIONS) totals[dim] = [];
+  for (const ds of dimensionScores) {
+    if (ds.dimension in totals) totals[ds.dimension].push(ds.normalizedScore);
+  }
+  const result: Record<string, number> = {};
+  for (const dim of OCEAN_DIMENSIONS) {
+    const scores = totals[dim];
+    result[dim] = scores.length > 0
+      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+      : 50;
+  }
+  return result;
+}
 
 export default function QuizInterface() {
+  const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
+  const [stepperQuestions, setStepperQuestions] = useState<QuestionDef[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [results, setResults] = useState<QuizResults | null>(null);
+  const [barsAnimated, setBarsAnimated] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const animationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    fetch('/api/quiz/questions')
+      .then(r => r.json())
+      .then((data: QuizQuestion[]) => {
+        setQuizQuestions(data);
+        setStepperQuestions(data.map(q => ({
+          id: String(q.id),
+          title: q.text,
+          type: 'radio-chips' as const,
+          options: q.questionFormat === 'Interest' ? INTEREST_OPTIONS : LIKERT_OPTIONS,
+          required: true,
+        })));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+
+    return () => {
+      if (animationTimer.current) clearTimeout(animationTimer.current);
+    };
+  }, []);
+
+  function handleComplete(answers: Record<string, unknown>) {
+    if (submitting) return;
+    setSubmitting(true);
+
+    const responses = quizQuestions.map(q => ({
+      questionId: q.id,
+      answerValue: Number(answers[String(q.id)] ?? 3),
+    }));
+
+    fetch('/api/quiz/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ responses }),
+    })
+      .then(r => r.json())
+      .then((data: { success: boolean; dimensionScores: DimensionScore[] }) => {
+        const oceanScores = buildOceanScores(data.dimensionScores ?? []);
+        const dominantTrait = Object.keys(oceanScores).reduce((a, b) =>
+          oceanScores[b] > oceanScores[a] ? b : a
+        );
+        const motivation = MOTIVATION_TYPES[dominantTrait] ?? MOTIVATION_TYPES.Openness;
+
+        setResults({
+          openness: oceanScores.Openness,
+          conscientiousness: oceanScores.Conscientiousness,
+          extraversion: oceanScores.Extraversion,
+          agreeableness: oceanScores.Agreeableness,
+          emotionalStability: oceanScores.EmotionalStability,
+          motivationType: motivation.type,
+          motivationDescription: motivation.description,
+          motivationIcon: motivation.icon,
+        });
+
+        animationTimer.current = setTimeout(() => setBarsAnimated(true), 300);
+        setSubmitting(false);
+      })
+      .catch(() => setSubmitting(false));
+  }
+
+  function handleRetake() {
+    setResults(null);
+    setBarsAnimated(false);
+  }
+
+  if (loading) {
+    return (
+      <div className="jh-quiz-container" style={{ textAlign: 'center', padding: '4rem' }}>
+        <p>Loading quiz...</p>
+      </div>
+    );
+  }
+
+  if (results) {
+    return (
+      <div className="jh-results-container">
+        <div className="jh-motivation-card">
+          <span className="jh-motivation-icon">{results.motivationIcon}</span>
+          <h1>{results.motivationType}</h1>
+          <p>{results.motivationDescription}</p>
+        </div>
+
+        <div className="jh-traits-card">
+          <h3>Your Personality Profile</h3>
+          {TRAITS.map(({ key, label }) => {
+            const value = results[key] as number;
+            return (
+              <div key={key} className="jh-trait-row">
+                <div className="jh-trait-label">
+                  <span>{label}</span>
+                  <span className="jh-trait-value">{value}%</span>
+                </div>
+                <div className="jh-trait-bar">
+                  <div
+                    className="jh-trait-fill"
+                    style={{ width: barsAnimated ? `${value}%` : '0%' }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '2.5rem', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Link to="/jobs" className="jh-btn-primary">Browse Matching Jobs →</Link>
+          <button className="jh-btn-secondary" onClick={handleRetake}>Retake Quiz</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="jh-quiz-lab">
       <div className="jh-section-header" style={{ marginBottom: '1rem' }}>
-        <h2>Quiz Interface Shell</h2>
-        <p>
-          Outer interface that shows one question at a time. Swap in your own QuestionDef list and
-          onComplete handler to build the real quiz.
-        </p>
+        <h2>Career Personality Quiz</h2>
+        <p>Answer each question honestly — there are no right or wrong answers.</p>
       </div>
 
       <QuestionStepper
-        questions={STEPPER_QUESTIONS}
-        initialAnswers={{ ...initialState } as Record<string, unknown>}
-        onComplete={(answers) => console.info('Collected answers (hook up to your API):', answers)}
+        questions={stepperQuestions}
+        onComplete={handleComplete}
       />
     </div>
   );
