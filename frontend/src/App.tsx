@@ -15,13 +15,13 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/quiz/interface" element={<QuizInterface />} />
           <Route path="/quiz/results" element={<QuizResults />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/jobs/saved" element={<SavedJobs />} />
           <Route path="/recruit" element={<Recruit />} />
-          <Route path="/auth" element={<Auth />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -145,7 +145,7 @@ cp frontend/.env.example frontend/.env
 npm run migrate --prefix backend
 ```
 
-This runs the scoring engine migration (`20260316000000_scoring_engine.sql`) which creates the `quiz_sessions`, `quiz_responses`, `dimension_scores`, `career_matches`, and `career_profiles` tables.
+This pushes the SQL migrations in `backend/supabase/migrations/` into the running local Supabase database.
 
 ### 6. Start the app
 
@@ -188,15 +188,15 @@ When resuming, run `npx supabase start` again from `backend/` (step 3). Your dat
    npm run migrate:create --prefix backend -- add-quiz-results-table
    ```
 
-   This creates `backend/migrations/<timestamp>-add-quiz-results-table.js`.
-3. Edit the new file and add your `exports.up`/`exports.down` changes (tables/columns). (This is when to use claude code or cursor to help generate the SQL. Just give it the name of the migration file and it will generate the SQL that you request.)
-4. Run migrations:
+   This creates a new SQL migration under `backend/supabase/migrations/`.
+3. Edit the new SQL file and add your schema changes.
+4. Push migrations:
 
    ```bash
    npm run migrate --prefix backend
    ```
 
-   Runs against whatever `DATABASE_URL` is set to in `backend/.env`. If it points to prod, it runs on prod. If local, it runs locally.
+   This runs `supabase db push` against your local Supabase instance.
 5. Commit the migration file (but do **not** commit `backend/.env`).
 
 ---

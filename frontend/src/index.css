@@ -104,6 +104,38 @@ a:hover {
   height: 56px;
 }
 
+.jh-navbar-spacer {
+  flex: 1;
+}
+
+.jh-navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.jh-user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: var(--jh-gray-100);
+  border: 1px solid var(--jh-gray-200);
+  color: var(--jh-gray-700);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.jh-user-pill strong {
+  text-transform: capitalize;
+  color: var(--jh-gray-800);
+}
+
+.jh-user-pill-sep {
+  opacity: 0.7;
+}
+
 .jh-brand {
   font-family: "Playfair Display", serif;
   font-weight: 700;
@@ -721,6 +753,98 @@ a:hover {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem 1rem;
+}
+
+/* --- Auth Pages --- */
+.jh-auth-container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+.jh-auth-card {
+  background: var(--jh-white);
+  border-radius: var(--jh-radius-xl);
+  padding: 2rem;
+  box-shadow: var(--jh-shadow-md);
+  border: 1px solid var(--jh-gray-200);
+}
+
+.jh-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.jh-auth-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.jh-auth-error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #b91c1c;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--jh-radius-md);
+  font-weight: 600;
+  margin-bottom: 0.9rem;
+}
+
+.jh-role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.15rem;
+}
+
+.jh-role-card {
+  position: relative;
+  cursor: pointer;
+  padding: 1rem 1rem 1.1rem;
+  border-radius: var(--jh-radius-lg);
+  border: 1.5px solid var(--jh-gray-200);
+  background: var(--jh-gray-50);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: var(--jh-transition);
+}
+
+.jh-role-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.jh-role-icon {
+  font-size: 1.4rem;
+}
+
+.jh-role-title {
+  font-weight: 600;
+  font-size: 0.98rem;
+  color: var(--jh-gray-900);
+}
+
+.jh-role-body {
+  font-size: 0.86rem;
+  color: var(--jh-gray-600);
+}
+
+.jh-role-card:hover {
+  border-color: var(--jh-orange);
+  background: var(--jh-orange-50);
+  box-shadow: var(--jh-shadow-sm);
+}
+
+.jh-role-card.selected {
+  border-color: var(--jh-orange);
+  background: var(--jh-white);
+  box-shadow: var(--jh-shadow-md);
 }
 
 .jh-job-card {
