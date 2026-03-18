@@ -1,7 +1,9 @@
-import { Outlet, NavLink } from 'react-router-dom';
+import { Outlet, NavLink, Link } from 'react-router-dom';
 import Snackbar from './Snackbar';
+import { useAuth } from '../auth/AuthContext';
 
 export default function Layout() {
+  const auth = useAuth();
   return (
     <>
       <header>
@@ -52,6 +54,32 @@ export default function Layout() {
                 </NavLink>
               </li>
             </ul>
+
+            <div className="jh-navbar-spacer" />
+
+            <div className="jh-navbar-actions">
+              {auth.user ? (
+                <>
+                  <span className="jh-user-pill" title={auth.user.id}>
+                    <strong>{auth.user.role}</strong>
+                    <span className="jh-user-pill-sep">•</span>
+                    <span>{auth.user.email}</span>
+                  </span>
+                  <button className="jh-btn-secondary" onClick={() => auth.signOut()}>
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link className="jh-btn-secondary" to="/login">
+                    Login
+                  </Link>
+                  <Link className="jh-btn-primary" to="/signup">
+                    Sign up
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </nav>
       </header>
