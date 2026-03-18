@@ -56,14 +56,6 @@ export default function Layout() {
               </li>
               <li>
                 <NavLink
-                  to="/auth"
-                  className={({ isActive }) => 'jh-nav-link' + (isActive ? ' active' : '')}
-                >
-                  Account
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
                   to="/login"
                   className={({ isActive }) => 'jh-nav-link' + (isActive ? ' active' : '')}
                 >
