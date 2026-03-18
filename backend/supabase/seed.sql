@@ -120,55 +120,178 @@ insert into "Users" ("Email", "PasswordHash", "CreatedAt") values
 on conflict ("Email") do nothing;
 
 -- Applicants
-insert into "Applicants" ("UserId", "Name", "Initials", "AvatarColor", "Bio", "ResumeFitPercent", "PersonalityFitPercent", "Skills", "IsRecommended", "Title") values
-    (1, 'Sarah Chen',     'SC', '#E67E22', 'Senior UX designer passionate about human-centered design.',     94, 91, 'UX Design,Figma,User Research,Prototyping',           1, 'Senior UX Designer'),
-    (2, 'Marcus Johnson', 'MJ', '#3498DB', 'Product manager with 8 years of agile and SaaS experience.',    89, 87, 'Product Strategy,Agile,Data Analysis,Leadership',     1, 'Product Manager'),
-    (3, 'Emily Rodriguez','ER', '#2ECC71', 'Data scientist specializing in ML models and predictive analytics.', 92, 85, 'Python,TensorFlow,SQL,Statistics',               1, 'Data Scientist'),
-    (4, 'David Kim',      'DK', '#9B59B6', 'Full stack developer focused on React and Node.js ecosystems.',  88, 90, 'React,TypeScript,Node.js,GraphQL',                    1, 'Full Stack Developer'),
-    (5, 'Aisha Patel',    'AP', '#E74C3C', 'Community builder with a background in social media strategy.',  91, 88, 'Content Strategy,Social Media,Community Building,Events', 1, 'Community Manager')
-on conflict do nothing;
+insert into "Applicants" ("Id", "UserId", "Name", "Initials", "AvatarColor", "Bio", "ResumeFitPercent", "PersonalityFitPercent", "Skills", "IsRecommended", "Title") values
+    (1, 1, 'Sarah Chen',     'SC', '#E67E22', 'Senior UX designer passionate about human-centered design.',     94, 91, 'UX Design,Figma,User Research,Prototyping',           1, 'Senior UX Designer'),
+    (2, 2, 'Marcus Johnson', 'MJ', '#3498DB', 'Product manager with 8 years of agile and SaaS experience.',    89, 87, 'Product Strategy,Agile,Data Analysis,Leadership',     1, 'Product Manager'),
+    (3, 3, 'Emily Rodriguez','ER', '#2ECC71', 'Data scientist specializing in ML models and predictive analytics.', 92, 85, 'Python,TensorFlow,SQL,Statistics',               1, 'Data Scientist'),
+    (4, 4, 'David Kim',      'DK', '#9B59B6', 'Full stack developer focused on React and Node.js ecosystems.',  88, 90, 'React,TypeScript,Node.js,GraphQL',                    1, 'Full Stack Developer'),
+    (5, 5, 'Aisha Patel',    'AP', '#E74C3C', 'Community builder with a background in social media strategy.',  91, 88, 'Content Strategy,Social Media,Community Building,Events', 1, 'Community Manager'),
+    (6, null, 'James Wilson', 'JW', '#1ABC9C', null, 76, 72, 'Java,Spring Boot,Microservices,AWS', 0, 'Backend Developer'),
+    (7, null, 'Lisa Zhang',   'LZ', '#F39C12', null, 81, 78, 'Marketing,SEO,Google Ads,Analytics', 0, 'Digital Marketing Specialist'),
+    (8, null, 'Robert Taylor', 'RT', '#34495E', null, 73, 69, 'Project Management,Scrum,Jira,Risk Assessment', 0, 'Project Manager'),
+    (9, null, 'Nina Kowalski', 'NK', '#E91E63', null, 79, 82, 'Technical Writing,API Docs,Markdown,Git', 0, 'Technical Writer'),
+    (10, null, 'Carlos Mendez', 'CM', '#FF5722', null, 70, 75, 'Sales,CRM,Negotiation,Client Relations', 0, 'Business Development Rep'),
+    (11, null, 'Priya Sharma', 'PS', '#8BC34A', null, 84, 80, 'UI Design,Illustration,Branding,Adobe Suite', 0, 'Visual Designer')
+on conflict ("Id") do nothing;
 
 -- Jobs
-insert into "Jobs" ("Title", "Company", "LogoEmoji", "Location", "Salary", "Type", "Description", "PersonalityType", "FitScore", "FitLevel", "FitReason", "Tags", "PostedDaysAgo") values
-    ('Senior UX Designer',  'DesignCraft Studio', '🎨', 'San Francisco, CA', '$120k - $160k', 'Full-time',
+insert into "Jobs" ("Id", "Title", "Company", "LogoEmoji", "Location", "Salary", "Type", "Description", "PersonalityType", "FitScore", "FitLevel", "FitReason", "Tags", "PostedDaysAgo") values
+    (1, 'Senior UX Designer',  'DesignCraft Studio', '🎨', 'San Francisco, CA', '$120k - $160k', 'Full-time',
      'Lead the UX design process for a suite of enterprise SaaS products.',
      'The Innovator', 95, 'Excellent',
      'Your creative thinking and openness to new ideas align perfectly with this design-focused role.',
      'Design,UX,Creative,Remote-friendly', 2),
 
-    ('Product Manager', 'TechFlow Inc', '🚀', 'New York, NY', '$130k - $170k', 'Full-time',
+    (2, 'Product Manager', 'TechFlow Inc', '🚀', 'New York, NY', '$130k - $170k', 'Full-time',
      'Own the product roadmap and drive cross-functional execution for a B2B platform.',
      'The Achiever', 88, 'Great',
      'Your leadership skills and structured thinking make you a strong fit for product management.',
      'Product,Leadership,Strategy,Agile', 3),
 
-    ('Data Scientist', 'Analytics Pro', '📊', 'Remote', '$110k - $150k', 'Full-time',
+    (3, 'Data Scientist', 'Analytics Pro', '📊', 'Remote', '$110k - $150k', 'Full-time',
      'Build and deploy ML models that power our personalization engine.',
      'The Achiever', 82, 'Great',
      'Your analytical mindset and conscientiousness are ideal for data-driven decision making.',
      'Data,Python,Machine Learning,Analytics', 1),
 
-    ('Community Manager', 'SocialBuzz', '🌟', 'Austin, TX', '$70k - $90k', 'Full-time',
+    (4, 'Community Manager', 'SocialBuzz', '🌟', 'Austin, TX', '$70k - $90k', 'Full-time',
      'Grow and engage our online community across Discord, Reddit, and social media.',
      'The Harmonizer', 78, 'Good',
      'Your people skills and agreeableness make community building a natural strength.',
      'Community,Social Media,Marketing,Events', 5),
 
-    ('Frontend Developer', 'WebWorks Agency', '💻', 'Remote', '$100k - $140k', 'Contract',
+    (5, 'Frontend Developer', 'WebWorks Agency', '💻', 'Remote', '$100k - $140k', 'Contract',
      'Craft accessible, performant UI components for a portfolio of client web apps.',
      'The Innovator', 91, 'Excellent',
      'Your creativity and attention to detail are perfect for crafting beautiful user interfaces.',
-     'React,TypeScript,CSS,Frontend', 1)
-on conflict do nothing;
+     'React,TypeScript,CSS,Frontend', 1),
 
--- QuizQuestions
-insert into "QuizQuestions" ("QuestionText") values
-    ('When starting a new project, what excites you most?'),
-    ('How do you handle a stressful deadline?'),
-    ('What kind of work environment do you prefer?'),
-    ('When receiving critical feedback, you typically...'),
-    ('What motivates you most at work?')
-on conflict do nothing;
+    (6, 'HR Business Partner', 'PeopleFirst Corp', '🤝', 'Chicago, IL', '$90k - $120k', 'Full-time',
+     null,
+     null, 74, 'Good',
+     'Your empathy and interpersonal skills align well with human resources roles.',
+     'HR,People Ops,Culture,Talent', 7),
+
+    (7, 'Technical Writer', 'DocuMentor', '✍️', 'Remote', '$80k - $110k', 'Part-time',
+     null,
+     null, 85, 'Great',
+     'Your conscientiousness and clarity of thought are key assets for technical documentation.',
+     'Writing,Documentation,Technical,API', 4),
+
+    (8, 'Startup Co-Founder', 'VentureLab', '💡', 'San Francisco, CA', 'Equity-based', 'Full-time',
+     null,
+     null, 69, 'Moderate',
+     'Your openness to new experiences could thrive in a startup environment, though it requires high risk tolerance.',
+     'Startup,Entrepreneurship,Leadership,Innovation', 10)
+on conflict ("Id") do nothing;
+
+-- QuizQuestions (scoring-engine compatible)
+-- NOTE: ids must match `backend/src/data/seedData.ts` so submitted responses resolve correctly.
+insert into "QuizQuestions"
+  ("Id", "QuestionText", "Dimension", "Subdimension", "Section", "SectionOrder", "QuestionFormat", "IsReverseScored", "Weight", "Tier")
+values
+  (1, 'I enjoy exploring new ideas, even if they seem impractical at first.', 'Openness', 'OpennessToIdeas', 'Your Personality', 1, 'Likert', false, 1.0, 'Free'),
+  (2, 'I prefer sticking with what I know rather than trying unfamiliar approaches.', 'Openness', 'OpennessToIdeas', 'Your Personality', 2, 'Likert', true, 1.0, 'Free'),
+  (3, 'I am drawn to art, music, or creative expression.', 'Openness', 'Aesthetics', 'Your Personality', 3, 'Likert', false, 1.0, 'Premium'),
+  (4, 'I enjoy imagining how things could be different from how they are now.', 'Openness', 'Imagination', 'Your Personality', 4, 'Likert', false, 1.0, 'Premium'),
+
+  (5, 'I set high standards for myself and work hard to meet them.', 'Conscientiousness', 'AchievementStriving', 'Your Personality', 5, 'Likert', false, 1.0, 'Free'),
+  (6, 'I tend to leave tasks unfinished when something more interesting comes along.', 'Conscientiousness', 'SelfDiscipline', 'Your Personality', 6, 'Likert', true, 1.0, 'Free'),
+  (7, 'I like to plan things out in advance rather than being spontaneous.', 'Conscientiousness', 'Orderliness', 'Your Personality', 7, 'Likert', false, 1.0, 'Premium'),
+  (8, 'When I commit to something, I follow through no matter what.', 'Conscientiousness', 'Dutifulness', 'Your Personality', 8, 'Likert', false, 1.0, 'Premium'),
+
+  (9, 'I feel energized when I spend time around other people.', 'Extraversion', 'Warmth', 'Your Personality', 9, 'Likert', false, 1.0, 'Free'),
+  (10, 'I am comfortable taking charge and directing a group.', 'Extraversion', 'Assertiveness', 'Your Personality', 10, 'Likert', false, 1.0, 'Free'),
+  (11, 'I prefer quiet, solitary activities over busy social settings.', 'Extraversion', 'Gregariousness', 'Your Personality', 11, 'Likert', true, 1.0, 'Premium'),
+  (12, 'I seek out exciting experiences and enjoy a fast-paced life.', 'Extraversion', 'ExcitementSeeking', 'Your Personality', 12, 'Likert', false, 1.0, 'Premium'),
+
+  (13, 'I generally trust other people''s intentions.', 'Agreeableness', 'Trust', 'Your Personality', 13, 'Likert', false, 1.0, 'Free'),
+  (14, 'I prioritize harmony in my relationships, even if it means compromising.', 'Agreeableness', 'Compliance', 'Your Personality', 14, 'Likert', false, 1.0, 'Free'),
+  (15, 'I find it easy to see things from other people''s perspectives.', 'Agreeableness', 'Tendermindedness', 'Your Personality', 15, 'Likert', false, 1.0, 'Premium'),
+  (16, 'I would rather compete and win than cooperate and share credit.', 'Agreeableness', 'Modesty', 'Your Personality', 16, 'Likert', true, 1.0, 'Premium'),
+
+  (17, 'I stay calm and collected even when things go wrong.', 'EmotionalStability', 'Anxiety', 'Your Personality', 17, 'Likert', false, 1.0, 'Free'),
+  (18, 'I often worry about things that might go wrong in the future.', 'EmotionalStability', 'Anxiety', 'Your Personality', 18, 'Likert', true, 1.0, 'Free'),
+  (19, 'I bounce back quickly from setbacks and disappointments.', 'EmotionalStability', 'Vulnerability', 'Your Personality', 19, 'Likert', false, 1.0, 'Premium'),
+  (20, 'Small frustrations can throw off my whole day.', 'EmotionalStability', 'AngryHostility', 'Your Personality', 20, 'Likert', true, 1.0, 'Premium'),
+
+  (21, 'Building, repairing, or working with my hands on physical projects.', 'Realistic', '', 'Your Interests', 1, 'Interest', false, 1.0, 'Free'),
+  (22, 'Operating tools, machinery, or technical equipment.', 'Realistic', '', 'Your Interests', 2, 'Interest', false, 1.0, 'Free'),
+  (23, 'Working outdoors in nature or on physical, hands-on tasks.', 'Realistic', '', 'Your Interests', 3, 'Interest', false, 1.0, 'Premium'),
+
+  (24, 'Researching a complex problem to understand how something works.', 'Investigative', '', 'Your Interests', 4, 'Interest', false, 1.0, 'Free'),
+  (25, 'Analyzing data or running experiments to test a hypothesis.', 'Investigative', '', 'Your Interests', 5, 'Interest', false, 1.0, 'Free'),
+  (26, 'Reading academic papers or deep-dive articles to learn something new.', 'Investigative', '', 'Your Interests', 6, 'Interest', false, 1.0, 'Premium'),
+
+  (27, 'Designing something visually appealing — a layout, outfit, or space.', 'Artistic', '', 'Your Interests', 7, 'Interest', false, 1.0, 'Free'),
+  (28, 'Writing, composing, or creating original content.', 'Artistic', '', 'Your Interests', 8, 'Interest', false, 1.0, 'Free'),
+  (29, 'Performing, presenting, or expressing ideas in front of an audience.', 'Artistic', '', 'Your Interests', 9, 'Interest', false, 1.0, 'Premium'),
+
+  (30, 'Helping someone work through a personal challenge or difficult decision.', 'Social', '', 'Your Interests', 10, 'Interest', false, 1.0, 'Free'),
+  (31, 'Teaching or mentoring someone to help them grow.', 'Social', '', 'Your Interests', 11, 'Interest', false, 1.0, 'Free'),
+  (32, 'Volunteering for a cause that helps people in my community.', 'Social', '', 'Your Interests', 12, 'Interest', false, 1.0, 'Premium'),
+
+  (33, 'Persuading or negotiating to close a deal or win someone over.', 'Enterprising', '', 'Your Interests', 13, 'Interest', false, 1.0, 'Free'),
+  (34, 'Leading a team or project to achieve an ambitious goal.', 'Enterprising', '', 'Your Interests', 14, 'Interest', false, 1.0, 'Free'),
+  (35, 'Starting a business or launching a new initiative from scratch.', 'Enterprising', '', 'Your Interests', 15, 'Interest', false, 1.0, 'Premium'),
+
+  (36, 'Organizing files, data, or systems so everything runs smoothly.', 'Conventional', '', 'Your Interests', 16, 'Interest', false, 1.0, 'Free'),
+  (37, 'Following detailed procedures to ensure accuracy and compliance.', 'Conventional', '', 'Your Interests', 17, 'Interest', false, 1.0, 'Free'),
+  (38, 'Managing budgets, spreadsheets, or financial records.', 'Conventional', '', 'Your Interests', 18, 'Interest', false, 1.0, 'Premium'),
+
+  (39, 'Having the freedom to decide how, when, and where I do my work matters more to me than a high salary.', 'Autonomy', '', 'What Drives You', 1, 'Likert', false, 1.0, 'Free'),
+  (40, 'I value job stability and a predictable career path over risky but exciting opportunities.', 'Security', '', 'What Drives You', 2, 'Likert', false, 1.0, 'Free'),
+  (41, 'I am at my best when I am tackling difficult problems that push my abilities.', 'Challenge', '', 'What Drives You', 3, 'Likert', false, 1.0, 'Free'),
+  (42, 'Making a positive difference in other people''s lives is a central goal of my career.', 'Service', '', 'What Drives You', 4, 'Likert', false, 1.0, 'Free'),
+  (43, 'Maintaining a healthy balance between my work and personal life is non-negotiable for me.', 'WorkLifeBalance', '', 'What Drives You', 5, 'Likert', false, 1.0, 'Free'),
+
+  (44, 'I want to become a deep expert in my specific field or craft.', 'Challenge', 'TechnicalCompetence', 'What Drives You', 6, 'Likert', false, 1.0, 'Premium'),
+  (45, 'I aspire to manage people and be responsible for an organization''s results.', 'Enterprising', 'Management', 'What Drives You', 7, 'Likert', false, 1.0, 'Premium'),
+  (46, 'I dream of building something of my own — a company, product, or brand.', 'Autonomy', 'Entrepreneurship', 'What Drives You', 8, 'Likert', false, 1.0, 'Premium'),
+  (47, 'I would sacrifice pay or prestige if it meant my work truly helped others.', 'Service', 'Dedication', 'What Drives You', 9, 'Likert', false, 1.0, 'Premium'),
+  (48, 'I feel restless if my job does not constantly challenge me with new problems.', 'Challenge', 'PureChallenge', 'What Drives You', 10, 'Likert', false, 1.0, 'Premium'),
+  (49, 'I need to know my job is secure before I can focus on doing my best work.', 'Security', 'Stability', 'What Drives You', 11, 'Likert', false, 1.0, 'Premium'),
+  (50, 'I would rather work independently, even if it means less support or resources.', 'Autonomy', 'Independence', 'What Drives You', 12, 'Likert', false, 1.0, 'Premium'),
+
+  (51, 'I thrive in fast-paced environments where things change quickly.', 'Pace', '', 'Your Ideal Workplace', 1, 'Likert', false, 1.0, 'Free'),
+  (52, 'I do my best work as part of a close-knit team rather than on my own.', 'Collaboration', '', 'Your Ideal Workplace', 2, 'Likert', false, 1.0, 'Free'),
+  (53, 'I prefer clear guidelines and structured processes over open-ended ambiguity.', 'Structure', '', 'Your Ideal Workplace', 3, 'Likert', false, 1.0, 'Free'),
+
+  (54, 'I strongly prefer working remotely or from home over being in an office.', 'Collaboration', 'Remote', 'Your Ideal Workplace', 4, 'Likert', false, 0.8, 'Premium'),
+  (55, 'I am happiest working in a small team (under 10 people) rather than a large organization.', 'Collaboration', 'TeamSize', 'Your Ideal Workplace', 5, 'Likert', false, 0.8, 'Premium'),
+  (56, 'I want frequent feedback on my performance rather than annual reviews.', 'Structure', 'Feedback', 'Your Ideal Workplace', 6, 'Likert', false, 0.8, 'Premium'),
+  (57, 'I prefer a workplace focused on rapid growth over one that is stable and predictable.', 'Pace', 'Growth', 'Your Ideal Workplace', 7, 'Likert', false, 0.8, 'Premium'),
+  (58, 'A casual, informal workplace culture is far more appealing to me than a formal one.', 'Structure', 'Culture', 'Your Ideal Workplace', 8, 'Likert', false, 0.8, 'Premium'),
+
+  (59, 'When I am under stress, I tend to withdraw and avoid people.', 'EmotionalStability', 'StressWithdrawal', 'Under Pressure', 1, 'Likert', true, 0.9, 'Premium'),
+  (60, 'Under pressure, I become overly cautious and have trouble making decisions.', 'EmotionalStability', 'StressCaution', 'Under Pressure', 2, 'Likert', true, 0.9, 'Premium'),
+  (61, 'I tend to become more controlling and demanding when deadlines loom.', 'Agreeableness', 'StressControl', 'Under Pressure', 3, 'Likert', true, 0.9, 'Premium'),
+  (62, 'When stressed, I become a perfectionist and struggle to let anything go.', 'Conscientiousness', 'StressPerfectionism', 'Under Pressure', 4, 'Likert', false, 0.9, 'Premium'),
+  (63, 'I can stay focused and productive even during chaotic or high-pressure periods.', 'EmotionalStability', 'StressResilience', 'Under Pressure', 5, 'Likert', false, 0.9, 'Premium'),
+  (64, 'When things go wrong at work, my first instinct is to blame others.', 'Agreeableness', 'StressBlame', 'Under Pressure', 6, 'Likert', true, 0.9, 'Premium'),
+
+  (65, 'I feel most motivated when I have significant control over my own tasks and schedule.', 'Autonomy', 'SDTAutonomy', 'Your Needs', 1, 'Likert', false, 1.0, 'Premium'),
+  (66, 'I feel stifled when someone micromanages my work.', 'Autonomy', 'SDTAutonomy', 'Your Needs', 2, 'Likert', false, 1.0, 'Premium'),
+  (67, 'I need to feel like I am genuinely good at what I do to stay engaged.', 'Challenge', 'SDTCompetence', 'Your Needs', 3, 'Likert', false, 1.0, 'Premium'),
+  (68, 'Learning new skills and mastering new challenges is deeply satisfying to me.', 'Challenge', 'SDTCompetence', 'Your Needs', 4, 'Likert', false, 1.0, 'Premium'),
+  (69, 'Feeling connected to my coworkers is just as important as the work itself.', 'Collaboration', 'SDTRelatedness', 'Your Needs', 5, 'Likert', false, 1.0, 'Premium'),
+  (70, 'I feel unfulfilled if I do not have meaningful relationships at work.', 'Collaboration', 'SDTRelatedness', 'Your Needs', 6, 'Likert', false, 1.0, 'Premium'),
+
+  (71, 'I am satisfied with my current career direction.', 'EmotionalStability', 'CareerSatisfaction', 'Your Career Journey', 1, 'Likert', false, 0.7, 'Premium'),
+  (72, 'I feel ready to make a clear decision about my next career move.', 'Conscientiousness', 'DecisionReadiness', 'Your Career Journey', 2, 'Likert', false, 0.7, 'Premium'),
+  (73, 'I have maintained a consistent focus on the same long-term career goals for years.', 'Conscientiousness', 'PassionConsistency', 'Your Career Journey', 3, 'Likert', false, 0.7, 'Premium'),
+  (74, 'Setbacks do not discourage me — I keep pushing toward my goals.', 'EmotionalStability', 'Perseverance', 'Your Career Journey', 4, 'Likert', false, 0.7, 'Premium'),
+  (75, 'I often find myself thinking about completely changing my career path.', 'Openness', 'CareerExploration', 'Your Career Journey', 5, 'Likert', false, 0.7, 'Premium')
+on conflict ("Id") do update set
+  "QuestionText" = excluded."QuestionText",
+  "Dimension" = excluded."Dimension",
+  "Subdimension" = excluded."Subdimension",
+  "Section" = excluded."Section",
+  "SectionOrder" = excluded."SectionOrder",
+  "QuestionFormat" = excluded."QuestionFormat",
+  "IsReverseScored" = excluded."IsReverseScored",
+  "Weight" = excluded."Weight",
+  "Tier" = excluded."Tier";
 
 -- QuizOptions (QuestionId 1)
 insert into "QuizOptions" ("QuestionId", "Label", "Trait", "Weight") values

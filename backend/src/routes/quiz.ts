@@ -1,15 +1,36 @@
 import { Router, Request, Response } from 'express';
-import { getQuizQuestions } from '../data/seedData';
 import { getCareerProfiles } from '../data/careerProfiles';
 import { computeScores } from '../services/scoringEngine';
 import { computeMatches } from '../services/careerMatchingService';
 import { supabase } from '../db/database';
-import { QuizResponse } from '../types';
+import { QuizQuestion, QuizResponse } from '../types';
 
 const router = Router();
 
-router.get('/questions', (_req: Request, res: Response) => {
-  const questions = getQuizQuestions();
+router.get('/questions', async (_req: Request, res: Response) => {
+  const { data, error } = await supabase
+    .from('QuizQuestions')
+    .select('*')
+    .order('Id', { ascending: true });
+
+  if (error || !data) {
+    res.status(500).json({ message: 'Failed to load quiz questions' });
+    return;
+  }
+
+  const questions: QuizQuestion[] = data.map((row: any) => ({
+    id: row.Id,
+    text: row.QuestionText,
+    dimension: row.Dimension ?? '',
+    subdimension: row.Subdimension ?? '',
+    section: row.Section ?? '',
+    sectionOrder: row.SectionOrder ?? 0,
+    questionFormat: row.QuestionFormat ?? 'Likert',
+    isReverseScored: Boolean(row.IsReverseScored),
+    weight: Number(row.Weight ?? 1.0),
+    tier: row.Tier ?? 'Free',
+  }));
+
   res.json(questions);
 });
 
@@ -30,7 +51,30 @@ router.post('/submit', async (req: Request, res: Response) => {
   }
 
   // Compute scores and matches in memory
-  const dimensionScores = computeScores(responses);
+  const { data: qData, error: qErr } = await supabase
+    .from('QuizQuestions')
+    .select('*')
+    .order('Id', { ascending: true });
+
+  if (qErr || !qData) {
+    res.status(500).json({ success: false, message: 'Failed to load quiz questions for scoring' });
+    return;
+  }
+
+  const questions: QuizQuestion[] = qData.map((row: any) => ({
+    id: row.Id,
+    text: row.QuestionText,
+    dimension: row.Dimension ?? '',
+    subdimension: row.Subdimension ?? '',
+    section: row.Section ?? '',
+    sectionOrder: row.SectionOrder ?? 0,
+    questionFormat: row.QuestionFormat ?? 'Likert',
+    isReverseScored: Boolean(row.IsReverseScored),
+    weight: Number(row.Weight ?? 1.0),
+    tier: row.Tier ?? 'Free',
+  }));
+
+  const dimensionScores = computeScores(responses, questions);
   const careers = getCareerProfiles();
   const careerMatches = computeMatches(dimensionScores, careers);
 

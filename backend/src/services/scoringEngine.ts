@@ -1,8 +1,6 @@
 import { QuizQuestion, QuizResponse, DimensionScore } from '../types';
-import { getQuizQuestions } from '../data/seedData';
 
-export function computeScores(responses: QuizResponse[]): DimensionScore[] {
-  const questions = getQuizQuestions();
+export function computeScores(responses: QuizResponse[], questions: QuizQuestion[]): DimensionScore[] {
   const questionMap = new Map<number, QuizQuestion>(questions.map(q => [q.id, q]));
 
   // Group responses by (dimension, subdimension)
