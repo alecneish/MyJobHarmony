@@ -8,6 +8,8 @@ import Jobs from './pages/Jobs';
 import SavedJobs from './pages/SavedJobs';
 import Recruit from './pages/Recruit';
 import Auth from './pages/Auth';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 export default function App() {
   return (
@@ -16,6 +18,8 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/quiz/interface" element={<QuizInterface />} />
           <Route path="/quiz/results" element={<QuizResults />} />
