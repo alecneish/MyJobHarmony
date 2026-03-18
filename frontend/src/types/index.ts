@@ -1,15 +1,14 @@
-export interface QuizOption {
-  id: number;
-  questionId: number;
-  label: string;
-  trait: string;
-  weight: number;
-}
-
 export interface QuizQuestion {
   id: number;
-  questionText: string;
-  options: QuizOption[];
+  text: string;
+  dimension: string;
+  subdimension: string;
+  section: string;
+  sectionOrder: number;
+  questionFormat: 'Likert' | 'Interest';
+  isReverseScored: boolean;
+  weight: number;
+  tier: string;
 }
 
 export interface Job {

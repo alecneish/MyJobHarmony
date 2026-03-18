@@ -3,43 +3,63 @@ import { useNavigate } from 'react-router-dom';
 import { QuizQuestion, QuizResults } from '../types';
 import { showSnackbar } from '../components/Snackbar';
 
-interface Answer {
-  trait: string;
-  weight: number;
-}
+const LIKERT_OPTIONS = [
+  { value: 1, label: 'Strongly Disagree' },
+  { value: 2, label: 'Disagree' },
+  { value: 3, label: 'Neutral' },
+  { value: 4, label: 'Agree' },
+  { value: 5, label: 'Strongly Agree' },
+];
+
+const INTEREST_OPTIONS = [
+  { value: 1, label: 'Not at all' },
+  { value: 2, label: 'Slightly' },
+  { value: 3, label: 'Moderately' },
+  { value: 4, label: 'Very' },
+  { value: 5, label: 'Extremely' },
+];
 
 const MOTIVATION_TYPES: Record<string, { type: string; description: string; icon: string }> = {
-  openness: {
+  Openness: {
     type: 'The Innovator',
     description: "You thrive on creativity and new ideas. You're driven by curiosity and love exploring uncharted territory.",
     icon: '💡',
   },
-  conscientiousness: {
+  Conscientiousness: {
     type: 'The Achiever',
     description: "You're goal-oriented and detail-driven. You find satisfaction in completing tasks with precision and excellence.",
     icon: '🎯',
   },
-  extraversion: {
+  Extraversion: {
     type: 'The Connector',
     description: "You're energized by people and thrive in collaborative environments. Building relationships is your superpower.",
     icon: '🤝',
   },
-  agreeableness: {
+  Agreeableness: {
     type: 'The Harmonizer',
     description: "You're empathetic and cooperative. You excel at creating supportive environments where everyone can succeed.",
     icon: '💚',
   },
-  emotionalStability: {
+  EmotionalStability: {
     type: 'The Anchor',
     description: "You're calm under pressure and bring stability to any team. Your resilience and composure inspire confidence.",
     icon: '⚓',
   },
 };
 
+const OCEAN_DIMENSIONS = ['Openness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'EmotionalStability'];
+
+interface DimensionScore {
+  dimension: string;
+  subdimension: string;
+  rawScore: number;
+  normalizedScore: number;
+}
+
 export default function Quiz() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, Answer>>({});
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -56,20 +76,20 @@ export default function Quiz() {
 
   const total = questions.length;
   const progress = total > 0 ? Math.round(((current + 1) / total) * 100) : 0;
-  const currentAnswer = answers[current];
+  const q = questions[current];
+  const currentAnswer = q ? answers[q.id] : undefined;
+  const options = q?.questionFormat === 'Interest' ? INTEREST_OPTIONS : LIKERT_OPTIONS;
 
-  function selectOption(trait: string, weight: number) {
-    setAnswers((prev) => ({ ...prev, [current]: { trait, weight } }));
+  function selectOption(value: number) {
+    setAnswers((prev) => ({ ...prev, [q.id]: value }));
   }
 
   function next() {
-    if (!currentAnswer) return;
-
+    if (currentAnswer === undefined) return;
     if (current >= total - 1) {
-      computeAndSave();
+      submitQuiz();
       return;
     }
-
     setCurrent((c) => c + 1);
   }
 
@@ -78,69 +98,64 @@ export default function Quiz() {
     setCurrent((c) => c - 1);
   }
 
-  function computeAndSave() {
+  function submitQuiz() {
     if (submitting) return;
     setSubmitting(true);
 
-    const traits: Record<string, number> = {
-      openness: 0, conscientiousness: 0, extraversion: 0,
-      agreeableness: 0, emotionalStability: 0,
-    };
-    const traitCounts: Record<string, number> = {
-      openness: 0, conscientiousness: 0, extraversion: 0,
-      agreeableness: 0, emotionalStability: 0,
-    };
+    const responses = questions.map((question) => ({
+      questionId: question.id,
+      answerValue: answers[question.id] ?? 3,
+    }));
 
-    Object.values(answers).forEach((a) => {
-      if (a.trait in traits) {
-        traits[a.trait] += a.weight;
-        traitCounts[a.trait]++;
-      }
-    });
-
-    const result: Record<string, number> = {};
-    for (const t in traits) {
-      const maxPossible = traitCounts[t] * 3;
-      result[t] = maxPossible > 0 ? Math.min(100, Math.max(0, Math.round((traits[t] / maxPossible) * 100))) : 50;
-    }
-
-    const dominantTrait = Object.keys(result).reduce((a, b) => (result[b] > result[a] ? b : a));
-    const motivation = MOTIVATION_TYPES[dominantTrait] ?? MOTIVATION_TYPES.openness;
-
-    const quizResults: QuizResults = {
-      openness: result.openness,
-      conscientiousness: result.conscientiousness,
-      extraversion: result.extraversion,
-      agreeableness: result.agreeableness,
-      emotionalStability: result.emotionalStability,
-      motivationType: motivation.type,
-      motivationDescription: motivation.description,
-      motivationIcon: motivation.icon,
-    };
-
-    localStorage.setItem('jh-quiz-results', JSON.stringify(quizResults));
-
-    fetch('/api/quiz/results', {
+    fetch('/api/quiz/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        openness: result.openness,
-        conscientiousness: result.conscientiousness,
-        extraversion: result.extraversion,
-        agreeableness: result.agreeableness,
-        emotionalStability: result.emotionalStability,
-        dominantTrait,
-        motivationType: motivation.type,
-      }),
+      body: JSON.stringify({ responses }),
     })
       .then((r) => r.json())
-      .then((data: { success: boolean }) => {
+      .then((data: { success: boolean; dimensionScores: DimensionScore[] }) => {
+        const oceanScores = buildOceanScores(data.dimensionScores ?? []);
+        const dominantTrait = Object.keys(oceanScores).reduce((a, b) =>
+          oceanScores[b] > oceanScores[a] ? b : a
+        );
+        const motivation = MOTIVATION_TYPES[dominantTrait] ?? MOTIVATION_TYPES.Openness;
+
+        const quizResults: QuizResults = {
+          openness: oceanScores.Openness,
+          conscientiousness: oceanScores.Conscientiousness,
+          extraversion: oceanScores.Extraversion,
+          agreeableness: oceanScores.Agreeableness,
+          emotionalStability: oceanScores.EmotionalStability,
+          motivationType: motivation.type,
+          motivationDescription: motivation.description,
+          motivationIcon: motivation.icon,
+        };
+
+        localStorage.setItem('jh-quiz-results', JSON.stringify(quizResults));
         if (data.success) showSnackbar('Your results have been saved!');
         setTimeout(() => navigate('/quiz/results'), 1000);
       })
       .catch(() => {
         setTimeout(() => navigate('/quiz/results'), 1000);
       });
+  }
+
+  function buildOceanScores(dimensionScores: DimensionScore[]): Record<string, number> {
+    const totals: Record<string, number[]> = {};
+    for (const dim of OCEAN_DIMENSIONS) totals[dim] = [];
+
+    for (const ds of dimensionScores) {
+      if (ds.dimension in totals) totals[ds.dimension].push(ds.normalizedScore);
+    }
+
+    const result: Record<string, number> = {};
+    for (const dim of OCEAN_DIMENSIONS) {
+      const scores = totals[dim];
+      result[dim] = scores.length > 0
+        ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+        : 50;
+    }
+    return result;
   }
 
   if (loading) {
@@ -159,8 +174,6 @@ export default function Quiz() {
     );
   }
 
-  const q = questions[current];
-
   return (
     <div className="jh-quiz-container">
       <div className="jh-section-header" style={{ marginBottom: '2rem' }}>
@@ -172,23 +185,22 @@ export default function Quiz() {
         <div className="jh-quiz-progress-bar">
           <div
             className="jh-quiz-progress-fill"
-            id="jh-progress-fill"
             style={{ width: `${progress}%` }}
           />
         </div>
         <div className="jh-quiz-progress-text">
-          <span>Question {current + 1} of {total}</span>
+          <span>{q.section} · Question {current + 1} of {total}</span>
           <span>{progress}%</span>
         </div>
       </div>
 
       <div className="jh-quiz-card" data-question={current}>
-        <h2>{q.questionText}</h2>
-        {q.options.map((opt) => (
+        <h2>{q.text}</h2>
+        {options.map((opt) => (
           <button
-            key={opt.id}
-            className={`jh-quiz-option${currentAnswer?.trait === opt.trait && answers[current]?.weight === opt.weight && answers[current] ? ' selected' : ''}`}
-            onClick={() => selectOption(opt.trait, opt.weight)}
+            key={opt.value}
+            className={`jh-quiz-option${currentAnswer === opt.value ? ' selected' : ''}`}
+            onClick={() => selectOption(opt.value)}
           >
             {opt.label}
           </button>
@@ -198,7 +210,6 @@ export default function Quiz() {
       <div className="jh-quiz-nav">
         <button
           className="jh-btn-secondary"
-          id="jh-quiz-back"
           style={{ visibility: current > 0 ? 'visible' : 'hidden' }}
           onClick={back}
         >
@@ -206,8 +217,7 @@ export default function Quiz() {
         </button>
         <button
           className="jh-btn-primary"
-          id="jh-quiz-next"
-          disabled={!currentAnswer || submitting}
+          disabled={currentAnswer === undefined || submitting}
           onClick={next}
         >
           {submitting ? 'Submitting…' : current >= total - 1 ? 'See Results' : 'Next →'}
