@@ -1,7 +1,10 @@
 import { Outlet, NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Snackbar from './Snackbar';
 
 export default function Layout() {
+  const { user, signOut, loading } = useAuth();
+
   return (
     <>
       <header>
@@ -51,7 +54,28 @@ export default function Layout() {
                   Recruit
                 </NavLink>
               </li>
+              <li>
+                <NavLink
+                  to="/auth"
+                  className={({ isActive }) => 'jh-nav-link' + (isActive ? ' active' : '')}
+                >
+                  {user ? 'Account' : 'Sign In'}
+                </NavLink>
+              </li>
             </ul>
+
+            <div className="jh-user-chip">
+              {user ? (
+                <>
+                  <span className="jh-user-email">{user.email}</span>
+                  <button className="jh-btn-secondary" style={{ padding: '0.35rem 0.75rem' }} onClick={signOut} disabled={loading}>
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <span className="jh-user-email">Not signed in</span>
+              )}
+            </div>
           </div>
         </nav>
       </header>

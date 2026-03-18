@@ -119,6 +119,19 @@ Open `backend/.env` and fill in these values using the output from step 3:
 | `SUPABASE_SECRET_KEY` | "Authentication Keys → Secret" |
 | `SUPABASE_PUBLISHABLE_KEY` | "Authentication Keys → Publishable" (optional) |
 
+### 4b. Set up the frontend environment (for Supabase Auth)
+
+```bash
+cp frontend/.env.example frontend/.env
+```
+
+Fill these with the values from `npx supabase start` (local) or the hosted project (prod):
+
+| Variable | What it is |
+| --- | --- |
+| `VITE_SUPABASE_URL` | Supabase project URL (e.g., `http://127.0.0.1:54321` locally, `https://<project>.supabase.co` in prod) |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | **Publishable (anon) key** from Supabase → Settings → API |
+
 ### 5. Run migrations
 
 ```bash

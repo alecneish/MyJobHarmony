@@ -74,3 +74,11 @@ export interface RecruitApiResponse {
   recommendedApplicants: Applicant[];
   allApplicants: Applicant[];
 }
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  role: 'recruiter' | 'candidate';
+  created_at: string;
+  updated_at: string;
+}
