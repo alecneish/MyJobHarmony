@@ -44,7 +44,7 @@ export default function SavedJobs() {
 
       {savedJobs.length === 0 && (
         <div className="jh-empty-state" id="jh-saved-empty">
-          <span className="jh-empty-icon">🔖</span>
+          <span className="jh-empty-icon">0</span>
           <h3>No Saved Jobs Yet</h3>
           <p>Browse job listings and save the ones that interest you.</p>
           <Link to="/jobs" className="jh-btn-primary">Browse Jobs</Link>

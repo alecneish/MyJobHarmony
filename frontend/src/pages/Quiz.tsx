@@ -23,27 +23,27 @@ const MOTIVATION_TYPES: Record<string, { type: string; description: string; icon
   Openness: {
     type: 'The Innovator',
     description: "You thrive on creativity and new ideas. You're driven by curiosity and love exploring uncharted territory.",
-    icon: '💡',
+    icon: 'O',
   },
   Conscientiousness: {
     type: 'The Achiever',
     description: "You're goal-oriented and detail-driven. You find satisfaction in completing tasks with precision and excellence.",
-    icon: '🎯',
+    icon: 'C',
   },
   Extraversion: {
     type: 'The Connector',
     description: "You're energized by people and thrive in collaborative environments. Building relationships is your superpower.",
-    icon: '🤝',
+    icon: 'E',
   },
   Agreeableness: {
     type: 'The Harmonizer',
     description: "You're empathetic and cooperative. You excel at creating supportive environments where everyone can succeed.",
-    icon: '💚',
+    icon: 'A',
   },
   EmotionalStability: {
     type: 'The Anchor',
     description: "You're calm under pressure and bring stability to any team. Your resilience and composure inspire confidence.",
-    icon: '⚓',
+    icon: 'S',
   },
 };
 
@@ -214,14 +214,14 @@ export default function Quiz() {
           style={{ visibility: current > 0 ? 'visible' : 'hidden' }}
           onClick={back}
         >
-          ← Back
+          Back
         </button>
         <button
           className="jh-btn-primary"
           disabled={currentAnswer === undefined || submitting}
           onClick={next}
         >
-          {submitting ? 'Submitting…' : current >= total - 1 ? 'See Results' : 'Next →'}
+          {submitting ? 'Submitting...' : current >= total - 1 ? 'See Results' : 'Next'}
         </button>
       </div>
     </div>

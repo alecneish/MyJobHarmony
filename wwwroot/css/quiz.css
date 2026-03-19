@@ -1,23 +1,24 @@
-:root {
-    --jh-primary: #4361ee;
-    --jh-primary-light: #eef0ff;
-    --jh-dark: #1a1a2e;
-    --jh-text: #2d3748;
-    --jh-muted: #718096;
-    --jh-bg: #f7f8fc;
-    --jh-card: #ffffff;
-    --jh-border: #e2e8f0;
-    --jh-success: #38b2ac;
-    --jh-warning: #f6ad55;
-    --jh-premium-gradient: linear-gradient(135deg, #f6ad55, #ed8936);
-}
+/* ============================================
+   JobHarmony Quiz Page Styles (ASP.NET)
+   Inherits from site.css design tokens
+   ============================================ */
 
-* {
-    box-sizing: border-box;
+:root {
+    --jh-primary: #e67e22;
+    --jh-primary-light: rgba(230, 126, 34, 0.06);
+    --jh-dark: #111827;
+    --jh-text: #1f2937;
+    --jh-muted: #6b7280;
+    --jh-bg: #f9fafb;
+    --jh-card: #ffffff;
+    --jh-border: #e5e7eb;
+    --jh-success: #10b981;
+    --jh-warning: #f59e0b;
+    --jh-premium-gradient: linear-gradient(135deg, #f59e0b, #e67e22);
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: var(--jh-text);
     background: var(--jh-bg);
     line-height: 1.6;
@@ -47,14 +48,14 @@ body {
 
 /* Tier Cards */
 .tier-card {
-    border: 2px solid var(--jh-border);
+    border: 1.5px solid var(--jh-border);
     border-radius: 16px;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     background: var(--jh-card);
 }
 .tier-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 .tier-card-premium {
     border-color: var(--jh-warning);
@@ -64,7 +65,7 @@ body {
     padding-left: 1.5rem;
     position: relative;
     color: var(--jh-text);
-    font-size: 0.95rem;
+    font-size: 0.93rem;
 }
 .tier-features li::before {
     content: "\2713";
@@ -95,7 +96,7 @@ body {
 .quiz-progress .progress-bar {
     background: var(--jh-primary);
     border-radius: 100px;
-    transition: width 0.4s ease;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Question Cards */
@@ -103,18 +104,18 @@ body {
     background: var(--jh-card);
     border-radius: 16px;
     padding: 2.5rem 2rem;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
     border: 1px solid var(--jh-border);
 }
 .question-prompt {
     color: var(--jh-muted);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 500;
 }
 .question-text {
     color: var(--jh-dark);
     font-weight: 600;
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     line-height: 1.5;
 }
 .sec-header .badge {
@@ -136,11 +137,11 @@ body {
     align-items: center;
     padding: 1rem 0.75rem;
     min-width: 100px;
-    border: 2px solid var(--jh-border);
+    border: 1.5px solid var(--jh-border);
     border-radius: 12px;
     background: var(--jh-card);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     flex: 1;
 }
 .likert-btn:hover {
@@ -156,7 +157,7 @@ body {
     color: rgba(255, 255, 255, 0.9);
 }
 .likert-number {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
 }
@@ -179,18 +180,15 @@ body {
     border-color: var(--jh-primary);
 }
 .btn-primary:hover {
-    background: #3651d4;
-    border-color: #3651d4;
+    background: #d35400;
+    border-color: #d35400;
 }
 .btn-success {
     background: var(--jh-success);
     border-color: var(--jh-success);
 }
 
-/* ==========================================
-   RESULTS PAGE
-   ========================================== */
-
+/* Results Page */
 .results-header {
     background: var(--jh-dark);
     color: #fff;
@@ -218,7 +216,7 @@ body {
 }
 .results-section h2 {
     font-weight: 700;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     margin-bottom: 1.5rem;
     color: var(--jh-dark);
 }
@@ -226,43 +224,19 @@ body {
     background: var(--jh-card);
     border-radius: 16px;
     padding: 2rem;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
     border: 1px solid var(--jh-border);
     margin-bottom: 1.5rem;
 }
 
 /* Score Bars */
-.score-bar-item {
-    margin-bottom: 1.2rem;
-}
-.score-bar-item .label-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.4rem;
-}
-.score-bar-item .dim-label {
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-.score-bar-item .dim-value {
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--jh-primary);
-}
-.score-bar-item .progress {
-    height: 10px;
-    border-radius: 100px;
-    background: var(--jh-border);
-}
-.score-bar-item .progress-bar {
-    border-radius: 100px;
-    transition: width 1s ease;
-}
-.score-bar-item .dim-desc {
-    font-size: 0.82rem;
-    color: var(--jh-muted);
-    margin-top: 0.3rem;
-}
+.score-bar-item { margin-bottom: 1.2rem; }
+.score-bar-item .label-row { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
+.score-bar-item .dim-label { font-weight: 600; font-size: 0.88rem; }
+.score-bar-item .dim-value { font-weight: 700; font-size: 0.88rem; color: var(--jh-primary); }
+.score-bar-item .progress { height: 8px; border-radius: 100px; background: var(--jh-border); }
+.score-bar-item .progress-bar { border-radius: 100px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+.score-bar-item .dim-desc { font-size: 0.8rem; color: var(--jh-muted); margin-top: 0.3rem; }
 
 /* OCEAN colors */
 .bar-openness { background: #8b5cf6; }
@@ -291,16 +265,9 @@ body {
 .bar-collaboration { background: #14b8a6; }
 .bar-structure { background: #6366f1; }
 
-/* RIASEC Hexagon (SVG-based) */
-.riasec-chart {
-    display: flex;
-    justify-content: center;
-    margin: 1.5rem 0;
-}
-.riasec-chart svg {
-    max-width: 320px;
-    width: 100%;
-}
+/* RIASEC Hexagon */
+.riasec-chart { display: flex; justify-content: center; margin: 1.5rem 0; }
+.riasec-chart svg { max-width: 320px; width: 100%; }
 
 /* Career Match Cards */
 .career-match-card {
@@ -312,59 +279,25 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    transition: box-shadow 0.15s;
+    transition: box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .career-match-card:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
-.match-rank {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--jh-border);
-    min-width: 2.5rem;
-    text-align: center;
-}
+.match-rank { font-size: 1.4rem; font-weight: 800; color: var(--jh-border); min-width: 2.5rem; text-align: center; }
 .career-match-card:nth-child(1) .match-rank { color: #f59e0b; }
 .career-match-card:nth-child(2) .match-rank { color: #94a3b8; }
 .career-match-card:nth-child(3) .match-rank { color: #b45309; }
-.match-info {
-    flex: 1;
-}
-.match-info h5 {
-    font-weight: 700;
-    margin-bottom: 0.15rem;
-    font-size: 1rem;
-}
-.match-info .match-category {
-    font-size: 0.8rem;
-    color: var(--jh-muted);
-}
-.match-info .match-desc {
-    font-size: 0.85rem;
-    color: var(--jh-text);
-    margin-top: 0.3rem;
-}
-.match-score {
-    text-align: center;
-    min-width: 60px;
-}
-.match-score .pct {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--jh-primary);
-}
-.match-score .pct-label {
-    font-size: 0.7rem;
-    color: var(--jh-muted);
-    text-transform: uppercase;
-}
+.match-info { flex: 1; }
+.match-info h5 { font-weight: 700; margin-bottom: 0.15rem; font-size: 0.95rem; }
+.match-info .match-category { font-size: 0.78rem; color: var(--jh-muted); }
+.match-info .match-desc { font-size: 0.83rem; color: var(--jh-text); margin-top: 0.3rem; }
+.match-score { text-align: center; min-width: 60px; }
+.match-score .pct { font-size: 1.3rem; font-weight: 800; color: var(--jh-primary); }
+.match-score .pct-label { font-size: 0.68rem; color: var(--jh-muted); text-transform: uppercase; }
 
 /* Summary text */
-.summary-text {
-    font-size: 1rem;
-    line-height: 1.8;
-    color: var(--jh-text);
-}
+.summary-text { font-size: 0.95rem; line-height: 1.75; color: var(--jh-text); }
 
 /* Premium Upsell */
 .upsell-card {
@@ -374,27 +307,13 @@ body {
     padding: 2rem;
     text-align: center;
 }
-.upsell-card h3 {
-    font-weight: 700;
-    color: #92400e;
-}
-.upsell-card p {
-    color: #78350f;
-}
+.upsell-card h3 { font-weight: 700; color: #92400e; }
+.upsell-card p { color: #78350f; }
 
 /* Responsive */
 @media (max-width: 576px) {
-    .likert-btn {
-        min-width: 60px;
-        padding: 0.75rem 0.4rem;
-    }
-    .likert-label {
-        font-size: 0.6rem;
-    }
-    .question-text {
-        font-size: 1.1rem;
-    }
-    .question-card {
-        padding: 1.5rem 1rem;
-    }
+    .likert-btn { min-width: 60px; padding: 0.75rem 0.4rem; }
+    .likert-label { font-size: 0.6rem; }
+    .question-text { font-size: 1.05rem; }
+    .question-card { padding: 1.5rem 1rem; }
 }

@@ -126,7 +126,7 @@ export default function QuizResults() {
           </div>
 
           {topMatches.length > 0 && (
-            <div className="jh-traits-card" style={{ marginTop: '1.5rem' }}>
+            <div className="jh-traits-card" style={{ marginTop: '1.25rem' }}>
               <h3>Your Top Career Matches</h3>
               {topMatches.map((match) => (
                 <div key={match.careerProfileId} className="jh-trait-row">
@@ -146,8 +146,8 @@ export default function QuizResults() {
           )}
 
           {/* Actions for mobile (hidden on desktop, shown via sidebar on desktop) */}
-          <div className="jh-results-mobile-actions" style={{ textAlign: 'center', marginTop: '2.5rem', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/jobs" className="jh-btn-primary">Browse Matching Jobs →</Link>
+          <div className="jh-results-actions jh-results-mobile-actions">
+            <Link to="/jobs" className="jh-btn-primary">Browse Matching Jobs</Link>
             <button className="jh-btn-secondary" onClick={handleRetake}>Retake Quiz</button>
           </div>
         </div>
@@ -157,7 +157,7 @@ export default function QuizResults() {
           <div className="jh-sidebar-card">
             <h3>Take Action</h3>
             <div className="jh-sidebar-actions">
-              <Link to="/jobs" className="jh-btn-primary">Browse Matching Jobs →</Link>
+              <Link to="/jobs" className="jh-btn-primary">Browse Matching Jobs</Link>
               <button className="jh-btn-secondary" onClick={handleRetake}>Retake Quiz</button>
             </div>
             <div className="jh-sidebar-tip">

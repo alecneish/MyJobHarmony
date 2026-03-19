@@ -258,7 +258,7 @@ export default function QuestionStepper({
           style={{ visibility: current > 0 ? 'visible' : 'hidden' }}
           disabled={submitting}
         >
-          ← Back
+          Back
         </button>
         <button
           className="jh-btn-primary"
@@ -266,10 +266,10 @@ export default function QuestionStepper({
           disabled={!answered || submitting}
         >
           {submitting && current >= total - 1
-            ? 'Submitting…'
+            ? 'Submitting...'
             : current >= total - 1
             ? 'Finish'
-            : 'Next →'}
+            : 'Next'}
         </button>
       </div>
     </div>

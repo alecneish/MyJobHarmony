@@ -11,6 +11,16 @@ function getSavedIds(): string[] {
   }
 }
 
+function companyInitials(company: string): string {
+  return company
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+}
+
 interface JobCardProps {
   job: Job;
   onSaveToggle?: () => void;
@@ -61,7 +71,7 @@ export default function JobCard({ job, onSaveToggle }: JobCardProps) {
       data-company={job.company}
     >
       <div className="jh-job-header">
-        <div className="jh-job-logo">{job.logoEmoji}</div>
+        <div className="jh-job-logo">{companyInitials(job.company)}</div>
         <div className="jh-job-info">
           <h3>{job.title}</h3>
           <div className="jh-job-company">{job.company}</div>
@@ -78,10 +88,10 @@ export default function JobCard({ job, onSaveToggle }: JobCardProps) {
       <div className="jh-job-fit-reason">{job.fitReason}</div>
 
       <div className="jh-job-meta">
-        <span>📍 {job.location}</span>
-        <span>💰 {job.salary}</span>
-        <span>💼 {job.type}</span>
-        <span>📅 {postedText}</span>
+        <span>{job.location}</span>
+        <span>{job.salary}</span>
+        <span>{job.type}</span>
+        <span>{postedText}</span>
       </div>
 
       <div className="jh-job-actions">
@@ -92,7 +102,7 @@ export default function JobCard({ job, onSaveToggle }: JobCardProps) {
           className={`jh-save-btn${isSaved ? ' saved' : ''}`}
           onClick={toggleSave}
         >
-          <span className="save-icon">{isSaved ? '♥' : '♡'}</span> Save
+          {isSaved ? 'Saved' : 'Save'}
         </button>
       </div>
     </div>

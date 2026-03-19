@@ -46,27 +46,27 @@ const MOTIVATION_TYPES: Record<string, { type: string; description: string; icon
   Openness: {
     type: 'The Innovator',
     description: "You thrive on creativity and new ideas. You're driven by curiosity and love exploring uncharted territory.",
-    icon: '💡',
+    icon: 'O',
   },
   Conscientiousness: {
     type: 'The Achiever',
     description: "You're goal-oriented and detail-driven. You find satisfaction in completing tasks with precision and excellence.",
-    icon: '🎯',
+    icon: 'C',
   },
   Extraversion: {
     type: 'The Connector',
     description: "You're energized by people and thrive in collaborative environments. Building relationships is your superpower.",
-    icon: '🤝',
+    icon: 'E',
   },
   Agreeableness: {
     type: 'The Harmonizer',
     description: "You're empathetic and cooperative. You excel at creating supportive environments where everyone can succeed.",
-    icon: '💚',
+    icon: 'A',
   },
   EmotionalStability: {
     type: 'The Anchor',
     description: "You're calm under pressure and bring stability to any team. Your resilience and composure inspire confidence.",
-    icon: '⚓',
+    icon: 'S',
   },
 };
 
@@ -198,7 +198,7 @@ export default function QuizInterface() {
 
   if (loading) {
     return (
-      <div className="jh-quiz-lab" style={{ textAlign: 'center', padding: '4rem' }}>
+      <div className="jh-quiz-lab jh-empty-state">
         <p>Loading quiz...</p>
       </div>
     );
@@ -208,20 +208,19 @@ export default function QuizInterface() {
   if (mode === 'select') {
     return (
       <div className="jh-quiz-lab">
-        <div className="jh-section-header" style={{ marginBottom: '2rem', textAlign: 'center' }}>
+        <div className="jh-section-header">
           <h2>Career Personality Quiz</h2>
           <p>Choose how much time you have.</p>
         </div>
 
-        <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div className="jh-quiz-mode-grid">
           <div
-            className="jh-quiz-card"
-            style={{ flex: '1 1 260px', maxWidth: '320px', cursor: 'pointer', textAlign: 'center' }}
+            className="jh-quiz-card jh-quiz-mode-card"
             onClick={() => startQuiz('quick')}
           >
-            <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>⚡</div>
-            <h3 style={{ margin: '0 0 0.5rem' }}>Quick Quiz</h3>
-            <p style={{ color: 'var(--jh-gray-600)', marginBottom: '1.5rem' }}>
+            <div className="jh-step-icon">10</div>
+            <h3>Quick Quiz</h3>
+            <p>
               10 questions · ~2 minutes<br />Core personality snapshot
             </p>
             <button className="jh-btn-primary" onClick={() => startQuiz('quick')}>
@@ -230,13 +229,12 @@ export default function QuizInterface() {
           </div>
 
           <div
-            className="jh-quiz-card"
-            style={{ flex: '1 1 260px', maxWidth: '320px', cursor: 'pointer', textAlign: 'center' }}
+            className="jh-quiz-card jh-quiz-mode-card"
             onClick={() => startQuiz('full')}
           >
-            <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🧭</div>
-            <h3 style={{ margin: '0 0 0.5rem' }}>Full Quiz</h3>
-            <p style={{ color: 'var(--jh-gray-600)', marginBottom: '1.5rem' }}>
+            <div className="jh-step-icon">62</div>
+            <h3>Full Quiz</h3>
+            <p>
               62 questions · ~10 minutes<br />Complete career profile
             </p>
             <button className="jh-btn-secondary" onClick={() => startQuiz('full')}>
@@ -304,7 +302,7 @@ export default function QuizInterface() {
             </div>
 
             {topMatches.length > 0 && (
-              <div className="jh-traits-card" style={{ marginTop: '1.5rem' }}>
+              <div className="jh-traits-card" style={{ marginTop: '1.25rem' }}>
                 <h3>Your Top Career Matches</h3>
                 {topMatches.map((match) => (
                   <div key={match.careerProfileId} className="jh-trait-row">
@@ -323,9 +321,8 @@ export default function QuizInterface() {
               </div>
             )}
 
-            {/* Actions for mobile */}
-            <div style={{ textAlign: 'center', marginTop: '2.5rem', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/jobs" className="jh-btn-primary">Browse Matching Jobs →</Link>
+            <div className="jh-results-actions jh-results-mobile-actions">
+              <Link to="/jobs" className="jh-btn-primary">Browse Matching Jobs</Link>
               <button className="jh-btn-secondary" onClick={() => setMode('select')}>Try Other Quiz</button>
             </div>
           </div>
@@ -335,7 +332,7 @@ export default function QuizInterface() {
             <div className="jh-sidebar-card">
               <h3>Take Action</h3>
               <div className="jh-sidebar-actions">
-                <Link to="/jobs" className="jh-btn-primary">Browse Matching Jobs →</Link>
+                <Link to="/jobs" className="jh-btn-primary">Browse Matching Jobs</Link>
                 <button className="jh-btn-secondary" onClick={() => setMode('select')}>Try Other Quiz</button>
               </div>
               <div className="jh-sidebar-tip">
@@ -357,9 +354,9 @@ export default function QuizInterface() {
         {/* Left sidebar — quiz context */}
         <aside className="jh-quiz-active-sidebar">
           <div className="jh-sidebar-card">
-            <h3>{mode === 'quick' ? '⚡ Quick Quiz' : '🧭 Full Quiz'}</h3>
+            <h3>{mode === 'quick' ? 'Quick Quiz' : 'Full Quiz'}</h3>
             <p className="jh-sidebar-section-label">Total Questions</p>
-            <p style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--jh-orange)', margin: '0 0 1rem' }}>
+            <p className="jh-stat-value">
               {stepperQuestions.length}
             </p>
             <p className="jh-sidebar-section-label">How It Works</p>
@@ -374,15 +371,7 @@ export default function QuizInterface() {
         {/* Main quiz area */}
         <div className="jh-quiz-active-main">
           {submitError && (
-            <div style={{
-              background: '#fff1f0',
-              border: '1px solid #ffccc7',
-              borderRadius: 'var(--jh-radius-md)',
-              padding: '1rem 1.25rem',
-              marginBottom: '1rem',
-              color: '#cf1322',
-              fontSize: '0.9rem',
-            }}>
+            <div className="jh-alert-error">
               {submitError}
             </div>
           )}
