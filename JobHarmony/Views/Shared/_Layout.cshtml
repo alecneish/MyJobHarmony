@@ -1,0 +1,70 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - JobHarmony</title>
+    <script type="importmap"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/JobHarmony.styles.css" asp-append-version="true"/>
+</head>
+<body>
+<header>
+    <nav class="jh-navbar">
+        <div class="jh-navbar-inner">
+            <a class="jh-brand" asp-controller="Home" asp-action="Index">JobHarmony</a>
+            <ul class="jh-nav-links">
+                <li><a class="jh-nav-link @(controller == "Home" && action == "Index" ? "active" : "")"
+                       asp-controller="Home" asp-action="Index">Home</a></li>
+                <li><a class="jh-nav-link @(controller == "Quiz" ? "active" : "")"
+                       asp-controller="Quiz" asp-action="Index">Quiz</a></li>
+                <li><a class="jh-nav-link @(controller == "Jobs" && action == "Index" ? "active" : "")"
+                       asp-controller="Jobs" asp-action="Index">Jobs</a></li>
+                <li><a class="jh-nav-link @(controller == "Jobs" && action == "Saved" ? "active" : "")"
+                       asp-controller="Jobs" asp-action="Saved">Saved</a></li>
+                <li><a class="jh-nav-link @(controller == "Recruit" ? "active" : "")"
+                       asp-controller="Recruit" asp-action="Index">Recruit</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<main role="main">
+    @RenderBody()
+</main>
+
+<footer class="jh-footer">
+    <div class="jh-footer-content">
+        <div>
+            <div class="jh-footer-brand">JobHarmony</div>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem;">&copy; 2026 JobHarmony. All rights reserved.</p>
+        </div>
+        <ul class="jh-footer-links">
+            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li><a asp-controller="Quiz" asp-action="Index">Quiz</a></li>
+            <li><a asp-controller="Jobs" asp-action="Index">Jobs</a></li>
+            <li><a asp-controller="Recruit" asp-action="Index">Recruit</a></li>
+        </ul>
+    </div>
+</footer>
+
+<div id="jh-snackbar" class="jh-snackbar">
+    <span class="jh-snackbar-message"></span>
+    <button class="jh-snackbar-undo" style="display:none;">UNDO</button>
+    <button class="jh-snackbar-close">&times;</button>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

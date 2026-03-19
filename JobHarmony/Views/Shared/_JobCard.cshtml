@@ -1,0 +1,38 @@
+@model JobHarmony.Models.Job
+
+<div class="jh-job-card" data-job-id="@Model.Id"
+     data-type="@Model.Type" data-location="@Model.Location"
+     data-tags="@string.Join(",", Model.Tags)"
+     data-title="@Model.Title" data-company="@Model.Company">
+    <div class="jh-job-header">
+        <div class="jh-job-logo">@Model.LogoEmoji</div>
+        <div class="jh-job-info">
+            <h3>@Model.Title</h3>
+            <div class="jh-job-company">@Model.Company</div>
+        </div>
+        <div class="jh-fit-badge @Model.FitLevel.ToLower()">@Model.FitScore%</div>
+    </div>
+
+    <div class="jh-job-tags">
+        @foreach (var tag in Model.Tags)
+        {
+            <span class="jh-tag">@tag</span>
+        }
+    </div>
+
+    <div class="jh-job-fit-reason">@Model.FitReason</div>
+
+    <div class="jh-job-meta">
+        <span>&#x1F4CD; @Model.Location</span>
+        <span>&#x1F4B0; @Model.Salary</span>
+        <span>&#x1F4BC; @Model.Type</span>
+        <span>&#x1F4C5; @(Model.PostedDaysAgo == 1 ? "1 day ago" : Model.PostedDaysAgo + " days ago")</span>
+    </div>
+
+    <div class="jh-job-actions">
+        <a href="#" class="jh-btn-primary" onclick="return false;">Apply Now</a>
+        <button class="jh-save-btn" data-job-id="@Model.Id">
+            <span class="save-icon">&#9825;</span> Save
+        </button>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.exe
+
+## Node
+node_modules/
+dist/
+*.local
+
+## env
+.env
+.env.local
+
+
+## IDE
+.idea/
+.vs/
+*.swp
+*~
+
+## OS
+.DS_Store
+Thumbs.db
+
+## SQLite database (runtime artifact — auto-created on startup)
+*.db
+*.db-shm
+*.db-wal
+
+## Claude Code settings
+.claude/

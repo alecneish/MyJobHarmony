@@ -1,0 +1,25 @@
+@model JobHarmony.Models.JobListingsViewModel
+@{
+    ViewData["Title"] = "Saved Jobs";
+}
+
+<div class="jh-jobs-container" id="jh-saved-page">
+    <div class="jh-section-header" style="margin-bottom: 2rem;">
+        <h2>Saved Jobs</h2>
+        <p>Jobs you've bookmarked for later.</p>
+    </div>
+
+    <div id="jh-saved-job-list">
+        @foreach (var job in Model.Jobs)
+        {
+            @await Html.PartialAsync("_JobCard", job)
+        }
+    </div>
+
+    <div class="jh-empty-state" id="jh-saved-empty" style="display: none;">
+        <span class="jh-empty-icon">&#x1F516;</span>
+        <h3>No Saved Jobs Yet</h3>
+        <p>Browse job listings and save the ones that interest you.</p>
+        <a asp-controller="Jobs" asp-action="Index" class="jh-btn-primary">Browse Jobs</a>
+    </div>
+</div>

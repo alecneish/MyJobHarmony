@@ -1,0 +1,47 @@
+@model JobHarmony.Models.QuizViewModel
+@{
+    ViewData["Title"] = "Career Quiz";
+}
+
+<div class="jh-quiz-container">
+    <div class="jh-section-header" style="margin-bottom: 2rem;">
+        <h2>Career Personality Quiz</h2>
+        <p>Answer each question honestly — there are no right or wrong answers.</p>
+    </div>
+
+    <div class="jh-quiz-progress">
+        <div class="jh-quiz-progress-bar">
+            <div class="jh-quiz-progress-fill" id="jh-progress-fill" style="width: 12.5%;"></div>
+        </div>
+        <div class="jh-quiz-progress-text">
+            <span id="jh-progress-label">Question 1 of @Model.Questions.Count</span>
+            <span id="jh-progress-pct">12%</span>
+        </div>
+    </div>
+
+    @for (var i = 0; i < Model.Questions.Count; i++)
+    {
+        var q = Model.Questions[i];
+        <div class="jh-quiz-card" data-question="@i" style="@(i > 0 ? "display:none;" : "")">
+            <h2>@q.QuestionText</h2>
+            @for (var j = 0; j < q.Options.Count; j++)
+            {
+                var opt = q.Options[j];
+                <button class="jh-quiz-option"
+                        data-trait="@opt.Trait"
+                        data-weight="@opt.Weight"
+                        data-question="@i"
+                        data-option="@j">
+                    @opt.Label
+                </button>
+            }
+        </div>
+    }
+
+    <div class="jh-quiz-nav">
+        <button class="jh-btn-secondary" id="jh-quiz-back" style="visibility: hidden;">&#8592; Back</button>
+        <button class="jh-btn-primary" id="jh-quiz-next" disabled>Next &#8594;</button>
+    </div>
+</div>
+
+<input type="hidden" id="jh-total-questions" value="@Model.Questions.Count" />

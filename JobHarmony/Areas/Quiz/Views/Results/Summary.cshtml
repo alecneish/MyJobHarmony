@@ -1,0 +1,246 @@
+@model JobHarmony.Areas.Quiz.ViewModels.ResultsViewModel
+@{
+    ViewData["Title"] = "Your Results";
+}
+
+<!-- Results Header -->
+<div class="results-header">
+    <div class="container">
+        <h1 class="display-5">Your Career Profile</h1>
+        <p class="text-white-50 mb-2">Based on your @Model.Tier assessment</p>
+        <div class="holland-code" title="Your Holland Code">@Model.HollandCode</div>
+        <p class="text-white-50 mt-2 small">Your Holland Code — your primary career interest pattern</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Personality Profile -->
+    <section class="results-section">
+        <h2>Your Personality</h2>
+        <div class="results-card">
+            @foreach (var score in Model.PersonalityScores)
+            {
+                <div class="score-bar-item">
+                    <div class="label-row">
+                        <span class="dim-label">@score.Label</span>
+                        <span class="dim-value">@score.Score.ToString("F0")%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bar-@score.Dimension.ToLower()" role="progressbar"
+                             style="width: 0%" data-target="@score.Score"></div>
+                    </div>
+                    <div class="dim-desc">@score.Description</div>
+                </div>
+            }
+        </div>
+        <div class="results-card">
+            <p class="summary-text">@Model.PersonalitySummary</p>
+        </div>
+    </section>
+
+    <!-- Career Interests (RIASEC) -->
+    <section class="results-section">
+        <h2>Your Career Interests</h2>
+        <div class="results-card">
+            <div class="riasec-chart">
+                <svg viewBox="0 0 300 300" id="riasecHexagon">
+                    <!-- Drawn by JS -->
+                </svg>
+            </div>
+            @foreach (var score in Model.InterestScores)
+            {
+                <div class="score-bar-item">
+                    <div class="label-row">
+                        <span class="dim-label">@score.Label</span>
+                        <span class="dim-value">@score.Score.ToString("F0")%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bar-@score.Dimension.ToLower()" role="progressbar"
+                             style="width: 0%" data-target="@score.Score"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- Work Values -->
+    <section class="results-section">
+        <h2>What Drives You</h2>
+        <div class="results-card">
+            @foreach (var score in Model.ValueScores)
+            {
+                <div class="score-bar-item">
+                    <div class="label-row">
+                        <span class="dim-label">@score.Label</span>
+                        <span class="dim-value">@score.Score.ToString("F0")%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bar-@score.Dimension.ToLower()" role="progressbar"
+                             style="width: 0%" data-target="@score.Score"></div>
+                    </div>
+                </div>
+            }
+            <p class="summary-text mt-3">@Model.ValuesSummary</p>
+        </div>
+    </section>
+
+    <!-- Work Environment -->
+    <section class="results-section">
+        <h2>Your Ideal Workplace</h2>
+        <div class="results-card">
+            @foreach (var score in Model.EnvironmentScores)
+            {
+                <div class="score-bar-item">
+                    <div class="label-row">
+                        <span class="dim-label">@score.Label</span>
+                        <span class="dim-value">@score.Score.ToString("F0")%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bar-@score.Dimension.ToLower()" role="progressbar"
+                             style="width: 0%" data-target="@score.Score"></div>
+                    </div>
+                </div>
+            }
+            <p class="summary-text mt-3">@Model.EnvironmentSummary</p>
+        </div>
+    </section>
+
+    <!-- Top Career Matches -->
+    <section class="results-section">
+        <h2>Your Top Career Matches</h2>
+        @foreach (var career in Model.TopCareers.Take(Model.Tier == "Premium" ? 15 : 10))
+        {
+            <div class="career-match-card">
+                <div class="match-rank">#@career.Rank</div>
+                <div class="match-info">
+                    <h5>@career.Title</h5>
+                    <span class="match-category">@career.Category</span>
+                    <p class="match-desc">@career.Description</p>
+                </div>
+                <div class="match-score">
+                    <div class="pct">@career.MatchScore.ToString("F0")</div>
+                    <div class="pct-label">match</div>
+                </div>
+            </div>
+        }
+    </section>
+
+    @if (Model.Tier == "Free")
+    {
+        <!-- Premium Upsell -->
+        <section class="results-section">
+            <div class="upsell-card">
+                <h3>Want Deeper Insights?</h3>
+                <p class="mb-3">
+                    The premium assessment digs deeper with stress behavior analysis,
+                    psychological needs profiling, career stage assessment, and 15+ career matches.
+                </p>
+                <a asp-controller="Quiz" asp-action="Index" class="btn btn-warning btn-lg fw-semibold px-5">
+                    Take the Premium Quiz
+                </a>
+            </div>
+        </section>
+    }
+
+    <!-- Retake -->
+    <div class="text-center pb-5 mt-3">
+        <a asp-controller="Quiz" asp-action="Index" class="btn btn-outline-secondary">
+            Take the Quiz Again
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Animate score bars
+            setTimeout(function () {
+                $('.score-bar-item .progress-bar').each(function () {
+                    var target = $(this).data('target');
+                    $(this).css('width', target + '%');
+                });
+            }, 200);
+
+            // Draw RIASEC hexagon
+            drawRiasecHexagon();
+        });
+
+        function drawRiasecHexagon() {
+            var svg = document.getElementById('riasecHexagon');
+            if (!svg) return;
+
+            var scores = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Model.InterestScores.Select(s => new { s.Dimension, s.Score, s.Label })));
+
+            var cx = 150, cy = 150, maxR = 120;
+            var n = 6;
+            var colors = {
+                'Realistic': '#78716c',
+                'Investigative': '#6366f1',
+                'Artistic': '#ec4899',
+                'Social': '#14b8a6',
+                'Enterprising': '#f97316',
+                'Conventional': '#64748b'
+            };
+
+            // Background grid
+            [0.25, 0.5, 0.75, 1.0].forEach(function (pct) {
+                var r = maxR * pct;
+                var pts = [];
+                for (var i = 0; i < n; i++) {
+                    var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+                    pts.push((cx + r * Math.cos(angle)).toFixed(1) + ',' + (cy + r * Math.sin(angle)).toFixed(1));
+                }
+                var poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                poly.setAttribute('points', pts.join(' '));
+                poly.setAttribute('fill', 'none');
+                poly.setAttribute('stroke', '#e2e8f0');
+                poly.setAttribute('stroke-width', '1');
+                svg.appendChild(poly);
+            });
+
+            // Data polygon
+            var dataPts = [];
+            scores.forEach(function (s, i) {
+                var r = (s.score / 100) * maxR;
+                var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+                dataPts.push((cx + r * Math.cos(angle)).toFixed(1) + ',' + (cy + r * Math.sin(angle)).toFixed(1));
+            });
+            var dataPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            dataPoly.setAttribute('points', dataPts.join(' '));
+            dataPoly.setAttribute('fill', 'rgba(67, 97, 238, 0.15)');
+            dataPoly.setAttribute('stroke', '#4361ee');
+            dataPoly.setAttribute('stroke-width', '2.5');
+            svg.appendChild(dataPoly);
+
+            // Dots and labels
+            scores.forEach(function (s, i) {
+                var r = (s.score / 100) * maxR;
+                var angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+                var x = cx + r * Math.cos(angle);
+                var y = cy + r * Math.sin(angle);
+
+                var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', x.toFixed(1));
+                circle.setAttribute('cy', y.toFixed(1));
+                circle.setAttribute('r', '5');
+                circle.setAttribute('fill', colors[s.dimension] || '#4361ee');
+                svg.appendChild(circle);
+
+                // Label at edge
+                var lx = cx + (maxR + 20) * Math.cos(angle);
+                var ly = cy + (maxR + 20) * Math.sin(angle);
+                var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', lx.toFixed(1));
+                text.setAttribute('y', ly.toFixed(1));
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'middle');
+                text.setAttribute('font-size', '11');
+                text.setAttribute('font-weight', '600');
+                text.setAttribute('fill', colors[s.dimension] || '#4361ee');
+                text.textContent = s.dimension[0];
+                svg.appendChild(text);
+            });
+        }
+    </script>
+}

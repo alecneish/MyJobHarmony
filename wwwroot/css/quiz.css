@@ -1,0 +1,400 @@
+:root {
+    --jh-primary: #4361ee;
+    --jh-primary-light: #eef0ff;
+    --jh-dark: #1a1a2e;
+    --jh-text: #2d3748;
+    --jh-muted: #718096;
+    --jh-bg: #f7f8fc;
+    --jh-card: #ffffff;
+    --jh-border: #e2e8f0;
+    --jh-success: #38b2ac;
+    --jh-warning: #f6ad55;
+    --jh-premium-gradient: linear-gradient(135deg, #f6ad55, #ed8936);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--jh-text);
+    background: var(--jh-bg);
+    line-height: 1.6;
+}
+
+/* Navbar */
+.navbar {
+    padding: 1rem 0;
+    background: var(--jh-dark) !important;
+}
+.navbar-brand {
+    font-size: 1.4rem;
+    letter-spacing: -0.5px;
+}
+.navbar-brand .text-primary {
+    color: var(--jh-primary) !important;
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 4rem 0 3rem;
+}
+.hero-section .display-4 {
+    color: var(--jh-dark);
+    letter-spacing: -1px;
+}
+
+/* Tier Cards */
+.tier-card {
+    border: 2px solid var(--jh-border);
+    border-radius: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: var(--jh-card);
+}
+.tier-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+}
+.tier-card-premium {
+    border-color: var(--jh-warning);
+}
+.tier-features li {
+    padding: 0.4rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    color: var(--jh-text);
+    font-size: 0.95rem;
+}
+.tier-features li::before {
+    content: "\2713";
+    position: absolute;
+    left: 0;
+    color: var(--jh-success);
+    font-weight: bold;
+}
+.methodology-item {
+    padding: 1rem;
+}
+.methodology-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Quiz Container */
+.quiz-container {
+    padding: 2rem 0 4rem;
+    min-height: 80vh;
+}
+
+/* Progress */
+.quiz-progress .progress {
+    background: var(--jh-border);
+    border-radius: 100px;
+}
+.quiz-progress .progress-bar {
+    background: var(--jh-primary);
+    border-radius: 100px;
+    transition: width 0.4s ease;
+}
+
+/* Question Cards */
+.question-card {
+    background: var(--jh-card);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--jh-border);
+}
+.question-prompt {
+    color: var(--jh-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.question-text {
+    color: var(--jh-dark);
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.5;
+}
+.sec-header .badge {
+    font-weight: 500;
+    font-size: 0.8rem;
+    border: 1px solid var(--jh-border);
+}
+
+/* Likert Scale */
+.likert-scale {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.likert-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0.75rem;
+    min-width: 100px;
+    border: 2px solid var(--jh-border);
+    border-radius: 12px;
+    background: var(--jh-card);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex: 1;
+}
+.likert-btn:hover {
+    border-color: var(--jh-primary);
+    background: var(--jh-primary-light);
+}
+.likert-btn.active {
+    border-color: var(--jh-primary);
+    background: var(--jh-primary);
+    color: #fff;
+}
+.likert-btn.active .likert-label {
+    color: rgba(255, 255, 255, 0.9);
+}
+.likert-number {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+.likert-label {
+    font-size: 0.7rem;
+    color: var(--jh-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: 500;
+}
+
+/* Nav Buttons */
+.quiz-nav .btn {
+    padding: 0.6rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+}
+.btn-primary {
+    background: var(--jh-primary);
+    border-color: var(--jh-primary);
+}
+.btn-primary:hover {
+    background: #3651d4;
+    border-color: #3651d4;
+}
+.btn-success {
+    background: var(--jh-success);
+    border-color: var(--jh-success);
+}
+
+/* ==========================================
+   RESULTS PAGE
+   ========================================== */
+
+.results-header {
+    background: var(--jh-dark);
+    color: #fff;
+    padding: 3rem 0 2rem;
+    text-align: center;
+}
+.results-header h1 {
+    font-weight: 800;
+    letter-spacing: -1px;
+}
+.results-header .holland-code {
+    display: inline-block;
+    background: var(--jh-primary);
+    color: #fff;
+    padding: 0.4rem 1.2rem;
+    border-radius: 8px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-top: 0.5rem;
+}
+
+.results-section {
+    padding: 2rem 0;
+}
+.results-section h2 {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--jh-dark);
+}
+.results-card {
+    background: var(--jh-card);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--jh-border);
+    margin-bottom: 1.5rem;
+}
+
+/* Score Bars */
+.score-bar-item {
+    margin-bottom: 1.2rem;
+}
+.score-bar-item .label-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+}
+.score-bar-item .dim-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.score-bar-item .dim-value {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--jh-primary);
+}
+.score-bar-item .progress {
+    height: 10px;
+    border-radius: 100px;
+    background: var(--jh-border);
+}
+.score-bar-item .progress-bar {
+    border-radius: 100px;
+    transition: width 1s ease;
+}
+.score-bar-item .dim-desc {
+    font-size: 0.82rem;
+    color: var(--jh-muted);
+    margin-top: 0.3rem;
+}
+
+/* OCEAN colors */
+.bar-openness { background: #8b5cf6; }
+.bar-conscientiousness { background: #3b82f6; }
+.bar-extraversion { background: #f59e0b; }
+.bar-agreeableness { background: #10b981; }
+.bar-emotionalstability { background: #ef4444; }
+
+/* RIASEC colors */
+.bar-realistic { background: #78716c; }
+.bar-investigative { background: #6366f1; }
+.bar-artistic { background: #ec4899; }
+.bar-social { background: #14b8a6; }
+.bar-enterprising { background: #f97316; }
+.bar-conventional { background: #64748b; }
+
+/* Values colors */
+.bar-autonomy { background: #8b5cf6; }
+.bar-security { background: #3b82f6; }
+.bar-challenge { background: #ef4444; }
+.bar-service { background: #10b981; }
+.bar-worklifebalance { background: #f59e0b; }
+
+/* Environment colors */
+.bar-pace { background: #f97316; }
+.bar-collaboration { background: #14b8a6; }
+.bar-structure { background: #6366f1; }
+
+/* RIASEC Hexagon (SVG-based) */
+.riasec-chart {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+.riasec-chart svg {
+    max-width: 320px;
+    width: 100%;
+}
+
+/* Career Match Cards */
+.career-match-card {
+    background: var(--jh-card);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--jh-border);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: box-shadow 0.15s;
+}
+.career-match-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+.match-rank {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--jh-border);
+    min-width: 2.5rem;
+    text-align: center;
+}
+.career-match-card:nth-child(1) .match-rank { color: #f59e0b; }
+.career-match-card:nth-child(2) .match-rank { color: #94a3b8; }
+.career-match-card:nth-child(3) .match-rank { color: #b45309; }
+.match-info {
+    flex: 1;
+}
+.match-info h5 {
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+    font-size: 1rem;
+}
+.match-info .match-category {
+    font-size: 0.8rem;
+    color: var(--jh-muted);
+}
+.match-info .match-desc {
+    font-size: 0.85rem;
+    color: var(--jh-text);
+    margin-top: 0.3rem;
+}
+.match-score {
+    text-align: center;
+    min-width: 60px;
+}
+.match-score .pct {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--jh-primary);
+}
+.match-score .pct-label {
+    font-size: 0.7rem;
+    color: var(--jh-muted);
+    text-transform: uppercase;
+}
+
+/* Summary text */
+.summary-text {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--jh-text);
+}
+
+/* Premium Upsell */
+.upsell-card {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 2px solid #f59e0b;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+}
+.upsell-card h3 {
+    font-weight: 700;
+    color: #92400e;
+}
+.upsell-card p {
+    color: #78350f;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .likert-btn {
+        min-width: 60px;
+        padding: 0.75rem 0.4rem;
+    }
+    .likert-label {
+        font-size: 0.6rem;
+    }
+    .question-text {
+        font-size: 1.1rem;
+    }
+    .question-card {
+        padding: 1.5rem 1rem;
+    }
+}

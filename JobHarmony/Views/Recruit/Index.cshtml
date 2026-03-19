@@ -1,0 +1,37 @@
+@model JobHarmony.Models.RecruitViewModel
+@{
+    ViewData["Title"] = "Recruit";
+}
+
+<div class="jh-recruit-container">
+    <div class="jh-section-header">
+        <h2>Recruit Talent</h2>
+        <p>Find candidates whose personality and skills align with your openings.</p>
+    </div>
+
+    @if (Model.RecommendedApplicants.Any())
+    {
+        <div style="margin-bottom: 3rem;">
+            <h3 class="jh-top-candidates-heading">Top Candidates</h3>
+            <div class="jh-applicant-grid">
+                @foreach (var applicant in Model.RecommendedApplicants)
+                {
+                    @await Html.PartialAsync("_ApplicantCard", applicant)
+                }
+            </div>
+        </div>
+    }
+
+    @if (Model.AllApplicants.Any())
+    {
+        <div>
+            <h3 style="margin-bottom: 1.25rem;">All Applicants</h3>
+            <div class="jh-applicant-grid">
+                @foreach (var applicant in Model.AllApplicants)
+                {
+                    @await Html.PartialAsync("_ApplicantCard", applicant)
+                }
+            </div>
+        </div>
+    }
+</div>
