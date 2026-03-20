@@ -5,6 +5,8 @@ import { showSnackbar } from '../components/Snackbar';
 import { apiClient } from '../lib/apiClient';
 import { useAuth } from '../context/AuthContext';
 
+const QUESTIONS_PER_PAGE = 10;
+
 const LIKERT_OPTIONS = [
   { value: 1, label: 'Strongly Disagree' },
   { value: 2, label: 'Disagree' },
@@ -60,7 +62,7 @@ interface DimensionScore {
 
 export default function Quiz() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
-  const [current, setCurrent] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -111,27 +113,33 @@ export default function Quiz() {
   }, [user, session?.access_token]);
 
   const total = questions.length;
-  const progress = total > 0 ? Math.round(((current + 1) / total) * 100) : 0;
-  const q = questions[current];
-  const currentAnswer = q ? answers[q.id] : undefined;
-  const options = q?.questionFormat === 'Interest' ? INTEREST_OPTIONS : LIKERT_OPTIONS;
+  const totalPages = Math.ceil(total / QUESTIONS_PER_PAGE);
+  const pageQuestions = questions.slice(
+    currentPage * QUESTIONS_PER_PAGE,
+    (currentPage + 1) * QUESTIONS_PER_PAGE,
+  );
+  const pageComplete = pageQuestions.length > 0 && pageQuestions.every((q) => answers[q.id] !== undefined);
+  const progress = totalPages > 0 ? Math.round(((currentPage + 1) / totalPages) * 100) : 0;
+  const isLastPage = currentPage >= totalPages - 1;
 
-  function selectOption(value: number) {
-    setAnswers((prev) => ({ ...prev, [q.id]: value }));
+  function selectOption(questionId: number, value: number) {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
   }
 
   function next() {
-    if (currentAnswer === undefined) return;
-    if (current >= total - 1) {
+    if (!pageComplete) return;
+    if (isLastPage) {
       submitQuiz();
       return;
     }
-    setCurrent((c) => c + 1);
+    setCurrentPage((p) => p + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function back() {
-    if (current <= 0) return;
-    setCurrent((c) => c - 1);
+    if (currentPage <= 0) return;
+    setCurrentPage((p) => p - 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function submitQuiz() {
@@ -282,38 +290,55 @@ export default function Quiz() {
           />
         </div>
         <div className="jh-quiz-progress-text">
-          <span>{q.section} · Question {current + 1} of {total}</span>
+          <span>Page {currentPage + 1} of {totalPages}</span>
           <span>{progress}%</span>
         </div>
       </div>
 
-      <div className="jh-quiz-card" data-question={current}>
-        <h2>{q.text}</h2>
-        {options.map((opt) => (
-          <button
-            key={opt.value}
-            className={`jh-quiz-option${currentAnswer === opt.value ? ' selected' : ''}`}
-            onClick={() => selectOption(opt.value)}
-          >
-            {opt.label}
-          </button>
-        ))}
+      <div className="jh-quiz-page">
+        {pageQuestions.map((q, idx) => {
+          const options = q.questionFormat === 'Interest' ? INTEREST_OPTIONS : LIKERT_OPTIONS;
+          const selectedAnswer = answers[q.id];
+          const globalIndex = currentPage * QUESTIONS_PER_PAGE + idx + 1;
+
+          return (
+            <div key={q.id} className="jh-quiz-card jh-quiz-card--paged">
+              <p className="jh-quiz-card-number">Question {globalIndex} of {total}</p>
+              <h3>{q.text}</h3>
+              <div className="jh-quiz-options-row">
+                {options.map((opt) => (
+                  <button
+                    key={opt.value}
+                    className={`jh-quiz-option jh-quiz-option--compact${selectedAnswer === opt.value ? ' selected' : ''}`}
+                    onClick={() => selectOption(q.id, opt.value)}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      {!pageComplete && (
+        <p className="jh-quiz-page-hint">Answer all questions on this page to continue.</p>
+      )}
 
       <div className="jh-quiz-nav">
         <button
           className="jh-btn-secondary"
-          style={{ visibility: current > 0 ? 'visible' : 'hidden' }}
+          style={{ visibility: currentPage > 0 ? 'visible' : 'hidden' }}
           onClick={back}
         >
           ← Back
         </button>
         <button
           className="jh-btn-primary"
-          disabled={currentAnswer === undefined || submitting}
+          disabled={!pageComplete || submitting}
           onClick={next}
         >
-          {submitting ? 'Submitting…' : current >= total - 1 ? 'See Results' : 'Next →'}
+          {submitting ? 'Submitting…' : isLastPage ? 'See Results' : 'Next →'}
         </button>
       </div>
     </div>
