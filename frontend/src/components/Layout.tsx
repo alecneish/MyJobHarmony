@@ -6,6 +6,7 @@ export default function Layout() {
   const { user, userProfile, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const isRecruiter = !!(user && userProfile?.role === 'recruiter');
+  const hasResults = Boolean(user && localStorage.getItem('jh-quiz-results'));
 
   const handleSignOut = async () => {
     await signOut();
@@ -36,6 +37,14 @@ export default function Layout() {
                   Quiz
                 </NavLink>
               </li>
+
+              {hasResults && (
+                <li>
+                  <NavLink to="/quiz/results" className={({ isActive }) => 'jh-nav-link' + (isActive ? ' active' : '')}>
+                    Results
+                  </NavLink>
+                </li>
+              )}
 
               {user && !loading && userProfile?.role === 'job_seeker' && (
                 <>
