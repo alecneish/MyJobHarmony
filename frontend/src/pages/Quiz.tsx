@@ -7,6 +7,29 @@ import { useAuth } from '../context/AuthContext';
 
 const QUESTIONS_PER_PAGE = 10;
 
+type QuizTier = 'short' | 'medium' | 'full';
+
+const TIER_CONFIG: Record<QuizTier, { name: string; questions: number; minutes: number; description: string }> = {
+  short: {
+    name: 'Quick Pulse',
+    questions: 19,
+    minutes: 3,
+    description: 'One question per dimension — fast results with solid coverage across all areas.',
+  },
+  medium: {
+    name: 'Career Snapshot',
+    questions: 30,
+    minutes: 5,
+    description: 'A balanced view of your personality, interests, values, and work style.',
+  },
+  full: {
+    name: 'Full Profile',
+    questions: 62,
+    minutes: 10,
+    description: 'The complete assessment for the most detailed and accurate career matches.',
+  },
+};
+
 const LIKERT_OPTIONS = [
   { value: 1, label: 'Strongly Disagree' },
   { value: 2, label: 'Disagree' },
@@ -61,10 +84,11 @@ interface DimensionScore {
 }
 
 export default function Quiz() {
+  const [tier, setTier] = useState<QuizTier | null>(null);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showSavePrompt, setShowSavePrompt] = useState(false);
   const [hasLastResults, setHasLastResults] = useState(false);
@@ -72,14 +96,23 @@ export default function Quiz() {
   const { user, session } = useAuth();
 
   useEffect(() => {
-    fetch('/api/quiz/questions')
+    if (!tier) return;
+    setLoading(true);
+    fetch(`/api/quiz/questions?tier=${tier}`)
       .then((r) => r.json())
       .then((data: QuizQuestion[]) => {
         setQuestions(data);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [tier]);
+
+  function startTier(selected: QuizTier) {
+    setAnswers({});
+    setCurrentPage(0);
+    setQuestions([]);
+    setTier(selected);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -208,6 +241,36 @@ export default function Quiz() {
     return result;
   }
 
+  // --- Tier selection landing screen ---
+  if (!tier) {
+    return (
+      <div className="jh-quiz-container">
+        <div className="jh-section-header" style={{ marginBottom: '2.5rem' }}>
+          <h2>Career Personality Quiz</h2>
+          <p>Choose how much time you have. All versions use the same scoring engine.</p>
+        </div>
+        <div className="jh-tier-grid">
+          {(Object.entries(TIER_CONFIG) as [QuizTier, typeof TIER_CONFIG[QuizTier]][]).map(([key, config]) => (
+            <button
+              key={key}
+              className="jh-tier-card"
+              onClick={() => startTier(key)}
+            >
+              <div className="jh-tier-card-meta">
+                <span className="jh-tier-card-questions">{config.questions} questions</span>
+                <span className="jh-tier-card-time">~{config.minutes} min</span>
+              </div>
+              <h3>{config.name}</h3>
+              <p>{config.description}</p>
+              <span className="jh-tier-card-cta">Start →</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // --- Loading state ---
   if (loading) {
     return (
       <div className="jh-quiz-container" style={{ textAlign: 'center', padding: '4rem' }}>
@@ -220,10 +283,14 @@ export default function Quiz() {
     return (
       <div className="jh-quiz-container" style={{ textAlign: 'center', padding: '4rem' }}>
         <p>Failed to load quiz questions. Please try again.</p>
+        <button className="jh-btn-secondary" style={{ marginTop: '1rem' }} onClick={() => setTier(null)}>
+          ← Back
+        </button>
       </div>
     );
   }
 
+  // --- Quiz ---
   return (
     <div className="jh-quiz-container">
       {hasLastResults && (
@@ -235,7 +302,7 @@ export default function Quiz() {
       )}
 
       <div className="jh-section-header" style={{ marginBottom: '2rem' }}>
-        <h2>Career Personality Quiz</h2>
+        <h2>{TIER_CONFIG[tier].name}</h2>
         <p>Answer each question honestly — there are no right or wrong answers.</p>
       </div>
 
@@ -328,8 +395,7 @@ export default function Quiz() {
       <div className="jh-quiz-nav">
         <button
           className="jh-btn-secondary"
-          style={{ visibility: currentPage > 0 ? 'visible' : 'hidden' }}
-          onClick={back}
+          onClick={currentPage > 0 ? back : () => setTier(null)}
         >
           ← Back
         </button>

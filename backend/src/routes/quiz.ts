@@ -30,7 +30,9 @@ async function resolveUserId(req: Request): Promise<string | null> {
   }
 }
 
-router.get('/questions', async (_req: Request, res: Response) => {
+router.get('/questions', async (req: Request, res: Response) => {
+  const tierParam = (req.query.tier as string) || 'full';
+
   const { data, error } = await supabase
     .from('QuizQuestions')
     .select('*')
@@ -43,7 +45,7 @@ router.get('/questions', async (_req: Request, res: Response) => {
     return;
   }
 
-  const questions: QuizQuestion[] = data.map((row: any) => ({
+  const allQuestions: QuizQuestion[] = data.map((row: any) => ({
     id: row.Id,
     text: row.QuestionText,
     dimension: row.Dimension ?? '',
@@ -55,6 +57,24 @@ router.get('/questions', async (_req: Request, res: Response) => {
     weight: Number(row.Weight ?? 1.0),
     tier: row.Tier ?? 'Free',
   }));
+
+  let questions: QuizQuestion[];
+
+  if (tierParam === 'medium') {
+    questions = allQuestions.filter(q => q.tier === 'Free');
+  } else if (tierParam === 'short') {
+    // One Free question per dimension, deterministic (first by ID order)
+    const seenDimensions = new Set<string>();
+    questions = [];
+    for (const q of allQuestions.filter(q => q.tier === 'Free')) {
+      if (!seenDimensions.has(q.dimension)) {
+        seenDimensions.add(q.dimension);
+        questions.push(q);
+      }
+    }
+  } else {
+    questions = allQuestions;
+  }
 
   res.json(questions);
 });
