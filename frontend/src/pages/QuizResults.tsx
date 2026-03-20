@@ -81,29 +81,58 @@ export default function QuizResults() {
       <div className="jh-results-layout">
 
         {/* Left — Top 10 Career Matches */}
-        <div className="jh-traits-card">
+        <div className="jh-traits-card jh-results-card--stretch">
           <h3>Top Career Matches</h3>
-          {topCareers.map((m) => (
-            <div key={m.rank} className="jh-trait-row">
-              <div className="jh-trait-label">
-                <span>{m.rank}. {m.title}</span>
-                <span className="jh-trait-value">{m.matchScore.toFixed(1)}%</span>
+
+          {/* Top 3 podium */}
+          <div className="jh-career-podium">
+            {topCareers.slice(0, 3).map((m) => (
+              <div key={m.rank} className="jh-career-podium-row">
+                <div className="jh-career-podium-header">
+                  <span className="jh-career-rank-badge">{m.rank}</span>
+                  <span className="jh-career-podium-title">{m.title}</span>
+                  <span className="jh-trait-value">{m.matchScore.toFixed(1)}%</span>
+                </div>
+                <div className="jh-trait-bar">
+                  <div
+                    className="jh-trait-fill"
+                    style={{ width: animated ? `${m.matchScore}%` : '0%' }}
+                  />
+                </div>
               </div>
-              <div className="jh-trait-bar">
-                <div
-                  className="jh-trait-fill"
-                  style={{ width: animated ? `${m.matchScore}%` : '0%' }}
-                />
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className="jh-career-divider" />
+
+          {/* Ranks 4–10 */}
+          <div className="jh-career-rest">
+            {topCareers.slice(3).map((m) => (
+              <div key={m.rank} className="jh-trait-row jh-trait-row--compact">
+                <div className="jh-trait-label">
+                  <span className="jh-career-rest-label">
+                    <span className="jh-career-rest-rank">{m.rank}</span>
+                    {m.title}
+                  </span>
+                  <span className="jh-trait-value">{m.matchScore.toFixed(1)}%</span>
+                </div>
+                <div className="jh-trait-bar jh-trait-bar--slim">
+                  <div
+                    className="jh-trait-fill"
+                    style={{ width: animated ? `${m.matchScore}%` : '0%' }}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Right — two stacked cards */}
         <div className="jh-results-right">
 
           {/* Top 5 Dimension Scores */}
-          <div className="jh-traits-card">
+          <div className="jh-traits-card jh-results-card--flex">
             <h3>Top Dimension Scores</h3>
             {topAggregates.map((s, i) => (
               <div key={i} className="jh-trait-row">
@@ -123,7 +152,7 @@ export default function QuizResults() {
 
           {/* Top 5 Subdimension Scores */}
           {topSubdimensions.length > 0 && (
-            <div className="jh-traits-card">
+            <div className="jh-traits-card jh-results-card--flex">
               <h3>Top Subdimension Scores</h3>
               {topSubdimensions.map((s, i) => (
                 <div key={i} className="jh-trait-row">
