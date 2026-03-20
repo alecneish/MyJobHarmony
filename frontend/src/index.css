@@ -798,6 +798,12 @@ a:hover {
 .jh-results-card--stretch {
   height: 100%;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.jh-results-card--stretch .jh-career-divider {
+  margin-top: auto;
 }
 
 /* Makes right-column cards grow to share available height equally */
