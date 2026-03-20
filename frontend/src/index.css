@@ -802,8 +802,9 @@ a:hover {
   flex-direction: column;
 }
 
-.jh-results-card--stretch .jh-career-divider {
-  margin-top: auto;
+.jh-results-card--stretch .jh-career-rest {
+  flex: 1;
+  justify-content: space-between;
 }
 
 /* Makes right-column cards grow to share available height equally */
