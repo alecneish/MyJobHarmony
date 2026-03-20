@@ -101,7 +101,7 @@ export default function Quiz() {
     fetch(`/api/quiz/questions?tier=${tier}`)
       .then((r) => r.json())
       .then((data: QuizQuestion[]) => {
-        setQuestions(data);
+        setQuestions(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -186,6 +186,7 @@ export default function Quiz() {
 
     apiClient('/api/quiz/submit', {
       method: 'POST',
+<<<<<<< HEAD
       body: JSON.stringify({ responses }),
     })
       .then((r) => r.json())
