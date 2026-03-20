@@ -186,11 +186,10 @@ export default function Quiz() {
 
     apiClient('/api/quiz/submit', {
       method: 'POST',
-<<<<<<< HEAD
       body: JSON.stringify({ responses }),
     })
       .then((r) => r.json())
-      .then((data: { success: boolean; dimensionScores: DimensionScore[]; careerMatches: CareerMatch[] }) => {
+      .then((data: { success: boolean; sessionId?: string | null; dimensionScores: DimensionScore[]; careerMatches: CareerMatch[] }) => {
         const oceanScores = buildOceanScores(data.dimensionScores ?? []);
         const dominantTrait = Object.keys(oceanScores).reduce((a, b) =>
           oceanScores[b] > oceanScores[a] ? b : a
