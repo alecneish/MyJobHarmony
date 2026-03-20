@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Quiz from './pages/Quiz';
-import QuizInterface from './pages/QuizInterface';
 import QuizResults from './pages/QuizResults';
 import Jobs from './pages/Jobs';
 import SavedJobs from './pages/SavedJobs';
@@ -27,7 +26,6 @@ export default function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/jobs" element={<Jobs />} />
           <Route path="/quiz" element={<Quiz />} />
-          <Route path="/quiz/interface" element={<QuizInterface />} />
           <Route path="/quiz/results" element={<QuizResults />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
