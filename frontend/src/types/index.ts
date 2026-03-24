@@ -16,6 +16,7 @@ export interface Job {
   title: string;
   company: string;
   logoEmoji: string;
+  image: string;
   location: string;
   salary: string;
   type: string;

@@ -11,16 +11,6 @@ function getSavedIds(): string[] {
   }
 }
 
-function companyInitials(company: string): string {
-  return company
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase();
-}
-
 interface JobCardProps {
   job: Job;
   onSaveToggle?: () => void;
@@ -70,40 +60,41 @@ export default function JobCard({ job, onSaveToggle }: JobCardProps) {
       data-title={job.title}
       data-company={job.company}
     >
-      <div className="jh-job-header">
-        <div className="jh-job-logo">{companyInitials(job.company)}</div>
-        <div className="jh-job-info">
-          <h3>{job.title}</h3>
-          <div className="jh-job-company">{job.company}</div>
-        </div>
+      <div className="jh-job-card-image">
+        <img src={job.image} alt={job.title} />
         <div className={`jh-fit-badge ${job.fitLevel.toLowerCase()}`}>{job.fitScore}%</div>
       </div>
 
-      <div className="jh-job-tags">
-        {job.tags.map((tag) => (
-          <span key={tag} className="jh-tag">{tag}</span>
-        ))}
-      </div>
+      <div className="jh-job-card-body">
+        <div className="jh-job-card-top">
+          <div>
+            <h3 className="jh-job-title">{job.title}</h3>
+            <div className="jh-job-company">{job.company}</div>
+          </div>
+          <div className="jh-job-salary">{job.salary}</div>
+        </div>
 
-      <div className="jh-job-fit-reason">{job.fitReason}</div>
+        <div className="jh-job-fit-reason">{job.fitReason}</div>
 
-      <div className="jh-job-meta">
-        <span>{job.location}</span>
-        <span>{job.salary}</span>
-        <span>{job.type}</span>
-        <span>{postedText}</span>
-      </div>
+        <div className="jh-job-card-bottom">
+          <div className="jh-job-meta">
+            <span className="jh-job-meta-pill">{job.location}</span>
+            <span className="jh-job-meta-pill">{job.type}</span>
+            <span className="jh-job-meta-pill">{postedText}</span>
+          </div>
 
-      <div className="jh-job-actions">
-        <a href="#" className="jh-btn-primary" onClick={(e) => e.preventDefault()}>
-          Apply Now
-        </a>
-        <button
-          className={`jh-save-btn${isSaved ? ' saved' : ''}`}
-          onClick={toggleSave}
-        >
-          {isSaved ? 'Saved' : 'Save'}
-        </button>
+          <div className="jh-job-actions">
+            <a href="#" className="jh-btn-primary jh-btn-sm" onClick={(e) => e.preventDefault()}>
+              Apply Now
+            </a>
+            <button
+              className={`jh-save-btn${isSaved ? ' saved' : ''}`}
+              onClick={toggleSave}
+            >
+              {isSaved ? 'Saved' : 'Save'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
