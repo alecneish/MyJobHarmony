@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
+import postgres from 'postgres';
 
+// Env is loaded from backend/.env (local `npm run dev`) or Docker `env_file: ./backend/.env`.
+
+// ── Supabase REST client ─────────────────────────────────────────
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
 
@@ -27,3 +31,12 @@ if (looksLikeStorageSecretKey(supabaseSecretKey)) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseSecretKey);
+
+// ── Direct Postgres connection (via postgres.js) ─────────────────
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL is not set');
+}
+
+export const sql = postgres(connectionString);

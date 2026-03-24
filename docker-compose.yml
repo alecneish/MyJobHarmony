@@ -1,0 +1,41 @@
+services:
+  # ── Express API ──
+  api:
+    build:
+      context: ./backend
+    env_file: ./backend/.env
+    environment:
+      PORT: "3001"
+    restart: unless-stopped
+
+  # ── Build frontend static files into a shared volume ──
+  # Set VITE_* in a .env file next to this file (not committed; create on the server).
+  frontend-build:
+    build:
+      context: ./frontend
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:-}
+        VITE_SUPABASE_ANON_KEY: ${VITE_SUPABASE_ANON_KEY:-}
+    entrypoint: ["sh", "-c", "cp -r /app/dist/* /out/"]
+    volumes:
+      - frontend_dist:/out
+    restart: "no"
+
+  # ── nginx: serves SPA + proxies /api ──
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      frontend-build:
+        condition: service_completed_successfully
+      api:
+        condition: service_started
+    ports:
+      - "8083:80"
+    volumes:
+      - frontend_dist:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+volumes:
+  frontend_dist:
