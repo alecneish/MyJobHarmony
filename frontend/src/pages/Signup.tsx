@@ -7,6 +7,7 @@ export default function Signup() {
   const navigate = useNavigate();
 
   const [role, setRole] = useState<'recruiter' | 'job_seeker'>('job_seeker');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -17,9 +18,7 @@ export default function Signup() {
     setError(null);
     setSubmitting(true);
     try {
-      // Derive a default username from the email prefix
-      const username = email.split('@')[0] + '_' + Math.random().toString(36).slice(2, 6);
-      await auth.signUp(email, password, username, role);
+      await auth.signUp(email, password, username.trim(), role);
       // Navigate based on role after successful signup
       if (role === 'recruiter') {
         navigate('/recruiter/dashboard');
@@ -48,6 +47,17 @@ export default function Signup() {
         )}
 
         <form className="jh-auth-form" onSubmit={handleSubmit}>
+          <label className="jh-field">
+            <span>Username</span>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="username"
+              required
+            />
+          </label>
+
           <label className="jh-field">
             <span>Email</span>
             <input
