@@ -4,8 +4,8 @@ import postgres from 'postgres';
 // Env is loaded from backend/.env (local `npm run dev`) or Docker `env_file: ./backend/.env`.
 
 // ── Supabase REST client ─────────────────────────────────────────
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
+const supabaseUrl = process.env.SUPABASE_URL?.trim();
+const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY?.trim();
 
 if (!supabaseUrl) {
   throw new Error('SUPABASE_URL is not set');

@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { supabase } from '../db/database';
+import { getApplicants as getSeedApplicants } from '../data/seedData';
 import { Applicant } from '../types';
 
 const router = Router();
@@ -15,7 +16,13 @@ function splitCsv(v: unknown): string[] {
 router.get('/', async (_req: Request, res: Response) => {
   const { data, error } = await supabase.from('Applicants').select('*').order('Id', { ascending: true });
   if (error || !data) {
-    res.status(500).json({ message: 'Failed to load applicants' });
+    // Keep the app usable locally even if Supabase is misconfigured.
+    if (error) console.error('Failed to load applicants from Supabase:', error);
+    const applicants = getSeedApplicants();
+    res.json({
+      recommendedApplicants: applicants.filter((a) => a.isRecommended),
+      allApplicants: applicants.filter((a) => !a.isRecommended),
+    });
     return;
   }
 

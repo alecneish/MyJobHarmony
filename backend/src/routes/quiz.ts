@@ -1,11 +1,32 @@
 import { Router, Request, Response } from 'express';
 import { getCareerProfiles } from '../data/careerProfiles';
+import { getQuizQuestions as getSeedQuizQuestions } from '../data/seedData';
 import { computeScores } from '../services/scoringEngine';
 import { computeMatches } from '../services/careerMatchingService';
 import { supabase } from '../db/database';
 import { QuizQuestion, QuizResponse } from '../types';
 
 const router = Router();
+
+function getBearerToken(req: Request): string | null {
+  const header = req.headers.authorization;
+  if (!header) return null;
+  const [type, token] = header.split(' ');
+  if (!type || type.toLowerCase() !== 'bearer' || !token) return null;
+  return token.trim();
+}
+
+async function resolveUserId(req: Request): Promise<string | null> {
+  const token = getBearerToken(req);
+  if (!token) return null;
+  try {
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data?.user?.id) return null;
+    return data.user.id;
+  } catch {
+    return null;
+  }
+}
 
 router.get('/questions', async (_req: Request, res: Response) => {
   const { data, error } = await supabase
@@ -14,7 +35,9 @@ router.get('/questions', async (_req: Request, res: Response) => {
     .order('Id', { ascending: true });
 
   if (error || !data) {
-    res.status(500).json({ message: 'Failed to load quiz questions' });
+    // Keep the app usable locally even if Supabase is misconfigured.
+    if (error) console.error('Failed to load quiz questions from Supabase:', error);
+    res.json(getSeedQuizQuestions());
     return;
   }
 
@@ -34,8 +57,61 @@ router.get('/questions', async (_req: Request, res: Response) => {
   res.json(questions);
 });
 
+router.get('/last', async (req: Request, res: Response) => {
+  const userId = await resolveUserId(req);
+  if (!userId) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  }
+
+  const { data: session, error: sessionErr } = await supabase
+    .from('quiz_sessions')
+    .select('id, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (sessionErr) {
+    console.error('Failed to load last quiz session:', sessionErr);
+    res.status(500).json({ message: 'Failed to load last quiz session' });
+    return;
+  }
+
+  if (!session?.id) {
+    res.status(404).json({ message: 'No saved quiz results' });
+    return;
+  }
+
+  const sessionId = session.id as string;
+
+  const { data: scores, error: scoresErr } = await supabase
+    .from('dimension_scores')
+    .select('dimension, subdimension, raw_score, normalized_score')
+    .eq('session_id', sessionId);
+
+  if (scoresErr || !scores) {
+    console.error('Failed to load dimension scores:', scoresErr);
+    res.status(500).json({ message: 'Failed to load dimension scores' });
+    return;
+  }
+
+  const dimensionScores = scores.map((row: any) => ({
+    dimension: row.dimension,
+    subdimension: row.subdimension ?? '',
+    rawScore: Number(row.raw_score),
+    normalizedScore: Number(row.normalized_score),
+  }));
+
+  const careers = getCareerProfiles();
+  const careerMatches = computeMatches(dimensionScores as any, careers);
+
+  res.json({ sessionId, dimensionScores, careerMatches });
+});
+
 router.post('/submit', async (req: Request, res: Response) => {
-  const { responses, userId } = req.body as { responses: QuizResponse[]; userId?: string };
+  const { responses } = req.body as { responses: QuizResponse[]; userId?: string };
+  const resolvedUserId = await resolveUserId(req);
 
   if (!Array.isArray(responses) || responses.length === 0) {
     res.status(400).json({ success: false, message: 'responses must be a non-empty array' });
@@ -56,23 +132,22 @@ router.post('/submit', async (req: Request, res: Response) => {
     .select('*')
     .order('Id', { ascending: true });
 
-  if (qErr || !qData) {
-    res.status(500).json({ success: false, message: 'Failed to load quiz questions for scoring' });
-    return;
-  }
-
-  const questions: QuizQuestion[] = qData.map((row: any) => ({
-    id: row.Id,
-    text: row.QuestionText,
-    dimension: row.Dimension ?? '',
-    subdimension: row.Subdimension ?? '',
-    section: row.Section ?? '',
-    sectionOrder: row.SectionOrder ?? 0,
-    questionFormat: row.QuestionFormat ?? 'Likert',
-    isReverseScored: Boolean(row.IsReverseScored),
-    weight: Number(row.Weight ?? 1.0),
-    tier: row.Tier ?? 'Free',
-  }));
+  const questions: QuizQuestion[] =
+    qErr || !qData
+      ? (qErr && (console.error('Failed to load quiz questions from Supabase for scoring:', qErr), null),
+        getSeedQuizQuestions())
+      : qData.map((row: any) => ({
+          id: row.Id,
+          text: row.QuestionText,
+          dimension: row.Dimension ?? '',
+          subdimension: row.Subdimension ?? '',
+          section: row.Section ?? '',
+          sectionOrder: row.SectionOrder ?? 0,
+          questionFormat: row.QuestionFormat ?? 'Likert',
+          isReverseScored: Boolean(row.IsReverseScored),
+          weight: Number(row.Weight ?? 1.0),
+          tier: row.Tier ?? 'Free',
+        }));
 
   const dimensionScores = computeScores(responses, questions);
   const careers = getCareerProfiles();
@@ -83,7 +158,7 @@ router.post('/submit', async (req: Request, res: Response) => {
     // 1. Create session
     const { data: session, error: sessionErr } = await supabase
       .from('quiz_sessions')
-      .insert({ user_id: userId ?? null })
+      .insert({ user_id: resolvedUserId ?? null })
       .select('id')
       .single();
 
