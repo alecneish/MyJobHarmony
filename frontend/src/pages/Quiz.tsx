@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { QuizQuestion, QuizResults, CareerMatch } from '../types';
 import { showSnackbar } from '../components/Snackbar';
 import { apiClient } from '../lib/apiClient';
+import { useAuth } from '../context/AuthContext';
 
 const LIKERT_OPTIONS = [
   { value: 1, label: 'Strongly Disagree' },
@@ -63,7 +64,10 @@ export default function Quiz() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [showSavePrompt, setShowSavePrompt] = useState(false);
+  const [hasLastResults, setHasLastResults] = useState(false);
   const navigate = useNavigate();
+  const { user, session } = useAuth();
 
   useEffect(() => {
     fetch('/api/quiz/questions')
@@ -74,6 +78,37 @@ export default function Quiz() {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function detectLastResults() {
+      if (user && session?.access_token) {
+        try {
+          const r = await fetch('/api/quiz/last', {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+          if (cancelled) return;
+          setHasLastResults(r.ok);
+          return;
+        } catch {
+          // Fall through to local check
+        }
+      }
+
+      try {
+        const stored = localStorage.getItem('jh-quiz-results');
+        if (!cancelled) setHasLastResults(Boolean(stored));
+      } catch {
+        if (!cancelled) setHasLastResults(false);
+      }
+    }
+
+    detectLastResults();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, session?.access_token]);
 
   const total = questions.length;
   const progress = total > 0 ? Math.round(((current + 1) / total) * 100) : 0;
@@ -133,8 +168,14 @@ export default function Quiz() {
         };
 
         localStorage.setItem('jh-quiz-results', JSON.stringify(quizResults));
-        if (data.success) showSnackbar('Your results have been saved!');
-        setTimeout(() => navigate('/quiz/results'), 1000);
+
+        if (user) {
+          if (data.success) showSnackbar('Your results have been saved!');
+          setTimeout(() => navigate('/quiz/results'), 700);
+        } else {
+          // Results are visible now, but not saved to the user's account.
+          setShowSavePrompt(true);
+        }
       })
       .catch(() => {
         setTimeout(() => navigate('/quiz/results'), 1000);
@@ -177,10 +218,61 @@ export default function Quiz() {
 
   return (
     <div className="jh-quiz-container">
+      {hasLastResults && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+          <Link to="/quiz/results" className="jh-btn-secondary">
+            View my last results
+          </Link>
+        </div>
+      )}
+
       <div className="jh-section-header" style={{ marginBottom: '2rem' }}>
         <h2>Career Personality Quiz</h2>
         <p>Answer each question honestly — there are no right or wrong answers.</p>
       </div>
+
+      {showSavePrompt && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.45)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem',
+            zIndex: 50,
+          }}
+        >
+          <div
+            style={{
+              width: 'min(520px, 100%)',
+              background: 'white',
+              borderRadius: '12px',
+              padding: '1.25rem',
+              boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+            }}
+          >
+            <h3 style={{ marginTop: 0 }}>Save your results</h3>
+            <p style={{ color: '#4b5563' }}>
+              Your results are ready. To save them to your profile and access them on any device, please log in or sign up.
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              <button className="jh-btn-secondary" onClick={() => navigate('/quiz/results')}>
+                Continue to results
+              </button>
+              <button className="jh-btn-secondary" onClick={() => navigate('/login')}>
+                Log in
+              </button>
+              <button className="jh-btn-primary" onClick={() => navigate('/signup')}>
+                Sign up
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="jh-quiz-progress">
         <div className="jh-quiz-progress-bar">

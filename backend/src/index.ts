@@ -5,6 +5,7 @@ import cors from 'cors';
 import quizRouter from './routes/quiz';
 import jobsRouter from './routes/jobs';
 import recruitRouter from './routes/recruit';
+import applicantRouter from './routes/applicant';
 import { authenticate, requireActive, requireRole } from './middleware';
 
 const app = express();
@@ -16,6 +17,7 @@ app.use(express.json());
 // Public routes
 app.use('/api/quiz', quizRouter);
 app.use('/api/jobs', jobsRouter);
+app.use('/api/applicant', applicantRouter);
 
 // Protected routes
 app.use('/api/recruit', authenticate, requireActive, requireRole('recruiter'), recruitRouter);

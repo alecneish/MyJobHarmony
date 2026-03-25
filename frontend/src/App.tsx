@@ -7,6 +7,7 @@ import QuizResults from './pages/QuizResults';
 import Jobs from './pages/Jobs';
 import SavedJobs from './pages/SavedJobs';
 import Recruit from './pages/Recruit';
+import EditProfile from './pages/EditProfile';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Unauthorized from './pages/Unauthorized';
@@ -30,8 +31,10 @@ export default function App() {
           <Route path="/quiz/results" element={<QuizResults />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Authenticated + role-gated routes */}
+          {/* Authenticated routes (any role) */}
           <Route element={<RequireAuth />}>
+            <Route path="/profile/edit" element={<EditProfile />} />
+
             {/* Job seeker routes */}
             <Route element={<RequireRole roles={['job_seeker']} />}>
               <Route path="/candidate/dashboard" element={<CandidateDashboard />} />

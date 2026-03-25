@@ -31,6 +31,8 @@ export interface Applicant {
   name: string;
   initials: string;
   avatarColor: string;
+  bio?: string;
+  resumeUrl?: string;
   resumeFitPercent: number;
   personalityFitPercent: number;
   skills: string[];

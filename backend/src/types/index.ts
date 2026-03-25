@@ -90,6 +90,22 @@ export interface Applicant {
   title: string;
 }
 
+export interface ApplicantCreateDto {
+  name: string;
+  title: string;
+  bio: string;
+  skills: string[];
+  resumeUrl?: string;
+}
+
+export interface ApplicantUpdateDto {
+  name?: string;
+  title?: string;
+  bio?: string;
+  skills?: string[];
+  resumeUrl?: string;
+}
+
 export interface QuizResultDto {
   responses: QuizResponse[];
 }
