@@ -48,6 +48,14 @@ export default function Layout() {
               </li>
               <li>
                 <NavLink
+                  to="/profile/edit"
+                  className={({ isActive }) => 'jh-nav-link' + (isActive ? ' active' : '')}
+                >
+                  Edit Profile
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
                   to="/recruit"
                   className={({ isActive }) => 'jh-nav-link' + (isActive ? ' active' : '')}
                 >
@@ -104,6 +112,7 @@ export default function Layout() {
             <li><NavLink to="/">Home</NavLink></li>
             <li><NavLink to="/quiz">Quiz</NavLink></li>
             <li><NavLink to="/jobs">Jobs</NavLink></li>
+            <li><NavLink to="/profile/edit">Edit Profile</NavLink></li>
             <li><NavLink to="/recruit">Recruit</NavLink></li>
           </ul>
         </div>
