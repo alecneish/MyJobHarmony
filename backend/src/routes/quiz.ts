@@ -45,6 +45,10 @@ router.get('/questions', async (req: Request, res: Response) => {
     return;
   }
 
+  // The DB Tier column defaults to 'Free' for all rows (never backfilled).
+  // Use the seed data's tier assignments as the source of truth.
+  const seedTierById = new Map(getSeedQuizQuestions().map(q => [q.id, q.tier]));
+
   const allQuestions: QuizQuestion[] = data.map((row: any) => ({
     id: row.Id,
     text: row.QuestionText,
@@ -55,7 +59,7 @@ router.get('/questions', async (req: Request, res: Response) => {
     questionFormat: row.QuestionFormat ?? 'Likert',
     isReverseScored: Boolean(row.IsReverseScored),
     weight: Number(row.Weight ?? 1.0),
-    tier: row.Tier ?? 'Free',
+    tier: seedTierById.get(row.Id) ?? row.Tier ?? 'Free',
   }));
 
   let questions: QuizQuestion[];
