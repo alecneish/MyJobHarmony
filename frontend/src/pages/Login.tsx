@@ -15,9 +15,9 @@ export default function Login() {
     setError(null);
     setSubmitting(true);
     try {
-      await auth.signIn(email, password);
-      // Navigate based on user role from profile
-      if (auth.userProfile?.role === 'recruiter') {
+      const { role } = await auth.signIn(email, password);
+      // Navigate based on the role returned from the profile lookup
+      if (role === 'recruiter') {
         navigate('/recruiter/dashboard');
       } else {
         navigate('/candidate/dashboard');

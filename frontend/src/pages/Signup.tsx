@@ -17,7 +17,9 @@ export default function Signup() {
     setError(null);
     setSubmitting(true);
     try {
-      await auth.signUp(email, password, '', role); // username can be empty for now
+      // Derive a default username from the email prefix
+      const username = email.split('@')[0] + '_' + Math.random().toString(36).slice(2, 6);
+      await auth.signUp(email, password, username, role);
       // Navigate based on role after successful signup
       if (role === 'recruiter') {
         navigate('/recruiter/dashboard');

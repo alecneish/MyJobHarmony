@@ -8,7 +8,7 @@ interface AuthContextValue {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ role: string }>;
   signUp: (email: string, password: string, username: string, role: 'recruiter' | 'job_seeker') => Promise<void>;
   signOut: () => Promise<void>;
   isJobSeeker: boolean;
@@ -87,38 +87,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function signIn(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+  async function signIn(email: string, password: string): Promise<{ role: string }> {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+
+    // Fetch profile immediately so we can return the role for navigation.
+    // The onAuthStateChange listener will also fire, but we can't await it.
+    const authUser = data.user;
+    let role = 'job_seeker';
+    if (authUser) {
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
+
+      if (profile) {
+        if (profile.role === 'candidate') profile.role = 'job_seeker';
+        setUserProfile(profile);
+        role = profile.role;
+      } else {
+        role = (authUser.user_metadata?.role as string) || 'job_seeker';
+        if (role === 'candidate') role = 'job_seeker';
+      }
+    }
+
+    return { role };
   }
 
   async function signUp(email: string, password: string, username: string, role: 'recruiter' | 'job_seeker') {
-    // First create the auth user
-    const { data: authData, error: authError } = await supabase.auth.signUp({ 
+    // The on_auth_user_created trigger automatically creates the user_profiles
+    // row from raw_user_meta_data, so we only need to call signUp here.
+    const { error } = await supabase.auth.signUp({ 
       email, 
       password,
       options: {
         data: {
           username,
           role
-        }
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       }
     });
     
-    if (authError) throw authError;
-    
-    // Then create the user profile
-    if (authData.user) {
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .insert({
-          id: authData.user.id,
-          username,
-          role
-        });
-      
-      if (profileError) throw profileError;
-    }
+    if (error) throw error;
   }
 
   async function signOut() {

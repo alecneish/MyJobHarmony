@@ -10,6 +10,7 @@ import EditProfile from './pages/EditProfile';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Unauthorized from './pages/Unauthorized';
+import AuthCallback from './pages/AuthCallback';
 import CandidateDashboard from './pages/CandidateDashboard';
 import RecruiterDashboard from './pages/RecruiterDashboard';
 import RequireAuth from './components/guards/RequireAuth';
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/quiz/results" element={<QuizResults />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
 
           {/* Authenticated routes (any role) */}
           <Route element={<RequireAuth />}>

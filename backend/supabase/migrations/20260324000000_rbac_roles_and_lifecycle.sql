@@ -3,11 +3,11 @@
 -- Migrates legacy 'candidate' values to 'job_seeker' and introduces
 -- an enum type for compile-time safety in future queries.
 
--- Step 1: Migrate existing data before altering the column type
-UPDATE user_profiles SET role = 'job_seeker' WHERE role = 'candidate';
-
--- Step 2: Drop the old text CHECK constraint
+-- Step 1: Drop the old text CHECK constraint (must happen before data migration)
 ALTER TABLE user_profiles DROP CONSTRAINT IF EXISTS user_profiles_role_check;
+
+-- Step 2: Migrate existing data before altering the column type
+UPDATE user_profiles SET role = 'job_seeker' WHERE role = 'candidate';
 
 -- Step 3: Create the canonical role enum
 DO $$ BEGIN
