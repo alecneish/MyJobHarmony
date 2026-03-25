@@ -1758,49 +1758,225 @@ a:hover {
   }
 }
 
-/* --- Responsive --- */
+/* --- Hamburger button (hidden on desktop) --- */
+.jh-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 1010;
+}
+
+.jh-hamburger span {
+  display: block;
+  width: 24px;
+  height: 2.5px;
+  background: var(--jh-gray-700);
+  border-radius: 2px;
+  transition: var(--jh-transition);
+}
+
+.jh-hamburger.open span:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+
+.jh-hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.jh-hamburger.open span:nth-child(3) {
+  transform: translateY(-7.5px) rotate(-45deg);
+}
+
+/* User chip in mobile nav (hidden on desktop) */
+.jh-nav-user-chip {
+  display: none;
+}
+
+/* --- Responsive: Tablet & Mobile (≤ 768px) --- */
 @media (max-width: 768px) {
+  /* Hamburger visible */
+  .jh-hamburger {
+    display: flex;
+  }
+
+  /* Navbar */
   .jh-navbar-inner {
-    gap: 1rem;
+    flex-wrap: wrap;
     padding: 0 1rem;
-    height: 48px;
+    height: 52px;
   }
 
   .jh-brand {
     font-size: 1.15rem;
   }
 
-  .jh-nav-link {
-    font-size: 0.8rem;
-    padding: 0.3rem 0.5rem;
+  /* Desktop user chip hidden */
+  .jh-user-chip--desktop {
+    display: none;
   }
 
+  /* Mobile user chip shown */
+  .jh-nav-user-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid var(--jh-gray-200);
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+  }
+
+  .jh-nav-user-chip .jh-user-email {
+    font-size: 0.82rem;
+    word-break: break-all;
+  }
+
+  /* Nav links: slide-down drawer */
+  .jh-nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background: var(--jh-white);
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--jh-gray-200);
+    order: 10;
+  }
+
+  .jh-nav-links.open {
+    display: flex;
+  }
+
+  .jh-nav-link {
+    width: 100%;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.92rem;
+    border-radius: 0;
+  }
+
+  .jh-nav-link:hover,
+  .jh-nav-link.active {
+    background: var(--jh-orange-50);
+  }
+
+  /* Hero */
   .jh-hero {
-    padding: 4rem 1.5rem;
+    padding: 3.5rem 1.25rem;
   }
 
   .jh-hero h1 {
-    font-size: 2.25rem;
+    font-size: 2rem;
   }
 
   .jh-hero p {
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
+  .jh-hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .jh-hero-actions .jh-btn-primary,
+  .jh-hero-actions .jh-btn-outline {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  /* Section headers */
   .jh-section-header h2 {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
   }
 
-  .jh-filter-sidebar {
-    width: clamp(240px, 75vw, 320px);
+  .jh-section-header p {
+    font-size: 0.95rem;
+  }
+
+  /* Sections */
+  .jh-section {
+    padding: 3rem 1.25rem;
+  }
+
+  /* Step cards (How It Works) */
+  .jh-step-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  /* Auth pages */
+  .jh-auth-container {
+    padding: 1.5rem 0.75rem 2rem;
+  }
+
+  .jh-auth-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .jh-auth-actions {
+    flex-direction: column;
+  }
+
+  .jh-auth-actions .jh-btn-primary,
+  .jh-auth-actions .jh-btn-outline {
+    width: 100%;
+    text-align: center;
+  }
+
+  .jh-role-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Quiz */
+  .jh-quiz-container {
+    padding: 1.5rem 0.75rem;
   }
 
   .jh-quiz-card {
-    padding: 1.5rem;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .jh-quiz-card h2 {
+    font-size: 1.25rem;
+  }
+
+  .jh-quiz-nav {
+    flex-direction: column;
+  }
+
+  .jh-quiz-nav .jh-btn-primary,
+  .jh-quiz-nav .jh-btn-secondary,
+  .jh-quiz-nav .jh-btn-outline {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
   }
 
   .jh-tier-grid {
     grid-template-columns: 1fr;
+  }
+
+  .jh-quiz-lab {
+    padding: 1.5rem 0.75rem 2rem;
+  }
+
+  .jh-quiz-form {
+    padding: 1.25rem;
+  }
+
+  .jh-quiz-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .jh-quiz-card--paged {
+    padding: 1.25rem;
+  }
+
+  /* Results */
+  .jh-results-container {
+    padding: 1.5rem 0.75rem;
   }
 
   .jh-results-layout {
@@ -1808,11 +1984,29 @@ a:hover {
   }
 
   .jh-motivation-card {
-    padding: 2rem 1.5rem;
+    padding: 2rem 1.25rem;
+    border-radius: var(--jh-radius-lg);
   }
 
   .jh-motivation-card h1 {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
+  }
+
+  .jh-motivation-card p {
+    font-size: 1rem;
+  }
+
+  .jh-traits-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  /* Jobs */
+  .jh-jobs-container {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .jh-job-card {
+    padding: 1.25rem;
   }
 
   .jh-job-header {
@@ -1821,11 +2015,55 @@ a:hover {
 
   .jh-job-meta {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .jh-job-actions {
+    flex-wrap: wrap;
+  }
+
+  .jh-search-bar {
+    flex-direction: column;
+  }
+
+  .jh-search-bar .jh-btn-primary,
+  .jh-search-bar .jh-btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Profile */
+  .jh-profile-container {
+    padding: 1.5rem 0.75rem 2rem;
+  }
+
+  .jh-profile-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .jh-profile-resume-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Recruit / Applicants */
+  .jh-recruit-container {
+    padding: 1.5rem 0.75rem;
   }
 
   .jh-applicant-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Filter sidebar */
+  .jh-filter-sidebar {
+    width: clamp(260px, 80vw, 340px);
+  }
+
+  /* Footer */
+  .jh-footer {
+    padding: 2rem 1.25rem;
+    margin-top: 2.5rem;
   }
 
   .jh-footer-content {
@@ -1835,10 +2073,107 @@ a:hover {
 
   .jh-footer-links {
     justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
+  /* CTA */
   .jh-cta-section {
-    margin: 2rem 1rem;
-    padding: 2.5rem 1.5rem;
+    margin: 1.5rem 0.75rem;
+    padding: 2rem 1.25rem;
+    border-radius: var(--jh-radius-lg);
+  }
+
+  .jh-cta-section h2 {
+    font-size: 1.5rem;
+  }
+
+  /* Form summary grid */
+  .jh-form-summary ul {
+    grid-template-columns: 1fr;
+  }
+
+  /* Buttons general */
+  .jh-btn-primary,
+  .jh-btn-outline {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.92rem;
+  }
+
+  /* Snackbar */
+  .jh-snackbar {
+    left: 1rem;
+    right: 1rem;
+    transform: translateX(0) translateY(100px);
+    white-space: normal;
+    font-size: 0.88rem;
+  }
+
+  .jh-snackbar.show {
+    transform: translateX(0) translateY(0);
+  }
+
+  /* Empty states */
+  .jh-empty-state {
+    padding: 2.5rem 1.25rem;
+  }
+}
+
+/* --- Responsive: Small phones (≤ 480px) --- */
+@media (max-width: 480px) {
+  .jh-hero {
+    padding: 2.5rem 1rem;
+  }
+
+  .jh-hero h1 {
+    font-size: 1.6rem;
+  }
+
+  .jh-hero p {
+    font-size: 0.92rem;
+  }
+
+  .jh-section-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .jh-section {
+    padding: 2rem 1rem;
+  }
+
+  .jh-auth-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .jh-quiz-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .jh-motivation-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .jh-motivation-card h1 {
+    font-size: 1.4rem;
+  }
+
+  .jh-motivation-icon {
+    font-size: 3rem;
+  }
+
+  .jh-traits-card {
+    padding: 1.25rem 1rem;
+  }
+
+  .jh-job-card {
+    padding: 1rem;
+  }
+
+  .jh-cta-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .jh-footer {
+    padding: 1.5rem 1rem;
   }
 }
