@@ -18,9 +18,9 @@ export default function Login() {
       await auth.signIn(email, password);
       // Navigate based on user role from profile
       if (auth.userProfile?.role === 'recruiter') {
-        navigate('/recruit');
+        navigate('/recruiter/dashboard');
       } else {
-        navigate('/jobs');
+        navigate('/candidate/dashboard');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');

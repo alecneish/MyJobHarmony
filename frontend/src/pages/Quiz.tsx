@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { QuizQuestion, QuizResults, CareerMatch } from '../types';
 import { showSnackbar } from '../components/Snackbar';
+import { apiClient } from '../lib/apiClient';
 
 const LIKERT_OPTIONS = [
   { value: 1, label: 'Strongly Disagree' },
@@ -107,9 +108,8 @@ export default function Quiz() {
       answerValue: answers[question.id] ?? 3,
     }));
 
-    fetch('/api/quiz/submit', {
+    apiClient('/api/quiz/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ responses }),
     })
       .then((r) => r.json())

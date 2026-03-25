@@ -6,7 +6,7 @@ export default function Signup() {
   const auth = useAuth();
   const navigate = useNavigate();
 
-  const [role, setRole] = useState<'recruiter' | 'candidate'>('candidate');
+  const [role, setRole] = useState<'recruiter' | 'job_seeker'>('job_seeker');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -20,9 +20,9 @@ export default function Signup() {
       await auth.signUp(email, password, '', role); // username can be empty for now
       // Navigate based on role after successful signup
       if (role === 'recruiter') {
-        navigate('/recruit');
+        navigate('/recruiter/dashboard');
       } else {
-        navigate('/jobs');
+        navigate('/candidate/dashboard');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign up failed');
@@ -74,15 +74,15 @@ export default function Signup() {
             <div className="jh-role-grid">
               <label
                 className={
-                  'jh-role-card' + (role === 'candidate' ? ' selected' : '')
+                  'jh-role-card' + (role === 'job_seeker' ? ' selected' : '')
                 }
               >
                 <input
                   type="radio"
                   name="role"
-                  value="candidate"
-                  checked={role === 'candidate'}
-                  onChange={() => setRole('candidate')}
+                  value="job_seeker"
+                  checked={role === 'job_seeker'}
+                  onChange={() => setRole('job_seeker')}
                 />
                 <div className="jh-role-title">Candidate</div>
                 <div className="jh-role-body">

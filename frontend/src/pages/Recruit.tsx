@@ -1,14 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Applicant, RecruitApiResponse } from '../types';
 import ApplicantCard from '../components/ApplicantCard';
+import { apiClient } from '../lib/apiClient';
 
 export default function Recruit() {
   const [data, setData] = useState<RecruitApiResponse | null>(null);
 
   useEffect(() => {
-    fetch('/api/recruit')
-      .then((r) => r.json())
-      .then((d: RecruitApiResponse) => setData(d));
+    apiClient('/api/recruit')
+      .then((r) => {
+        if (!r.ok) throw new Error(`${r.status}`);
+        return r.json();
+      })
+      .then((d: RecruitApiResponse) => setData(d))
+      .catch((err) => console.error('Failed to load applicants:', err));
   }, []);
 
   const recommended: Applicant[] = data?.recommendedApplicants ?? [];

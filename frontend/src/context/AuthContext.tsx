@@ -9,8 +9,11 @@ interface AuthContextValue {
   userProfile: UserProfile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, username: string, role: 'recruiter' | 'candidate') => Promise<void>;
+  signUp: (email: string, password: string, username: string, role: 'recruiter' | 'job_seeker') => Promise<void>;
   signOut: () => Promise<void>;
+  isJobSeeker: boolean;
+  isRecruiter: boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -22,23 +25,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Initial session fetch
-    supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
-      setSession(data.session);
-      setUser(data.session?.user ?? null);
-      if (data.session?.user) {
-        fetchUserProfile(data.session.user.id);
-      }
-      setLoading(false);
-    });
+    let cancelled = false;
 
-    // Listen for auth changes
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (cancelled) return;
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        await fetchUserProfile(session.user);
+      }
+      if (!cancelled) setLoading(false);
+    }
+
+    init();
+
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event: AuthChangeEvent, newSession: Session | null) => {
+        if (cancelled) return;
         setSession(newSession);
         setUser(newSession?.user ?? null);
         if (newSession?.user) {
-          await fetchUserProfile(newSession.user.id);
+          await fetchUserProfile(newSession.user);
         } else {
           setUserProfile(null);
         }
@@ -46,22 +54,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => {
+      cancelled = true;
       authListener.subscription.unsubscribe();
     };
   }, []);
 
-  async function fetchUserProfile(userId: string) {
+  async function fetchUserProfile(authUser: User) {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('id', authUser.id)
         .single();
-      
+
       if (error) throw error;
+      if (data.role === 'candidate') data.role = 'job_seeker';
       setUserProfile(data);
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
+    } catch (err) {
+      console.error('Error fetching user profile, falling back to auth metadata:', err);
+      const meta = authUser.user_metadata;
+      if (meta) {
+        let role = (meta.role as string) || 'job_seeker';
+        if (role === 'candidate') role = 'job_seeker';
+        setUserProfile({
+          id: authUser.id,
+          username: (meta.username as string) || '',
+          role: role as UserProfile['role'],
+          created_at: authUser.created_at,
+          updated_at: authUser.created_at,
+        } as UserProfile);
+      }
     }
   }
 
@@ -70,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   }
 
-  async function signUp(email: string, password: string, username: string, role: 'recruiter' | 'candidate') {
+  async function signUp(email: string, password: string, username: string, role: 'recruiter' | 'job_seeker') {
     // First create the auth user
     const { data: authData, error: authError } = await supabase.auth.signUp({ 
       email, 
@@ -100,9 +122,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signOut() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    setSession(null);
+    setUser(null);
+    setUserProfile(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error('Sign-out API error (local session already cleared):', err);
+    }
   }
+
+  const isJobSeeker = userProfile?.role === 'job_seeker';
+  const isRecruiter = userProfile?.role === 'recruiter';
+  const isAdmin = userProfile?.role === 'admin';
 
   const value: AuthContextValue = {
     session,
@@ -112,6 +144,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signUp,
     signOut,
+    isJobSeeker,
+    isRecruiter,
+    isAdmin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

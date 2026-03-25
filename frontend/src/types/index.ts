@@ -75,10 +75,17 @@ export interface RecruitApiResponse {
   allApplicants: Applicant[];
 }
 
+export type UserRole = 'job_seeker' | 'recruiter' | 'admin';
+export type VerificationStatus = 'unverified' | 'pending' | 'verified' | 'rejected';
+
 export interface UserProfile {
   id: string;
   username: string;
-  role: 'recruiter' | 'candidate';
+  role: UserRole;
+  is_active: boolean;
+  verification_status: VerificationStatus;
+  company_id: string | null;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 }

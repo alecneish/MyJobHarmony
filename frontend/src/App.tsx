@@ -9,21 +9,41 @@ import SavedJobs from './pages/SavedJobs';
 import Recruit from './pages/Recruit';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Unauthorized from './pages/Unauthorized';
+import CandidateDashboard from './pages/CandidateDashboard';
+import RecruiterDashboard from './pages/RecruiterDashboard';
+import RequireAuth from './components/guards/RequireAuth';
+import RequireRole from './components/guards/RequireRole';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
+          {/* Public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/jobs" element={<Jobs />} />
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/quiz/interface" element={<QuizInterface />} />
           <Route path="/quiz/results" element={<QuizResults />} />
-          <Route path="/jobs" element={<Jobs />} />
-          <Route path="/jobs/saved" element={<SavedJobs />} />
-          <Route path="/recruit" element={<Recruit />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+
+          {/* Authenticated + role-gated routes */}
+          <Route element={<RequireAuth />}>
+            {/* Job seeker routes */}
+            <Route element={<RequireRole roles={['job_seeker']} />}>
+              <Route path="/candidate/dashboard" element={<CandidateDashboard />} />
+              <Route path="/jobs/saved" element={<SavedJobs />} />
+            </Route>
+
+            {/* Recruiter routes */}
+            <Route element={<RequireRole roles={['recruiter']} />}>
+              <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
+              <Route path="/recruit" element={<Recruit />} />
+            </Route>
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Job, JobsApiResponse } from '../types';
 import JobCard from '../components/JobCard';
 import FilterPanel from '../components/FilterPanel';
+import { useAuth } from '../context/AuthContext';
 
 export default function Jobs() {
+  const { userProfile } = useAuth();
   const [data, setData] = useState<JobsApiResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -12,6 +15,10 @@ export default function Jobs() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [renderKey, setRenderKey] = useState(0);
+
+  if (userProfile?.role === 'recruiter') {
+    return <Navigate to="/recruiter/dashboard" replace />;
+  }
 
   useEffect(() => {
     let cancelled = false;

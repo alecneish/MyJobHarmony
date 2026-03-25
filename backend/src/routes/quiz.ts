@@ -4,6 +4,8 @@ import { computeScores } from '../services/scoringEngine';
 import { computeMatches } from '../services/careerMatchingService';
 import { supabase } from '../db/database';
 import { QuizQuestion, QuizResponse } from '../types';
+import { optionalAuth } from '../middleware';
+import type { AuthenticatedRequest } from '../middleware';
 
 const router = Router();
 
@@ -34,8 +36,9 @@ router.get('/questions', async (_req: Request, res: Response) => {
   res.json(questions);
 });
 
-router.post('/submit', async (req: Request, res: Response) => {
-  const { responses, userId } = req.body as { responses: QuizResponse[]; userId?: string };
+router.post('/submit', optionalAuth, async (req: Request, res: Response) => {
+  const { responses } = req.body as { responses: QuizResponse[] };
+  const userId = (req as AuthenticatedRequest).authUser?.id ?? null;
 
   if (!Array.isArray(responses) || responses.length === 0) {
     res.status(400).json({ success: false, message: 'responses must be a non-empty array' });

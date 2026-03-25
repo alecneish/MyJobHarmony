@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import QuestionStepper, { QuestionDef } from '../components/questions/QuestionStepper';
 import type { QuizQuestion, QuizResults, CareerMatch } from '../types';
+import { apiClient } from '../lib/apiClient';
 
 const LIKERT_OPTIONS = [
   { value: '1', label: 'Strongly Disagree' },
@@ -136,9 +137,8 @@ export default function QuizInterface() {
       answerValue: Number(answers[String(q.id)] ?? 3),
     }));
 
-    fetch('/api/quiz/submit', {
+    apiClient('/api/quiz/submit', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ responses }),
     })
       .then(r => r.json())
