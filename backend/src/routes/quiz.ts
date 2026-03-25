@@ -41,7 +41,9 @@ router.get('/questions', async (req: Request, res: Response) => {
   if (error || !data) {
     // Keep the app usable locally even if Supabase is misconfigured.
     if (error) console.error('Failed to load quiz questions from Supabase:', error);
-    res.json(getSeedQuizQuestions());
+    // Still apply tier filtering on seed data fallback
+    const seedQuestions = getSeedQuizQuestions();
+    res.json(filterByTier(seedQuestions, tierParam));
     return;
   }
 
@@ -62,26 +64,27 @@ router.get('/questions', async (req: Request, res: Response) => {
     tier: seedTierById.get(row.Id) ?? row.Tier ?? 'Free',
   }));
 
-  let questions: QuizQuestion[];
+  res.json(filterByTier(allQuestions, tierParam));
+});
 
+function filterByTier(allQuestions: QuizQuestion[], tierParam: string): QuizQuestion[] {
   if (tierParam === 'medium') {
-    questions = allQuestions.filter(q => q.tier === 'Free');
+    return allQuestions.filter(q => q.tier === 'Free');
   } else if (tierParam === 'short') {
     // One Free question per dimension, deterministic (first by ID order)
     const seenDimensions = new Set<string>();
-    questions = [];
+    const questions: QuizQuestion[] = [];
     for (const q of allQuestions.filter(q => q.tier === 'Free')) {
       if (!seenDimensions.has(q.dimension)) {
         seenDimensions.add(q.dimension);
         questions.push(q);
       }
     }
+    return questions;
   } else {
-    questions = allQuestions;
+    return allQuestions;
   }
-
-  res.json(questions);
-});
+}
 
 router.get('/last', async (req: Request, res: Response) => {
   const userId = await resolveUserId(req);
