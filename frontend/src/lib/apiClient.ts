@@ -13,9 +13,17 @@ export async function apiClient(
   path: string,
   options: RequestInit = {},
 ): Promise<Response> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  let session = null;
+  try {
+    const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 2000));
+    const result = await Promise.race([
+      supabase.auth.getSession().then(({ data }) => data.session),
+      timeout,
+    ]);
+    session = result;
+  } catch {
+    // If getSession fails, proceed without auth
+  }
 
   const headers: Record<string, string> = {};
 

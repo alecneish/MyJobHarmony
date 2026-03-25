@@ -226,13 +226,20 @@ export default function Quiz() {
         careerMatches: data.careerMatches ?? [],
       };
 
-      localStorage.setItem('jh-quiz-results', JSON.stringify(quizResults));
+        localStorage.setItem('jh-quiz-results', JSON.stringify(quizResults));
+
+      localStorage.setItem('jh-quiz-raw', JSON.stringify({
+        sessionId: data.sessionId ?? null,
+        dimensionScores: data.dimensionScores ?? [],
+        careerMatches: data.careerMatches ?? [],
+      }));
 
       if (user) {
         if (data.success) showSnackbar('Your results have been saved!');
-        setTimeout(() => navigate('/quiz/results'), 700);
+        setSubmitting(false);
+        navigate('/quiz/results');
       } else {
-        // Results are visible now, but not saved to the user's account.
+        setSubmitting(false);
         setShowSavePrompt(true);
       }
     } catch {
