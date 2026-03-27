@@ -69,11 +69,31 @@ export interface Job {
   type: string;
   description?: string;
   personalityType?: string;
+  applyUrl?: string;
   fitScore: number;
   fitLevel: string;
   fitReason: string;
   tags: string[];
   postedDaysAgo: number;
+  targetOpenness?: number;
+  targetConscientiousness?: number;
+  targetExtraversion?: number;
+  targetAgreeableness?: number;
+  targetEmotionalStability?: number;
+  targetRealistic?: number;
+  targetInvestigative?: number;
+  targetArtistic?: number;
+  targetSocial?: number;
+  targetEnterprising?: number;
+  targetConventional?: number;
+  targetAutonomy?: number;
+  targetSecurity?: number;
+  targetChallenge?: number;
+  targetService?: number;
+  targetWorkLifeBalance?: number;
+  targetPace?: number;
+  targetCollaboration?: number;
+  targetStructure?: number;
 }
 
 export interface Applicant {

@@ -175,7 +175,7 @@ export default function Quiz() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  function submitQuiz() {
+  async function submitQuiz() {
     if (submitting) return;
     setSubmitting(true);
 
@@ -184,43 +184,62 @@ export default function Quiz() {
       answerValue: answers[question.id] ?? 3,
     }));
 
-    apiClient('/api/quiz/submit', {
-      method: 'POST',
-      body: JSON.stringify({ responses }),
-    })
-      .then((r) => r.json())
-      .then((data: { success: boolean; sessionId?: string | null; dimensionScores: DimensionScore[]; careerMatches: CareerMatch[] }) => {
-        const oceanScores = buildOceanScores(data.dimensionScores ?? []);
-        const dominantTrait = Object.keys(oceanScores).reduce((a, b) =>
-          oceanScores[b] > oceanScores[a] ? b : a
-        );
-        const motivation = MOTIVATION_TYPES[dominantTrait] ?? MOTIVATION_TYPES.Openness;
+    const timeoutMs = 20000;
+    const timeoutPromise = new Promise<Response>((_, reject) => {
+      setTimeout(() => reject(new Error('Request timed out')), timeoutMs);
+    });
 
-        const quizResults: QuizResults = {
-          openness: oceanScores.Openness,
-          conscientiousness: oceanScores.Conscientiousness,
-          extraversion: oceanScores.Extraversion,
-          agreeableness: oceanScores.Agreeableness,
-          emotionalStability: oceanScores.EmotionalStability,
-          motivationType: motivation.type,
-          motivationDescription: motivation.description,
-          motivationIcon: motivation.icon,
-          careerMatches: data.careerMatches ?? [],
-        };
+    try {
+      const response = await Promise.race([
+        apiClient('/api/quiz/submit', {
+          method: 'POST',
+          body: JSON.stringify({ responses }),
+        }),
+        timeoutPromise,
+      ]);
 
-        localStorage.setItem('jh-quiz-results', JSON.stringify(quizResults));
+      if (!response.ok) {
+        throw new Error(`Quiz submit failed (${response.status})`);
+      }
 
-        if (user) {
-          if (data.success) showSnackbar('Your results have been saved!');
-          setTimeout(() => navigate('/quiz/results'), 700);
-        } else {
-          // Results are visible now, but not saved to the user's account.
-          setShowSavePrompt(true);
-        }
-      })
-      .catch(() => {
-        setTimeout(() => navigate('/quiz/results'), 1000);
-      });
+      const data = (await response.json()) as {
+        success: boolean;
+        sessionId?: string | null;
+        dimensionScores: DimensionScore[];
+        careerMatches: CareerMatch[];
+      };
+      const oceanScores = buildOceanScores(data.dimensionScores ?? []);
+      const dominantTrait = Object.keys(oceanScores).reduce((a, b) =>
+        oceanScores[b] > oceanScores[a] ? b : a
+      );
+      const motivation = MOTIVATION_TYPES[dominantTrait] ?? MOTIVATION_TYPES.Openness;
+
+      const quizResults: QuizResults = {
+        openness: oceanScores.Openness,
+        conscientiousness: oceanScores.Conscientiousness,
+        extraversion: oceanScores.Extraversion,
+        agreeableness: oceanScores.Agreeableness,
+        emotionalStability: oceanScores.EmotionalStability,
+        motivationType: motivation.type,
+        motivationDescription: motivation.description,
+        motivationIcon: motivation.icon,
+        careerMatches: data.careerMatches ?? [],
+      };
+
+      localStorage.setItem('jh-quiz-results', JSON.stringify(quizResults));
+
+      if (user) {
+        if (data.success) showSnackbar('Your results have been saved!');
+        setTimeout(() => navigate('/quiz/results'), 700);
+      } else {
+        // Results are visible now, but not saved to the user's account.
+        setShowSavePrompt(true);
+      }
+    } catch {
+      showSnackbar('Submitting results took too long. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function buildOceanScores(dimensionScores: DimensionScore[]): Record<string, number> {

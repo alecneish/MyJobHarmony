@@ -4,6 +4,7 @@ import { Job, JobsApiResponse } from '../types';
 import JobCard from '../components/JobCard';
 import FilterPanel from '../components/FilterPanel';
 import { useAuth } from '../context/AuthContext';
+import { apiClient } from '../lib/apiClient';
 
 export default function Jobs() {
   const { userProfile } = useAuth();
@@ -25,7 +26,7 @@ export default function Jobs() {
     (async () => {
       try {
         setError(null);
-        const r = await fetch('/api/jobs');
+        const r = await apiClient('/api/jobs');
         if (!r.ok) {
           throw new Error(`Failed to load jobs (${r.status})`);
         }

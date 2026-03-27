@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Job, JobsApiResponse } from '../types';
 import JobCard from '../components/JobCard';
+import { apiClient } from '../lib/apiClient';
 
 const STORAGE_KEY = 'jh-saved-jobs';
 
@@ -23,7 +24,7 @@ export default function SavedJobs() {
     (async () => {
       try {
         setError(null);
-        const r = await fetch('/api/jobs');
+        const r = await apiClient('/api/jobs');
         if (!r.ok) {
           throw new Error(`Failed to load jobs (${r.status})`);
         }

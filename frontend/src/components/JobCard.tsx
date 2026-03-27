@@ -49,6 +49,7 @@ export default function JobCard({ job, onSaveToggle }: JobCardProps) {
   }
 
   const postedText = job.postedDaysAgo === 1 ? '1 day ago' : `${job.postedDaysAgo} days ago`;
+  const hasApplyUrl = typeof job.applyUrl === 'string' && job.applyUrl.length > 0;
 
   return (
     <div
@@ -85,7 +86,19 @@ export default function JobCard({ job, onSaveToggle }: JobCardProps) {
       </div>
 
       <div className="jh-job-actions">
-        <a href="#" className="jh-btn-primary" onClick={(e) => e.preventDefault()}>
+        <a
+          href={hasApplyUrl ? job.applyUrl : '#'}
+          className="jh-btn-primary"
+          target={hasApplyUrl ? '_blank' : undefined}
+          rel={hasApplyUrl ? 'noopener noreferrer' : undefined}
+          aria-disabled={!hasApplyUrl}
+          onClick={(e) => {
+            if (!hasApplyUrl) {
+              e.preventDefault();
+              showSnackbar('Application link not available for this listing yet.');
+            }
+          }}
+        >
           Apply Now
         </a>
         <button

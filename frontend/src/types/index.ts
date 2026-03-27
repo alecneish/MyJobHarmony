@@ -19,6 +19,7 @@ export interface Job {
   location: string;
   salary: string;
   type: string;
+  applyUrl?: string;
   fitScore: number;
   fitLevel: string;
   fitReason: string;
