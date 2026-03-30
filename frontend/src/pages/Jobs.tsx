@@ -1,10 +1,20 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Job, JobsApiResponse } from '../types';
 import JobCard from '../components/JobCard';
 import FilterPanel from '../components/FilterPanel';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../lib/apiClient';
+
+const STORAGE_KEY = 'jh-saved-jobs';
+
+function getSavedIds(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') as string[];
+  } catch {
+    return [];
+  }
+}
 
 export default function Jobs() {
   const { userProfile } = useAuth();
@@ -16,6 +26,8 @@ export default function Jobs() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [renderKey, setRenderKey] = useState(0);
+  const [view, setView] = useState<'all' | 'saved'>('all');
+  const [savedIds, setSavedIds] = useState<string[]>(() => getSavedIds());
 
   if (userProfile?.role === 'recruiter') {
     return <Navigate to="/recruiter/dashboard" replace />;
@@ -47,6 +59,7 @@ export default function Jobs() {
   // Re-render job cards when save state changes
   const handleSaveToggle = useCallback(() => {
     setRenderKey((k) => k + 1);
+    setSavedIds(getSavedIds());
   }, []);
 
   const filteredJobs: Job[] = (data?.jobs ?? []).filter((job) => {
@@ -65,6 +78,12 @@ export default function Jobs() {
     return matchSearch && matchType && matchLocation && matchTags;
   });
 
+  const savedJobs = useMemo(() => {
+    return (data?.jobs ?? []).filter((job) => savedIds.includes(String(job.id)));
+  }, [data, savedIds]);
+
+  const jobsToRender = view === 'saved' ? savedJobs : filteredJobs;
+
   function clearFilters() {
     setSelectedTypes([]);
     setSelectedLocations([]);
@@ -75,8 +94,12 @@ export default function Jobs() {
   return (
     <div className="jh-jobs-container">
       <div className="jh-section-header" style={{ marginBottom: '2rem' }}>
-        <h2>Job Listings</h2>
-        <p>Jobs ranked by how well they match your personality profile.</p>
+        <h2>{view === 'saved' ? 'Saved Jobs' : 'Job Listings'}</h2>
+        <p>
+          {view === 'saved'
+            ? "Jobs you've bookmarked for later."
+            : 'Jobs ranked by how well they match your personality profile.'}
+        </p>
       </div>
 
       {error && (
@@ -85,6 +108,23 @@ export default function Jobs() {
           <p>{error}</p>
         </div>
       )}
+
+      <div className="jh-jobs-view-toggle">
+        <button
+          type="button"
+          className={view === 'all' ? 'jh-btn-primary' : 'jh-btn-secondary'}
+          onClick={() => setView('all')}
+        >
+          All Jobs
+        </button>
+        <button
+          type="button"
+          className={view === 'saved' ? 'jh-btn-primary' : 'jh-btn-secondary'}
+          onClick={() => setView('saved')}
+        >
+          Saved Jobs ({savedJobs.length})
+        </button>
+      </div>
 
       <div className="jh-search-bar">
         <input
@@ -95,21 +135,31 @@ export default function Jobs() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <button className="jh-btn-secondary" onClick={() => setFilterOpen(true)}>
-          Filters
-        </button>
+        {view === 'all' && (
+          <button className="jh-btn-secondary" onClick={() => setFilterOpen(true)}>
+            Filters
+          </button>
+        )}
       </div>
 
       <div id="jh-job-list" key={renderKey}>
-        {filteredJobs.map((job) => (
+        {jobsToRender.map((job) => (
           <JobCard key={job.id} job={job} onSaveToggle={handleSaveToggle} />
         ))}
       </div>
 
-      {filteredJobs.length === 0 && data !== null && (
+      {jobsToRender.length === 0 && data !== null && view === 'all' && (
         <div className="jh-no-results show">
           <h3>No jobs match your filters</h3>
           <p>Try adjusting your search or clearing filters.</p>
+        </div>
+      )}
+
+      {jobsToRender.length === 0 && data !== null && view === 'saved' && (
+        <div className="jh-empty-state" style={{ marginTop: '2rem' }}>
+          <span className="jh-empty-icon">🔖</span>
+          <h3>No Saved Jobs Yet</h3>
+          <p>Save a few jobs from the All Jobs view to see them here.</p>
         </div>
       )}
 

@@ -1263,6 +1263,17 @@ a:hover {
   align-items: center;
 }
 
+.jh-jobs-view-toggle {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.jh-jobs-view-toggle > button {
+  flex: 0 0 auto;
+}
+
 .jh-search-input {
   flex: 1;
   padding: 0.75rem 1rem;
@@ -2028,6 +2039,11 @@ a:hover {
 
   .jh-search-bar .jh-btn-primary,
   .jh-search-bar .jh-btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .jh-jobs-view-toggle > button {
     width: 100%;
     justify-content: center;
   }
