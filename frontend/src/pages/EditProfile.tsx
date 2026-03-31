@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Applicant } from '../types';
+import { useAuth } from '../context/AuthContext';
 import {
   createApplicant,
   deleteResume,
@@ -39,7 +40,62 @@ function toPayload(form: FormState): ApplicantUpsertPayload {
   };
 }
 
+/** Recruiter-specific profile view */
+function RecruiterProfile() {
+  const { userProfile } = useAuth();
+
+  return (
+    <div className="jh-profile-container">
+      <div className="jh-section-header" style={{ marginBottom: '1.5rem' }}>
+        <h2>Recruiter Profile</h2>
+        <p>Manage your recruiter account details.</p>
+      </div>
+
+      <div className="jh-profile-card">
+        <div className="jh-field">
+          <label>Username</label>
+          <input type="text" value={userProfile?.username ?? ''} disabled />
+        </div>
+
+        <div className="jh-field">
+          <label>Role</label>
+          <input type="text" value="Recruiter" disabled />
+        </div>
+
+        <div className="jh-field">
+          <label>Verification Status</label>
+          <input
+            type="text"
+            value={
+              userProfile?.verification_status
+                ? userProfile.verification_status.charAt(0).toUpperCase() +
+                  userProfile.verification_status.slice(1)
+                : 'Unknown'
+            }
+            disabled
+          />
+        </div>
+
+        <p style={{ color: 'var(--jh-gray-600)', marginTop: '1rem', fontSize: '0.9rem' }}>
+          Company profile management and job posting tools are coming soon.
+          Contact your admin to update verification status.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function EditProfile() {
+  const { isRecruiter } = useAuth();
+
+  // Recruiters see a different profile view
+  if (isRecruiter) return <RecruiterProfile />;
+
+  return <CandidateEditProfile />;
+}
+
+/** Candidate / job-seeker profile editor */
+function CandidateEditProfile() {
   const [applicantId, setApplicantId] = useState<number>(DEFAULT_APPLICANT_ID);
   const [currentApplicant, setCurrentApplicant] = useState<Applicant | null>(null);
   const [form, setForm] = useState<FormState>({ name: '', title: '', bio: '', skills: '' });

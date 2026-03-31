@@ -11,7 +11,14 @@ import { authenticate, requireActive, requireRole } from './middleware';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+// Allow the frontend origin to be configured via env; default to localhost for dev.
+// In production behind nginx (same origin), CORS isn't strictly needed, but this
+// keeps direct-access and alternative deploy setups working.
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 // Public routes

@@ -27,19 +27,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
 
-    async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (cancelled) return;
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchUserProfile(session.user);
-      }
-      if (!cancelled) setLoading(false);
-    }
-
-    init();
-
+    // Use onAuthStateChange as the **single** source of truth for auth
+    // state. Supabase JS v2.39+ fires an INITIAL_SESSION event on setup,
+    // which replaces the need for a separate getSession() call.
+    //
+    // Why not getSession()?  On some browsers (and in React Strict Mode)
+    // it can hang indefinitely due to navigator.locks contention, leaving
+    // the app stuck on "Loading…" forever. The auth listener avoids this.
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (_event: AuthChangeEvent, newSession: Session | null) => {
         if (cancelled) return;
@@ -50,11 +44,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setUserProfile(null);
         }
+        if (!cancelled) setLoading(false);
       },
     );
 
+    // Safety net: if the auth listener hasn't resolved within 5 seconds
+    // (e.g. due to orphaned locks or network issues), stop the loading
+    // spinner so the app remains usable rather than hanging forever.
+    const safetyTimeout = setTimeout(() => {
+      if (!cancelled) setLoading(false);
+    }, 5000);
+
     return () => {
       cancelled = true;
+      clearTimeout(safetyTimeout);
       authListener.subscription.unsubscribe();
     };
   }, []);
