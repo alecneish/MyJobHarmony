@@ -136,24 +136,15 @@ export default function Layout() {
               </li>
             </ul>
 
-            <div className="jh-user-chip jh-user-chip--desktop">
-              {user ? (
-                <>
-                  <span className="jh-user-email">{user.email}</span>
-                  <button
-                    type="button"
-                    className="jh-btn-secondary"
-                    style={{ padding: '0.35rem 0.75rem' }}
-                    onClick={handleSignOut}
-                    disabled={loading}
-                  >
-                    Sign out
-                  </button>
-                </>
-              ) : (
-                <span className="jh-user-email">Not signed in</span>
-              )}
-            </div>
+            {user && !loading ? (
+              <div className="jh-user-chip jh-user-chip--desktop">
+                <span className="jh-user-chip-email">{user.email}</span>
+                <span className="jh-user-chip-sep" />
+                <button type="button" className="jh-user-chip-signout" onClick={handleSignOut}>
+                  Sign out
+                </button>
+              </div>
+            ) : null}
           </div>
         </nav>
       </header>
