@@ -13,6 +13,7 @@ import Unauthorized from './pages/Unauthorized';
 import AuthCallback from './pages/AuthCallback';
 import CandidateDashboard from './pages/CandidateDashboard';
 import RecruiterDashboard from './pages/RecruiterDashboard';
+import AddJob from './pages/AddJob';
 import RequireAuth from './components/guards/RequireAuth';
 import RequireRole from './components/guards/RequireRole';
 
@@ -44,6 +45,7 @@ export default function App() {
             {/* Recruiter routes */}
             <Route element={<RequireRole roles={['recruiter']} />}>
               <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
+              <Route path="/recruiter/jobs/new" element={<AddJob />} />
               <Route path="/recruit" element={<Recruit />} />
             </Route>
           </Route>

@@ -2192,4 +2192,196 @@ a:hover {
   .jh-footer {
     padding: 1.5rem 1rem;
   }
+
+  .jh-form-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── Add Job Form ──────────────────────────────────────────────── */
+.jh-add-job-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.jh-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.jh-form-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--jh-gray-700);
+}
+
+.jh-form-hint {
+  font-size: 0.8rem;
+  color: var(--jh-gray-500);
+}
+
+.jh-form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.jh-textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.jh-select {
+  cursor: pointer;
+}
+
+.jh-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.jh-btn-outline {
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--jh-radius-md);
+  border: 1.5px solid var(--jh-gray-300);
+  background: transparent;
+  color: var(--jh-gray-700);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--jh-transition);
+}
+
+.jh-btn-outline:hover {
+  border-color: var(--jh-primary);
+  color: var(--jh-primary);
+}
+
+.jh-btn-secondary {
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--jh-radius-md);
+  border: 1.5px solid var(--jh-gray-300);
+  background: var(--jh-gray-50, #f9fafb);
+  color: var(--jh-gray-700);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--jh-transition);
+}
+
+.jh-btn-secondary:hover {
+  background: var(--jh-gray-100, #f3f4f6);
+  border-color: var(--jh-gray-400);
+}
+
+.jh-btn-danger {
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--jh-radius-md);
+  border: 1.5px solid var(--jh-danger, #ef4444);
+  background: transparent;
+  color: var(--jh-danger, #ef4444);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--jh-transition);
+}
+
+.jh-btn-danger:hover {
+  background: var(--jh-danger, #ef4444);
+  color: #fff;
+}
+
+/* ── Job Management Cards ──────────────────────────────────────── */
+.jh-job-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.jh-manage-job-card {
+  background: #fff;
+  border: 1px solid var(--jh-gray-200);
+  border-radius: var(--jh-radius-lg, 12px);
+  padding: 1.25rem 1.5rem;
+  transition: var(--jh-transition);
+}
+
+.jh-manage-job-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.jh-manage-job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.jh-status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.jh-status-open {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.jh-status-closed {
+  background: var(--jh-gray-100, #f3f4f6);
+  color: var(--jh-gray-600);
+}
+
+.jh-status-draft {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.jh-status-archived {
+  background: var(--jh-gray-100, #f3f4f6);
+  color: var(--jh-gray-500);
+}
+
+.jh-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.jh-tag {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  background: var(--jh-primary-light, #eef2ff);
+  color: var(--jh-primary, #6366f1);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.jh-manage-job-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--jh-gray-100, #f3f4f6);
+}
+
+.jh-empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--jh-gray-500);
+  background: var(--jh-gray-50, #f9fafb);
+  border-radius: var(--jh-radius-lg, 12px);
+  border: 1px dashed var(--jh-gray-300);
 }
