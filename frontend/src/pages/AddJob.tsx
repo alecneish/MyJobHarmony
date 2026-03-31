@@ -88,7 +88,7 @@ export default function AddJob() {
         return;
       }
 
-      setSuccess('Job posting created successfully!');
+      setShowForm(false);
       setTitle('');
       setDescription('');
       setLocation('');
@@ -96,6 +96,8 @@ export default function AddJob() {
       setEmploymentType('full-time');
       setTags('');
       setStatus('open');
+      setError('');
+      setSuccess('Job posting created successfully!');
 
       loadJobs();
     } catch {
