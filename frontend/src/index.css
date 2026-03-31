@@ -2209,6 +2209,13 @@ a:hover {
   margin-bottom: 1.75rem;
 }
 
+.jh-addjob-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
 .jh-addjob-header h2 {
   font-size: 1.65rem;
   margin: 0 0 0.3rem;
@@ -2217,6 +2224,78 @@ a:hover {
 .jh-addjob-header p {
   margin: 0;
   color: var(--jh-gray-500);
+  font-size: 0.95rem;
+}
+
+.jh-addjob-stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.jh-addjob-stat {
+  font-size: 0.82rem;
+  color: var(--jh-gray-500);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.jh-addjob-stat strong {
+  font-size: 1.05rem;
+  color: var(--jh-gray-800);
+}
+
+.jh-stat-open strong { color: #15803d; }
+.jh-stat-draft strong { color: #a16207; }
+.jh-stat-closed strong { color: var(--jh-gray-500); }
+
+/* Form wrapper (collapsible) */
+.jh-addjob-form-wrapper {
+  margin-bottom: 2rem;
+}
+
+.jh-addjob-form-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.jh-addjob-form-title h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.jh-addjob-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--jh-gray-400);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--jh-radius-sm);
+  transition: var(--jh-transition);
+}
+
+.jh-addjob-close:hover {
+  color: var(--jh-gray-700);
+  background: var(--jh-gray-100);
+}
+
+.jh-addjob-empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--jh-gray-500);
+  background: var(--jh-white);
+  border: 1px dashed var(--jh-gray-300);
+  border-radius: var(--jh-radius-xl);
+}
+
+.jh-addjob-empty-state p {
+  margin: 0 0 1.25rem;
   font-size: 0.95rem;
 }
 
@@ -2302,18 +2381,6 @@ a:hover {
 .jh-btn-outline:hover {
   border-color: var(--jh-gray-400);
   color: var(--jh-gray-800);
-}
-
-/* ── Postings List Section ─────────────────────────────────────── */
-.jh-addjob-list-section {
-  margin-top: 3rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--jh-gray-200);
-}
-
-.jh-addjob-list-section h3 {
-  font-size: 1.2rem;
-  margin: 0 0 1.25rem;
 }
 
 .jh-addjob-list {
@@ -2439,6 +2506,11 @@ a:hover {
 }
 
 @media (max-width: 768px) {
+  .jh-addjob-header-top {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
   .jh-addjob-card {
     padding: 1.5rem 1.25rem;
   }
