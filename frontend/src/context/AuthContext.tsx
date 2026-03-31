@@ -94,9 +94,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
 
-    // Fetch profile immediately so we can return the role for navigation.
-    // The onAuthStateChange listener will also fire, but we can't await it.
+    // Set session + user immediately so route guards see consistent state.
+    // The onAuthStateChange listener will also fire, but we can't await it,
+    // and there's a race where it sets user before userProfile is ready.
     const authUser = data.user;
+    setSession(data.session);
+    setUser(authUser);
+
     let role = 'job_seeker';
     if (authUser) {
       const { data: profile } = await supabase
