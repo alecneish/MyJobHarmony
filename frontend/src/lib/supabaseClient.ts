@@ -19,8 +19,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     // remounts.  This was causing the entire app to freeze on "Loading…"
     // because getSession() / signInWithPassword() would never resolve.
     // See: https://github.com/supabase/auth-js/issues/888
-    lock: async (_name: string, _acquireTimeout: number, fn: () => Promise<unknown>) => {
-      return await fn();
+    lock: async <R,>(_name: string, _acquireTimeout: number, fn: () => Promise<R>): Promise<R> => {
+      return fn();
     },
   },
 });

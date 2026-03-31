@@ -12,10 +12,13 @@ import { authenticate, requireActive, requireRole } from './middleware';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Allow the frontend origin to be configured via env; default to localhost for dev.
-// In production behind nginx (same origin), CORS isn't strictly needed, but this
-// keeps direct-access and alternative deploy setups working.
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+// Comma-separated list in CORS_ORIGIN, or defaults below (local + production deploys).
+const defaultCorsOrigins = [
+  'http://localhost:5173',
+  'https://job-harmony.information-systems.net',
+  'http://100.125.157.109:8083',
+].join(',');
+const allowedOrigins = (process.env.CORS_ORIGIN || defaultCorsOrigins)
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
