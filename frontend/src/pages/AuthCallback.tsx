@@ -34,7 +34,9 @@ export default function AuthCallback() {
         .eq('id', user.id)
         .single();
 
-      const role = profile?.role ?? user.user_metadata?.role ?? 'job_seeker';
+      let role = profile?.role ?? user.user_metadata?.role ?? 'job_seeker';
+      // Normalize legacy 'candidate' role to 'job_seeker'
+      if (role === 'candidate') role = 'job_seeker';
 
       if (role === 'recruiter') {
         navigate('/recruiter/dashboard', { replace: true });
