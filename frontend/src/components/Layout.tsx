@@ -113,27 +113,21 @@ export default function Layout() {
               )}
 
               {/* User chip inside nav for mobile layout */}
-              <li className="jh-nav-user-chip">
-                {user ? (
-                  <>
-                    <span className="jh-user-email">{user.email}</span>
-                    <button
-                      type="button"
-                      className="jh-btn-secondary"
-                      style={{ padding: '0.35rem 0.75rem' }}
-                      onClick={async () => {
-                        await handleSignOut();
-                        closeMenu();
-                      }}
-                      disabled={loading}
-                    >
-                      Sign out
-                    </button>
-                  </>
-                ) : (
-                  <span className="jh-user-email">Not signed in</span>
-                )}
-              </li>
+              {user && !loading && (
+                <li className="jh-nav-user-chip">
+                  <span className="jh-nav-user-email">{user.email}</span>
+                  <button
+                    type="button"
+                    className="jh-nav-user-signout"
+                    onClick={async () => {
+                      await handleSignOut();
+                      closeMenu();
+                    }}
+                  >
+                    Sign out
+                  </button>
+                </li>
+              )}
             </ul>
 
             {user && !loading ? (
