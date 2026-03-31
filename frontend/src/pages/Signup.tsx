@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Signup() {
   const auth = useAuth();
-  const navigate = useNavigate();
 
   const [role, setRole] = useState<'recruiter' | 'job_seeker'>('job_seeker');
   const [username, setUsername] = useState('');
@@ -12,6 +11,13 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmationSent, setConfirmationSent] = useState(false);
+
+  // Redirect already-authenticated users to their dashboard
+  if (auth.user && !auth.loading) {
+    const dest = auth.isRecruiter ? '/recruiter/dashboard' : '/candidate/dashboard';
+    return <Navigate to={dest} replace />;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,17 +25,30 @@ export default function Signup() {
     setSubmitting(true);
     try {
       await auth.signUp(email, password, username.trim(), role);
-      // Navigate based on role after successful signup
-      if (role === 'recruiter') {
-        navigate('/recruiter/dashboard');
-      } else {
-        navigate('/candidate/dashboard');
-      }
+      // Supabase may require email confirmation before a session is created.
+      // Show a confirmation message instead of navigating to a protected route.
+      setConfirmationSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign up failed');
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (confirmationSent) {
+    return (
+      <div className="jh-auth-container">
+        <div className="jh-auth-card" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>&#x2709;&#xFE0F;</div>
+          <h2>Check your email</h2>
+          <p style={{ color: 'var(--jh-gray-600)', marginBottom: '1.5rem' }}>
+            We sent a confirmation link to <strong>{email}</strong>.
+            Click the link in your inbox to activate your account, then log in.
+          </p>
+          <Link to="/login" className="jh-btn-primary">Go to Login</Link>
+        </div>
+      </div>
+    );
   }
 
   return (
