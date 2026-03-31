@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -9,6 +9,12 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Redirect already-authenticated users to their dashboard
+  if (auth.user && !auth.loading) {
+    const dest = auth.isRecruiter ? '/recruiter/dashboard' : '/candidate/dashboard';
+    return <Navigate to={dest} replace />;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
