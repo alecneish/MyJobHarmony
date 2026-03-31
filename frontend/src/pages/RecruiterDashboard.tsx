@@ -30,11 +30,6 @@ export default function RecruiterDashboard() {
           <p style={{ color: 'var(--jh-gray-600)' }}>Create and manage your job listings.</p>
         </Link>
 
-        <div className="jh-quiz-card" style={{ opacity: 0.6 }}>
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>&#x1F4CA;</div>
-          <h3>Analytics</h3>
-          <p style={{ color: 'var(--jh-gray-600)' }}>Track views, applications, and conversions. Coming soon.</p>
-        </div>
       </div>
     </div>
   );

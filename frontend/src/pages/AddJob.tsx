@@ -20,6 +20,8 @@ interface JobPosting {
 export default function AddJob() {
   const { userProfile } = useAuth();
 
+  const [showForm, setShowForm] = useState(false);
+
   const [title, setTitle] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [description, setDescription] = useState('');
@@ -35,6 +37,7 @@ export default function AddJob() {
 
   const [jobs, setJobs] = useState<JobPosting[]>([]);
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
     loadJobs();
@@ -42,14 +45,18 @@ export default function AddJob() {
 
   async function loadJobs() {
     setLoadingJobs(true);
+    setLoadError('');
     try {
       const res = await apiClient('/api/recruiter/jobs');
       if (res.ok) {
         const data = await res.json();
         setJobs(data);
+      } else {
+        const body = await res.json().catch(() => null);
+        setLoadError(body?.error || `Failed to load postings (${res.status}).`);
       }
     } catch {
-      // silently fail
+      setLoadError('Network error — could not reach the server.');
     } finally {
       setLoadingJobs(false);
     }
@@ -90,6 +97,7 @@ export default function AddJob() {
 
       setShowForm(false);
       setTitle('');
+      setCompanyName('');
       setDescription('');
       setLocation('');
       setSalaryRange('');
@@ -143,7 +151,6 @@ export default function AddJob() {
   }
 
   const hasCompany = !!userProfile?.company_id;
-  const [showForm, setShowForm] = useState(false);
 
   function resetForm() {
     setTitle('');
@@ -350,6 +357,11 @@ export default function AddJob() {
       {/* ── Postings List ── */}
       {loadingJobs ? (
         <p className="jh-addjob-empty">Loading postings...</p>
+      ) : loadError ? (
+        <div className="jh-addjob-empty-state">
+          <p style={{ color: 'var(--jh-error, #c0392b)' }}>{loadError}</p>
+          <button className="jh-btn-outline" onClick={loadJobs}>Retry</button>
+        </div>
       ) : jobs.length === 0 && !showForm ? (
         <div className="jh-addjob-empty-state">
           <p>You don't have any job postings yet.</p>
