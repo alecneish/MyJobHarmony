@@ -184,7 +184,7 @@ export default function Quiz() {
       answerValue: answers[question.id] ?? 3,
     }));
 
-    const timeoutMs = 20000;
+    const timeoutMs = 30000;
     const timeoutPromise = new Promise<Response>((_, reject) => {
       setTimeout(() => reject(new Error('Request timed out')), timeoutMs);
     });
