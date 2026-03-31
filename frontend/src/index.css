@@ -2198,59 +2198,101 @@ a:hover {
   }
 }
 
-/* ── Add Job Form ──────────────────────────────────────────────── */
-.jh-add-job-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* ── Add Job Page ──────────────────────────────────────────────── */
+.jh-addjob-container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 3.5rem;
 }
 
-.jh-form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+.jh-addjob-header {
+  margin-bottom: 1.75rem;
 }
 
-.jh-form-label {
+.jh-addjob-header h2 {
+  font-size: 1.65rem;
+  margin: 0 0 0.3rem;
+}
+
+.jh-addjob-header p {
+  margin: 0;
+  color: var(--jh-gray-500);
+  font-size: 0.95rem;
+}
+
+.jh-addjob-card {
+  background: var(--jh-white);
+  border: 1px solid var(--jh-gray-200);
+  border-radius: var(--jh-radius-xl);
+  padding: 2rem 2.25rem 2.25rem;
+  box-shadow: var(--jh-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.jh-addjob-success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+  padding: 0.75rem 1rem;
+  border-radius: var(--jh-radius-md);
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--jh-gray-700);
 }
 
-.jh-form-hint {
-  font-size: 0.8rem;
-  color: var(--jh-gray-500);
+/* Fields */
+.jh-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
 
-.jh-form-grid-2 {
+.jh-field label {
+  font-family: "DM Sans", sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--jh-gray-600);
+  letter-spacing: 0.01em;
+}
+
+.jh-required {
+  color: var(--jh-orange);
+}
+
+.jh-field-hint {
+  font-size: 0.78rem;
+  color: var(--jh-gray-400);
+  margin-top: 0.1rem;
+}
+
+.jh-addjob-textarea {
+  resize: vertical;
+  min-height: 110px;
+  font-family: inherit;
+  line-height: 1.55;
+}
+
+.jh-addjob-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
-.jh-textarea {
-  resize: vertical;
-  min-height: 100px;
-  font-family: inherit;
-}
-
-.jh-select {
-  cursor: pointer;
-}
-
-.jh-form-actions {
+.jh-addjob-actions {
   display: flex;
   gap: 0.75rem;
-  align-items: center;
-  flex-wrap: wrap;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--jh-gray-100);
+  margin-top: 0.5rem;
 }
 
 .jh-btn-outline {
-  padding: 0.6rem 1.25rem;
+  padding: 0.6rem 1.4rem;
   border-radius: var(--jh-radius-md);
   border: 1.5px solid var(--jh-gray-300);
   background: transparent;
-  color: var(--jh-gray-700);
+  color: var(--jh-gray-600);
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
@@ -2258,61 +2300,38 @@ a:hover {
 }
 
 .jh-btn-outline:hover {
-  border-color: var(--jh-primary);
-  color: var(--jh-primary);
-}
-
-.jh-btn-secondary {
-  padding: 0.4rem 0.85rem;
-  border-radius: var(--jh-radius-md);
-  border: 1.5px solid var(--jh-gray-300);
-  background: var(--jh-gray-50, #f9fafb);
-  color: var(--jh-gray-700);
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: var(--jh-transition);
-}
-
-.jh-btn-secondary:hover {
-  background: var(--jh-gray-100, #f3f4f6);
   border-color: var(--jh-gray-400);
+  color: var(--jh-gray-800);
 }
 
-.jh-btn-danger {
-  padding: 0.4rem 0.85rem;
-  border-radius: var(--jh-radius-md);
-  border: 1.5px solid var(--jh-danger, #ef4444);
-  background: transparent;
-  color: var(--jh-danger, #ef4444);
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: var(--jh-transition);
+/* ── Postings List Section ─────────────────────────────────────── */
+.jh-addjob-list-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--jh-gray-200);
 }
 
-.jh-btn-danger:hover {
-  background: var(--jh-danger, #ef4444);
-  color: #fff;
+.jh-addjob-list-section h3 {
+  font-size: 1.2rem;
+  margin: 0 0 1.25rem;
 }
 
-/* ── Job Management Cards ──────────────────────────────────────── */
-.jh-job-list {
+.jh-addjob-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .jh-manage-job-card {
-  background: #fff;
+  background: var(--jh-white);
   border: 1px solid var(--jh-gray-200);
-  border-radius: var(--jh-radius-lg, 12px);
-  padding: 1.25rem 1.5rem;
-  transition: var(--jh-transition);
+  border-radius: var(--jh-radius-lg);
+  padding: 1.15rem 1.5rem;
+  transition: border-color 0.2s ease;
 }
 
 .jh-manage-job-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-color: var(--jh-gray-300);
 }
 
 .jh-manage-job-header {
@@ -2322,66 +2341,120 @@ a:hover {
   gap: 1rem;
 }
 
+.jh-manage-job-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 600;
+  color: var(--jh-gray-800);
+}
+
+.jh-manage-job-meta {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: var(--jh-gray-500);
+}
+
 .jh-status-badge {
   display: inline-block;
-  padding: 0.2rem 0.65rem;
+  padding: 0.18rem 0.6rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   white-space: nowrap;
 }
 
-.jh-status-open {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.jh-status-closed {
-  background: var(--jh-gray-100, #f3f4f6);
-  color: var(--jh-gray-600);
-}
-
-.jh-status-draft {
-  background: #fef9c3;
-  color: #a16207;
-}
-
-.jh-status-archived {
-  background: var(--jh-gray-100, #f3f4f6);
-  color: var(--jh-gray-500);
-}
+.jh-status-open { background: #dcfce7; color: #15803d; }
+.jh-status-closed { background: var(--jh-gray-100); color: var(--jh-gray-500); }
+.jh-status-draft { background: #fef9c3; color: #a16207; }
+.jh-status-archived { background: var(--jh-gray-100); color: var(--jh-gray-400); }
 
 .jh-tag-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
 }
 
 .jh-tag {
   display: inline-block;
-  padding: 0.15rem 0.55rem;
-  background: var(--jh-primary-light, #eef2ff);
-  color: var(--jh-primary, #6366f1);
+  padding: 0.12rem 0.5rem;
+  background: var(--jh-orange-50);
+  color: var(--jh-orange-dark);
   border-radius: 999px;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
 .jh-manage-job-actions {
   display: flex;
   gap: 0.5rem;
-  margin-top: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--jh-gray-100, #f3f4f6);
+  margin-top: 0.85rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--jh-gray-100);
 }
 
-.jh-empty-state {
+.jh-btn-secondary {
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--jh-radius-sm);
+  border: 1px solid var(--jh-gray-300);
+  background: var(--jh-white);
+  color: var(--jh-gray-600);
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: var(--jh-transition);
+}
+
+.jh-btn-secondary:hover {
+  background: var(--jh-gray-50);
+  border-color: var(--jh-gray-400);
+}
+
+.jh-btn-danger {
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--jh-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--jh-gray-400);
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: var(--jh-transition);
+}
+
+.jh-btn-danger:hover {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.jh-addjob-empty {
   text-align: center;
-  padding: 2.5rem 1rem;
-  color: var(--jh-gray-500);
-  background: var(--jh-gray-50, #f9fafb);
-  border-radius: var(--jh-radius-lg, 12px);
-  border: 1px dashed var(--jh-gray-300);
+  color: var(--jh-gray-400);
+  font-size: 0.9rem;
+  margin-top: 2.5rem;
+}
+
+@media (max-width: 768px) {
+  .jh-addjob-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .jh-addjob-row {
+    grid-template-columns: 1fr;
+  }
+
+  .jh-addjob-actions {
+    flex-direction: column;
+  }
+
+  .jh-addjob-actions .jh-btn-primary,
+  .jh-addjob-actions .jh-btn-outline {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
 }
