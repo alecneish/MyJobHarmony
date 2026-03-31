@@ -6,6 +6,7 @@ import quizRouter from './routes/quiz';
 import jobsRouter from './routes/jobs';
 import recruitRouter from './routes/recruit';
 import applicantRouter from './routes/applicant';
+import recruiterJobsRouter from './routes/recruiterJobs';
 import { authenticate, requireActive, requireRole } from './middleware';
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/applicant', applicantRouter);
 
 // Protected routes
 app.use('/api/recruit', authenticate, requireActive, requireRole('recruiter'), recruitRouter);
+app.use('/api/recruiter/jobs', authenticate, requireActive, requireRole('recruiter'), recruiterJobsRouter);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });

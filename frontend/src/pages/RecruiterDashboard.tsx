@@ -24,11 +24,11 @@ export default function RecruiterDashboard() {
           <p style={{ color: 'var(--jh-gray-600)' }}>Find talent that matches your openings.</p>
         </Link>
 
-        <div className="jh-quiz-card" style={{ opacity: 0.6 }}>
+        <Link to="/recruiter/jobs/new" className="jh-quiz-card" style={{ textDecoration: 'none', color: 'inherit' }}>
           <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>&#x1F4DD;</div>
           <h3>Manage Postings</h3>
-          <p style={{ color: 'var(--jh-gray-600)' }}>Create and manage job listings. Coming soon.</p>
-        </div>
+          <p style={{ color: 'var(--jh-gray-600)' }}>Create and manage your job listings.</p>
+        </Link>
 
         <div className="jh-quiz-card" style={{ opacity: 0.6 }}>
           <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>&#x1F4CA;</div>

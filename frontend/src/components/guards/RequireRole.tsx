@@ -10,9 +10,11 @@ interface Props {
  * Must be nested inside RequireAuth so userProfile is guaranteed.
  */
 export default function RequireRole({ roles }: Props) {
-  const { userProfile, loading } = useAuth();
+  const { user, userProfile, loading } = useAuth();
 
-  if (loading) {
+  // Still loading auth state, or user is authenticated but profile
+  // hasn't arrived yet (race condition right after sign-in).
+  if (loading || (user && !userProfile)) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
         <p>Loading&hellip;</p>

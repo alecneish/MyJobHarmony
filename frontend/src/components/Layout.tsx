@@ -113,47 +113,32 @@ export default function Layout() {
               )}
 
               {/* User chip inside nav for mobile layout */}
-              <li className="jh-nav-user-chip">
-                {user ? (
-                  <>
-                    <span className="jh-user-email">{user.email}</span>
-                    <button
-                      type="button"
-                      className="jh-btn-secondary"
-                      style={{ padding: '0.35rem 0.75rem' }}
-                      onClick={async () => {
-                        await handleSignOut();
-                        closeMenu();
-                      }}
-                      disabled={loading}
-                    >
-                      Sign out
-                    </button>
-                  </>
-                ) : (
-                  <span className="jh-user-email">Not signed in</span>
-                )}
-              </li>
-            </ul>
-
-            <div className="jh-user-chip jh-user-chip--desktop">
-              {user ? (
-                <>
-                  <span className="jh-user-email">{user.email}</span>
+              {user && !loading && (
+                <li className="jh-nav-user-chip">
+                  <span className="jh-nav-user-email">{user.email}</span>
                   <button
                     type="button"
-                    className="jh-btn-secondary"
-                    style={{ padding: '0.35rem 0.75rem' }}
-                    onClick={handleSignOut}
-                    disabled={loading}
+                    className="jh-nav-user-signout"
+                    onClick={async () => {
+                      await handleSignOut();
+                      closeMenu();
+                    }}
                   >
                     Sign out
                   </button>
-                </>
-              ) : (
-                <span className="jh-user-email">Not signed in</span>
+                </li>
               )}
-            </div>
+            </ul>
+
+            {user && !loading ? (
+              <div className="jh-user-chip jh-user-chip--desktop">
+                <span className="jh-user-chip-email">{user.email}</span>
+                <span className="jh-user-chip-sep" />
+                <button type="button" className="jh-user-chip-signout" onClick={handleSignOut}>
+                  Sign out
+                </button>
+              </div>
+            ) : null}
           </div>
         </nav>
       </header>
