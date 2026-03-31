@@ -12,7 +12,7 @@ export default function Layout() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/', { replace: true });
+    navigate('/login', { replace: true });
   };
 
   const closeMenu = () => setMenuOpen(false);
@@ -117,7 +117,16 @@ export default function Layout() {
                 {user ? (
                   <>
                     <span className="jh-user-email">{user.email}</span>
-                    <button className="jh-btn-secondary" style={{ padding: '0.35rem 0.75rem' }} onClick={() => { handleSignOut(); closeMenu(); }} disabled={loading}>
+                    <button
+                      type="button"
+                      className="jh-btn-secondary"
+                      style={{ padding: '0.35rem 0.75rem' }}
+                      onClick={async () => {
+                        await handleSignOut();
+                        closeMenu();
+                      }}
+                      disabled={loading}
+                    >
                       Sign out
                     </button>
                   </>
@@ -131,7 +140,13 @@ export default function Layout() {
               {user ? (
                 <>
                   <span className="jh-user-email">{user.email}</span>
-                  <button className="jh-btn-secondary" style={{ padding: '0.35rem 0.75rem' }} onClick={handleSignOut} disabled={loading}>
+                  <button
+                    type="button"
+                    className="jh-btn-secondary"
+                    style={{ padding: '0.35rem 0.75rem' }}
+                    onClick={handleSignOut}
+                    disabled={loading}
+                  >
                     Sign out
                   </button>
                 </>
