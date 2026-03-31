@@ -5,8 +5,11 @@ import { supabase } from './supabaseClient';
  * as a Bearer header when the user is logged in.  Falls back to a
  * plain fetch when no session exists (public endpoints).
  *
- * Handles common auth-failure edge cases:
- *  - 401: token expired / revoked -> signs out and redirects to login
+ * Auth-failure handling:
+ *  - 401: returned to the caller as-is. Session expiry is handled by
+ *    Supabase's own token-refresh mechanism (onAuthStateChange SIGNED_OUT),
+ *    not by individual API responses — auto-signout here caused the user
+ *    to be kicked to /login every time any backend route returned 401.
  *  - 403 with DEACTIVATED code -> signs out (account disabled server-side)
  */
 export async function apiClient(
@@ -42,11 +45,6 @@ export async function apiClient(
       ...(options.headers as Record<string, string>),
     },
   });
-
-  if (response.status === 401 && session) {
-    await supabase.auth.signOut();
-    window.location.href = '/login';
-  }
 
   if (response.status === 403) {
     const body = await response.clone().json().catch(() => null);

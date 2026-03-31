@@ -5,6 +5,7 @@ import { apiClient } from '../lib/apiClient';
 
 export default function Recruit() {
   const [data, setData] = useState<RecruitApiResponse | null>(null);
+  const [loadError, setLoadError] = useState('');
   const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);
 
   type ApplicantDetails = Applicant & {
@@ -19,7 +20,10 @@ export default function Recruit() {
         return r.json();
       })
       .then((d: RecruitApiResponse) => setData(d))
-      .catch((err) => console.error('Failed to load applicants:', err));
+      .catch((err) => {
+        console.error('Failed to load applicants:', err);
+        setLoadError(`Failed to load candidates (${err.message}). Check that the backend is running.`);
+      });
   }, []);
 
   const recommended: Applicant[] = data?.recommendedApplicants ?? [];
@@ -44,6 +48,10 @@ export default function Recruit() {
         <h2>Recruit Talent</h2>
         <p>Find candidates whose personality and skills align with your openings.</p>
       </div>
+
+      {loadError && (
+        <p style={{ color: 'var(--jh-error, #c0392b)', fontWeight: 600 }}>{loadError}</p>
+      )}
 
       {recommended.length > 0 && (
         <div style={{ marginBottom: '3rem' }}>
