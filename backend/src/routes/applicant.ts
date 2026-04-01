@@ -105,7 +105,7 @@ router.post('/', async (req: Request<unknown, unknown, ApplicantCreateDto>, res:
     ResumeFitPercent: 0,
     PersonalityFitPercent: 0,
     Skills: toCsv(skills),
-    IsRecommended: false,
+    IsRecommended: 1,
     Title: trimmedTitle,
   };
 
