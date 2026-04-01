@@ -18,12 +18,8 @@ export async function apiClient(
 ): Promise<Response> {
   let session = null;
   try {
-    const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 2000));
-    const result = await Promise.race([
-      supabase.auth.getSession().then(({ data }) => data.session),
-      timeout,
-    ]);
-    session = result;
+    const { data } = await supabase.auth.getSession();
+    session = data.session;
   } catch {
     // If getSession fails, proceed without auth
   }

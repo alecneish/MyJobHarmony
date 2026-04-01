@@ -191,60 +191,88 @@ router.post('/submit', optionalAuth, async (req: Request, res: Response) => {
   const careers = getCareerProfiles();
   const careerMatches = computeMatches(dimensionScores, careers);
 
-  // Respond immediately — client gets results without waiting for DB writes.
-  // Persistence runs in the background; sessionId is sent once the session row is created.
-  // If persistence fails the results are still in localStorage on the client.
-  res.json({ success: true, sessionId: null, dimensionScores, careerMatches });
-
-  // Background persistence — does not block the response
-  (async () => {
-    try {
-      // 1. Create session first (needed for foreign keys on subsequent inserts)
-      const { data: session, error: sessionErr } = await supabase
+  // Persist before responding so the client knows whether results were stored.
+  // optionalAuth must attach authUser whenever the JWT is valid (even without user_profiles),
+  // or user_id is null and the session is anonymous.
+  //
+  // Logged-in users: only the latest attempt matters — remove prior sessions for this user
+  // (cascades to quiz_responses, dimension_scores, career_matches).
+  try {
+    if (userId) {
+      const { error: deleteErr } = await supabase
         .from('quiz_sessions')
-        .insert({ user_id: userId ?? null })
-        .select('id')
-        .single();
+        .delete()
+        .eq('user_id', userId);
 
-      if (sessionErr || !session) throw sessionErr ?? new Error('Failed to create session');
-
-      const sessionId: string = session.id;
-
-      // 2. Persist responses, scores, and matches in parallel
-      const [responsesResult, scoresResult, matchesResult] = await Promise.all([
-        supabase.from('quiz_responses').insert(
-          responses.map(r => ({
-            session_id:   sessionId,
-            question_id:  r.questionId,
-            answer_value: r.answerValue,
-          }))
-        ),
-        supabase.from('dimension_scores').insert(
-          dimensionScores.map(s => ({
-            session_id:       sessionId,
-            dimension:        s.dimension,
-            subdimension:     s.subdimension,
-            raw_score:        s.rawScore,
-            normalized_score: s.normalizedScore,
-          }))
-        ),
-        supabase.from('career_matches').insert(
-          careerMatches.map(m => ({
-            session_id:        sessionId,
-            career_profile_id: m.careerProfileId,
-            match_score:       m.matchScore,
-            rank:              m.rank,
-          }))
-        ),
-      ]);
-
-      if (responsesResult.error) console.error('Failed to persist quiz_responses:', responsesResult.error);
-      if (scoresResult.error) console.error('Failed to persist dimension_scores:', scoresResult.error);
-      if (matchesResult.error) console.error('Failed to persist career_matches:', matchesResult.error);
-    } catch (err) {
-      console.error('Background persistence error:', err);
+      if (deleteErr) throw deleteErr;
     }
-  })();
+
+    const { data: session, error: sessionErr } = await supabase
+      .from('quiz_sessions')
+      .insert({ user_id: userId ?? null })
+      .select('id')
+      .single();
+
+    if (sessionErr || !session) {
+      throw sessionErr ?? new Error('Failed to create session');
+    }
+
+    const sessionId: string = session.id;
+
+    const [responsesResult, scoresResult, matchesResult] = await Promise.all([
+      supabase.from('quiz_responses').insert(
+        responses.map(r => ({
+          session_id: sessionId,
+          question_id: r.questionId,
+          answer_value: r.answerValue,
+        })),
+      ),
+      supabase.from('dimension_scores').insert(
+        dimensionScores.map(s => ({
+          session_id: sessionId,
+          dimension: s.dimension,
+          subdimension: s.subdimension,
+          raw_score: s.rawScore,
+          normalized_score: s.normalizedScore,
+        })),
+      ),
+      supabase.from('career_matches').insert(
+        careerMatches.map(m => ({
+          session_id: sessionId,
+          career_profile_id: m.careerProfileId,
+          match_score: m.matchScore,
+          rank: m.rank,
+        })),
+      ),
+    ]);
+
+    if (responsesResult.error) throw responsesResult.error;
+    if (scoresResult.error) throw scoresResult.error;
+    if (matchesResult.error) throw matchesResult.error;
+
+    res.json({
+      success: true,
+      persisted: true,
+      sessionId,
+      dimensionScores,
+      careerMatches,
+    });
+  } catch (err) {
+    console.error('Quiz persistence error:', err);
+    const message =
+      userId != null
+        ? 'Could not save your quiz results. Please try again.'
+        : 'Could not save your quiz session.';
+
+    res.status(200).json({
+      success: false,
+      persisted: false,
+      message,
+      sessionId: null,
+      dimensionScores,
+      careerMatches,
+    });
+  }
 });
 
 export default router;

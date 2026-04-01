@@ -32,7 +32,7 @@ export default function AuthCallback() {
         .from('user_profiles')
         .select('role')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       let role = profile?.role ?? user.user_metadata?.role ?? 'job_seeker';
       // Normalize legacy 'candidate' role to 'job_seeker'

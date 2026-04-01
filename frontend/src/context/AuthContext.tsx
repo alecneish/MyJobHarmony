@@ -68,25 +68,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .from('user_profiles')
         .select('*')
         .eq('id', authUser.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      if (data.role === 'candidate') data.role = 'job_seeker';
-      setUserProfile(data);
+      if (data) {
+        if (data.role === 'candidate') data.role = 'job_seeker';
+        setUserProfile(data);
+        return;
+      }
     } catch (err) {
       console.error('Error fetching user profile, falling back to auth metadata:', err);
-      const meta = authUser.user_metadata;
-      if (meta) {
-        let role = (meta.role as string) || 'job_seeker';
-        if (role === 'candidate') role = 'job_seeker';
-        setUserProfile({
-          id: authUser.id,
-          username: (meta.username as string) || '',
-          role: role as UserProfile['role'],
-          created_at: authUser.created_at,
-          updated_at: authUser.created_at,
-        } as UserProfile);
-      }
+    }
+
+    const meta = authUser.user_metadata;
+    if (meta) {
+      let role = (meta.role as string) || 'job_seeker';
+      if (role === 'candidate') role = 'job_seeker';
+      setUserProfile({
+        id: authUser.id,
+        username: (meta.username as string) || '',
+        role: role as UserProfile['role'],
+        created_at: authUser.created_at,
+        updated_at: authUser.created_at,
+      } as UserProfile);
     }
   }
 
@@ -107,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .from('user_profiles')
         .select('*')
         .eq('id', authUser.id)
-        .single();
+        .maybeSingle();
 
       if (profile) {
         if (profile.role === 'candidate') profile.role = 'job_seeker';

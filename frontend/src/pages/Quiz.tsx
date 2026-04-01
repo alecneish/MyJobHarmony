@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { QuizQuestion, QuizResults, CareerMatch } from '../types';
+import { QuizQuestion, CareerMatch } from '../types';
 import { showSnackbar } from '../components/Snackbar';
 import { apiClient } from '../lib/apiClient';
 import { useAuth } from '../context/AuthContext';
+import { persistQuizResultsLocal, type QuizDimensionScore } from '../lib/quizLocalStorage';
 
 const QUESTIONS_PER_PAGE = 10;
 
@@ -46,43 +47,6 @@ const INTEREST_OPTIONS = [
   { value: 5, label: 'Extremely' },
 ];
 
-const MOTIVATION_TYPES: Record<string, { type: string; description: string; icon: string }> = {
-  Openness: {
-    type: 'The Innovator',
-    description: "You thrive on creativity and new ideas. You're driven by curiosity and love exploring uncharted territory.",
-    icon: '💡',
-  },
-  Conscientiousness: {
-    type: 'The Achiever',
-    description: "You're goal-oriented and detail-driven. You find satisfaction in completing tasks with precision and excellence.",
-    icon: '🎯',
-  },
-  Extraversion: {
-    type: 'The Connector',
-    description: "You're energized by people and thrive in collaborative environments. Building relationships is your superpower.",
-    icon: '🤝',
-  },
-  Agreeableness: {
-    type: 'The Harmonizer',
-    description: "You're empathetic and cooperative. You excel at creating supportive environments where everyone can succeed.",
-    icon: '💚',
-  },
-  EmotionalStability: {
-    type: 'The Anchor',
-    description: "You're calm under pressure and bring stability to any team. Your resilience and composure inspire confidence.",
-    icon: '⚓',
-  },
-};
-
-const OCEAN_DIMENSIONS = ['Openness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'EmotionalStability'];
-
-interface DimensionScore {
-  dimension: string;
-  subdimension: string;
-  rawScore: number;
-  normalizedScore: number;
-}
-
 export default function Quiz() {
   const [tier, setTier] = useState<QuizTier | null>(null);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -120,9 +84,7 @@ export default function Quiz() {
     async function detectLastResults() {
       if (user && session?.access_token) {
         try {
-          const r = await fetch('/api/quiz/last', {
-            headers: { Authorization: `Bearer ${session.access_token}` },
-          });
+          const r = await apiClient('/api/quiz/last');
           if (cancelled) return;
           setHasLastResults(r.ok);
           return;
@@ -132,7 +94,8 @@ export default function Quiz() {
       }
 
       try {
-        const stored = localStorage.getItem('jh-quiz-results');
+        const stored =
+          localStorage.getItem('jh-quiz-results') || localStorage.getItem('jh-quiz-raw');
         if (!cancelled) setHasLastResults(Boolean(stored));
       } catch {
         if (!cancelled) setHasLastResults(false);
@@ -184,7 +147,8 @@ export default function Quiz() {
       answerValue: answers[question.id] ?? 3,
     }));
 
-    const timeoutMs = 30000;
+    // Full quiz persists many rows (responses, scores, career matches); allow enough time.
+    const timeoutMs = 120000;
     const timeoutPromise = new Promise<Response>((_, reject) => {
       setTimeout(() => reject(new Error('Request timed out')), timeoutMs);
     });
@@ -204,38 +168,27 @@ export default function Quiz() {
 
       const data = (await response.json()) as {
         success: boolean;
+        persisted?: boolean;
+        message?: string;
         sessionId?: string | null;
-        dimensionScores: DimensionScore[];
+        dimensionScores: QuizDimensionScore[];
         careerMatches: CareerMatch[];
       };
-      const oceanScores = buildOceanScores(data.dimensionScores ?? []);
-      const dominantTrait = Object.keys(oceanScores).reduce((a, b) =>
-        oceanScores[b] > oceanScores[a] ? b : a
+
+      persistQuizResultsLocal(
+        data.sessionId ?? null,
+        data.dimensionScores ?? [],
+        data.careerMatches ?? [],
       );
-      const motivation = MOTIVATION_TYPES[dominantTrait] ?? MOTIVATION_TYPES.Openness;
 
-      const quizResults: QuizResults = {
-        openness: oceanScores.Openness,
-        conscientiousness: oceanScores.Conscientiousness,
-        extraversion: oceanScores.Extraversion,
-        agreeableness: oceanScores.Agreeableness,
-        emotionalStability: oceanScores.EmotionalStability,
-        motivationType: motivation.type,
-        motivationDescription: motivation.description,
-        motivationIcon: motivation.icon,
-        careerMatches: data.careerMatches ?? [],
-      };
-
-        localStorage.setItem('jh-quiz-results', JSON.stringify(quizResults));
-
-      localStorage.setItem('jh-quiz-raw', JSON.stringify({
-        sessionId: data.sessionId ?? null,
-        dimensionScores: data.dimensionScores ?? [],
-        careerMatches: data.careerMatches ?? [],
-      }));
+      const saved = data.persisted ?? data.success;
 
       if (user) {
-        if (data.success) showSnackbar('Your results have been saved!');
+        if (saved) {
+          showSnackbar('Your results have been saved!');
+        } else {
+          showSnackbar(data.message ?? 'Could not save your results. Please try again.');
+        }
         setSubmitting(false);
         navigate('/quiz/results');
       } else {
@@ -247,24 +200,6 @@ export default function Quiz() {
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function buildOceanScores(dimensionScores: DimensionScore[]): Record<string, number> {
-    const totals: Record<string, number[]> = {};
-    for (const dim of OCEAN_DIMENSIONS) totals[dim] = [];
-
-    for (const ds of dimensionScores) {
-      if (ds.dimension in totals) totals[ds.dimension].push(ds.normalizedScore);
-    }
-
-    const result: Record<string, number> = {};
-    for (const dim of OCEAN_DIMENSIONS) {
-      const scores = totals[dim];
-      result[dim] = scores.length > 0
-        ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-        : 50;
-    }
-    return result;
   }
 
   // --- Tier selection landing screen ---

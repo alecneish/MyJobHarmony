@@ -10,6 +10,10 @@ const router = Router();
  */
 router.get('/', async (req: Request, res: Response) => {
   const { authUser } = req as AuthenticatedRequest;
+  if (!authUser) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
 
   const { data, error } = await supabase
     .from('job_postings')
@@ -33,6 +37,10 @@ router.get('/', async (req: Request, res: Response) => {
  */
 router.post('/', async (req: Request, res: Response) => {
   const { authUser, userProfile } = req as AuthenticatedRequest;
+  if (!authUser || !userProfile) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
 
   const {
     title,
@@ -113,6 +121,10 @@ router.post('/', async (req: Request, res: Response) => {
  */
 router.patch('/:id', async (req: Request, res: Response) => {
   const { authUser } = req as AuthenticatedRequest;
+  if (!authUser) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
   const jobId = req.params.id;
 
   const allowedFields = [
@@ -160,6 +172,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
  */
 router.delete('/:id', async (req: Request, res: Response) => {
   const { authUser } = req as AuthenticatedRequest;
+  if (!authUser) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
   const jobId = req.params.id;
 
   const { error, count } = await supabase

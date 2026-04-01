@@ -1,18 +1,15 @@
-import { useEffect, useState, useRef } from 'react';
+﻿import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { apiClient } from '../lib/apiClient';
+import type { CareerMatch } from '../types';
+import { persistQuizResultsLocal } from '../lib/quizLocalStorage';
 
 interface DimensionScore {
   dimension: string;
   subdimension: string;
   rawScore: number;
   normalizedScore: number;
-}
-
-interface CareerMatch {
-  careerProfileId: number;
-  title: string;
-  matchScore: number;
-  rank: number;
 }
 
 interface RawResults {
@@ -22,23 +19,75 @@ interface RawResults {
 }
 
 export default function QuizResults() {
+  const { user } = useAuth();
   const [results, setResults] = useState<RawResults | null>(null);
+  const [loading, setLoading] = useState(false);
   const [animated, setAnimated] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
+  function scheduleAnimate() {
+    if (timer.current) clearTimeout(timer.current);
+    setAnimated(false);
+    timer.current = setTimeout(() => setAnimated(true), 150);
+  }
+
   useEffect(() => {
+    let cancelled = false;
+
+    let hadLocal = false;
     const stored = localStorage.getItem('jh-quiz-raw');
     if (stored) {
       try {
         setResults(JSON.parse(stored) as RawResults);
-        timer.current = setTimeout(() => setAnimated(true), 150);
+        hadLocal = true;
+        scheduleAnimate();
       } catch {
         // malformed
       }
     }
-    return () => { if (timer.current) clearTimeout(timer.current); };
-  }, []);
+
+    if (!user) {
+      return () => {
+        cancelled = true;
+        if (timer.current) clearTimeout(timer.current);
+      };
+    }
+
+    if (!hadLocal) setLoading(true);
+
+    (async () => {
+      try {
+        const res = await apiClient('/api/quiz/last');
+        if (cancelled) return;
+        if (res.ok) {
+          const data = (await res.json()) as {
+            sessionId: string | null;
+            dimensionScores: DimensionScore[];
+            careerMatches: CareerMatch[];
+          };
+          persistQuizResultsLocal(
+            data.sessionId ?? null,
+            data.dimensionScores ?? [],
+            data.careerMatches ?? [],
+          );
+          setResults({
+            sessionId: data.sessionId ?? null,
+            dimensionScores: data.dimensionScores ?? [],
+            careerMatches: data.careerMatches ?? [],
+          });
+          scheduleAnimate();
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [user?.id]);
 
   function handleRetake() {
     localStorage.removeItem('jh-quiz-results');
@@ -47,6 +96,13 @@ export default function QuizResults() {
   }
 
   if (!results) {
+    if (loading) {
+      return (
+        <div className="jh-results-container" style={{ textAlign: 'center', padding: '4rem' }}>
+          <p style={{ color: 'var(--jh-gray-600)' }}>Loading your results…</p>
+        </div>
+      );
+    }
     return (
       <div className="jh-results-container" style={{ textAlign: 'center', padding: '4rem' }}>
         <p style={{ color: 'var(--jh-gray-600)', marginBottom: '1.5rem' }}>
@@ -180,3 +236,4 @@ export default function QuizResults() {
     </div>
   );
 }
+
