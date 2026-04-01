@@ -122,6 +122,10 @@ export default function Quiz() {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   }
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
+
   function next() {
     if (!pageComplete) return;
     if (isLastPage) {
@@ -129,13 +133,11 @@ export default function Quiz() {
       return;
     }
     setCurrentPage((p) => p + 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function back() {
     if (currentPage <= 0) return;
     setCurrentPage((p) => p - 1);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async function submitQuiz() {
