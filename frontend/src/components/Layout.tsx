@@ -1,14 +1,41 @@
-import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { apiClient } from '../lib/apiClient';
 import Snackbar from './Snackbar';
 
 export default function Layout() {
   const { user, userProfile, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [serverHasQuizResults, setServerHasQuizResults] = useState<boolean | null>(null);
   const isRecruiter = !!(user && userProfile?.role === 'recruiter');
-  const hasResults = Boolean(user && localStorage.getItem('jh-quiz-results'));
+
+  const localHasQuiz =
+    typeof window !== 'undefined' &&
+    Boolean(localStorage.getItem('jh-quiz-raw') || localStorage.getItem('jh-quiz-results'));
+  const hasResults = localHasQuiz || (Boolean(user) && serverHasQuizResults === true);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) {
+      setServerHasQuizResults(null);
+      return;
+    }
+    setServerHasQuizResults(null);
+    (async () => {
+      try {
+        const r = await apiClient('/api/quiz/last');
+        if (cancelled) return;
+        setServerHasQuizResults(r.ok);
+      } catch {
+        if (!cancelled) setServerHasQuizResults(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   const handleSignOut = async () => {
     await signOut();

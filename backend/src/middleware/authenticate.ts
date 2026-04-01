@@ -16,8 +16,10 @@ export interface UserProfile {
 }
 
 export interface AuthenticatedRequest extends Request {
-  authUser: AuthUser;
-  userProfile: UserProfile;
+  /** Set when a valid bearer token is present (optionalAuth, authenticate). */
+  authUser?: AuthUser;
+  /** Set when a user_profiles row exists for the user (authenticate always; optionalAuth when present). */
+  userProfile?: UserProfile;
 }
 
 function normalizeRole(role: string): UserProfile['role'] {
@@ -72,7 +74,7 @@ export async function authenticate(
       .from('user_profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (profileError || !profile) {
       res.status(403).json({ error: 'User profile not found' });
@@ -119,17 +121,18 @@ export async function optionalAuth(
       return;
     }
 
+    (req as AuthenticatedRequest).authUser = {
+      id: user.id,
+      email: user.email,
+    };
+
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('*')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
 
     if (profile) {
-      (req as AuthenticatedRequest).authUser = {
-        id: user.id,
-        email: user.email,
-      };
       (req as AuthenticatedRequest).userProfile = buildProfile(profile);
     }
 

@@ -215,7 +215,7 @@ Yes, just commit them.
 
 1. Log in: `cd backend && npx supabase login` (opens browser for token).
 2. Link the project: `npx supabase link --project-ref <your_project_ref>` (still from `backend/`).
-3. After linking, push migrations when needed (with prod `DATABASE_URL` set in env/CI): `npm run migrate` or `npx supabase db push` (from `backend/`).
+3. After linking, push migrations when needed: `npm run migrate:linked --prefix backend` or `npx supabase db push --linked` (from `backend/`).
 
 **Responsibilities of the linking owner:**
 
@@ -234,7 +234,7 @@ Set these in your hosting/CI secrets (do not commit to git):
 - `SUPABASE_SECRET_KEY`: Supabase Secret key (server-side only).
 - Optional: `SUPABASE_PUBLISHABLE_KEY` if any client surface needs it (keep out of git anyway).
 
-Migrations: run `npm run migrate --prefix backend` in a linked/authorized context with these prod secrets set. Do not auto-run migrations on deploy unless you intentionally add that step.
+Migrations: run `npm run migrate:linked --prefix backend` after `supabase link` (or `npx supabase db push --linked` from `backend/`). Do not auto-run migrations on deploy unless you intentionally add that step.
 
 ---
 
