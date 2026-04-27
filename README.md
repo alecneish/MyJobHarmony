@@ -2,17 +2,16 @@
 
 ## App Summary
 
-JobHarmony is a career matching platform that helps people find jobs that fit who they are. Many employees feel disengaged not because they lack skills, but because their personality and work style clash with their environment. JobHarmony addresses this by giving job seekers a structured personality assessment based on the Big Five (OCEAN) model, then using those results to surface job listings ranked by how well they match the applicant's profile. On the recruiter side, the platform helps companies identify candidates whose personalities align with their team culture. The result is a two-sided matching experience: applicants find direction and purpose, and companies find genuinely motivated hires.
+JobHarmony is a candidate-focused career matching platform that helps people find jobs that fit who they are. Many employees feel disengaged not because they lack skills, but because their personality and work style clash with their environment. JobHarmony addresses this by giving job seekers a structured personality assessment based on the Big Five (OCEAN) model, then using those results to surface job listings ranked by how well they match the applicant's profile. The result is a guided experience where applicants can find direction and purpose in their career path.
 
 ---
 
 ## Working Features
 
-- **User Authentication**: Supabase Auth with role-based signup (recruiter/candidate), username storage, and secure login
+- **User Authentication**: Supabase Auth for candidate accounts, username storage, and secure login
 - Career personality quiz with progress tracking and results visualization (`/quiz` → `/quiz/results`).
 - Quiz interface playground that demonstrates every common HTML form question/answer type in one page (`/quiz/interface`).
 - Job browsing with fit badges and saved jobs (`/jobs`, `/jobs/saved`).
-- Recruiter view of recommended candidates (`/recruit`).
 
 ---
 
@@ -23,7 +22,7 @@ JobHarmony is a career matching platform that helps people find jobs that fit wh
 | Frontend | React 18, TypeScript, Vite, React Router |
 | Backend | Node.js, Express, TypeScript (ts-node-dev) |
 | Database | Supabase/Postgres (local + prod via REST API) |
-| Auth | Supabase Auth with role-based signup (recruiter/candidate) |
+| Auth | Supabase Auth for candidate accounts |
 | External APIs | None |
 
 ---
@@ -40,7 +39,7 @@ JobHarmony is a career matching platform that helps people find jobs that fit wh
 │             │                         │   │  Route files │   │
 │             │                         │   │  /api/quiz   │   │
 └─────────────┘                         │   │  /api/jobs   │   │
-      ▲                                 │   │  /api/recruit│   │
+      ▲                                 │   │  /api/applicant│ │
       │ Vite dev server                 │   └──────┬───────┘   │
       │ (proxy /api → :3001)            │          │           │
 ┌─────┴───────┐                         │   ┌──────▼───────┐   │
@@ -399,7 +398,7 @@ JobHarmony/
 │   │   ├── routes/
 │   │   │   ├── quiz.ts       ← GET/POST /api/quiz
 │   │   │   ├── jobs.ts       ← GET /api/jobs
-│   │   │   └── recruit.ts    ← GET /api/recruit
+│   │   │   └── applicant.ts  ← Candidate profile + resume routes
 │   │   ├── data/
 │   │   │   ├── seedData.ts       ← Quiz questions (Likert) + jobs/applicants
 │   │   │   └── careerProfiles.ts ← 66 career profiles with 18 dimension scores each

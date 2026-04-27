@@ -1,11 +1,17 @@
-import { Applicant } from '../types';
+import { Applicant, ApplicantEducationEntry, ApplicantWorkExperienceEntry } from '../types';
 
 export interface ApplicantUpsertPayload {
+  id?: number;
   name: string;
   title: string;
   bio: string;
   skills: string[];
   resumeUrl?: string;
+  location?: string;
+  yearsOfExperience?: number;
+  linkedinUrl?: string;
+  education?: ApplicantEducationEntry[];
+  workExperience?: ApplicantWorkExperienceEntry[];
 }
 
 interface ApplicantResponse {
@@ -42,8 +48,19 @@ export async function createApplicant(payload: ApplicantUpsertPayload): Promise<
 }
 
 export async function updateApplicant(id: number, payload: ApplicantUpsertPayload): Promise<Applicant> {
-  const response = await fetch(`/api/applicant/${id}`, {
-    method: 'PATCH',
+  const response = await fetch('/api/applicant', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...payload, id }),
+  });
+  if (!response.ok) throw new Error(await parseError(response));
+  const data = (await response.json()) as ApplicantResponse;
+  return data.applicant;
+}
+
+export async function upsertApplicant(payload: ApplicantUpsertPayload): Promise<Applicant> {
+  const response = await fetch('/api/applicant', {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });

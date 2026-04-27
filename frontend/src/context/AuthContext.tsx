@@ -9,10 +9,9 @@ interface AuthContextValue {
   userProfile: UserProfile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ role: string }>;
-  signUp: (email: string, password: string, username: string, role: 'recruiter' | 'job_seeker') => Promise<void>;
+  signUp: (email: string, password: string, username: string) => Promise<void>;
   signOut: () => Promise<void>;
   isJobSeeker: boolean;
-  isRecruiter: boolean;
   isAdmin: boolean;
 }
 
@@ -126,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { role };
   }
 
-  async function signUp(email: string, password: string, username: string, role: 'recruiter' | 'job_seeker') {
+  async function signUp(email: string, password: string, username: string) {
     // The on_auth_user_created trigger automatically creates the user_profiles
     // row from raw_user_meta_data, so we only need to call signUp here.
     const { error } = await supabase.auth.signUp({ 
@@ -135,7 +134,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: {
         data: {
           username,
-          role
+          role: 'job_seeker'
         },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       }
@@ -156,7 +155,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const isJobSeeker = userProfile?.role === 'job_seeker';
-  const isRecruiter = userProfile?.role === 'recruiter';
   const isAdmin = userProfile?.role === 'admin';
 
   const value: AuthContextValue = {
@@ -168,7 +166,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUp,
     signOut,
     isJobSeeker,
-    isRecruiter,
     isAdmin,
   };
 

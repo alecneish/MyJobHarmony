@@ -9,7 +9,7 @@ export interface AuthUser {
 export interface UserProfile {
   id: string;
   username: string;
-  role: 'job_seeker' | 'recruiter' | 'admin';
+  role: 'job_seeker' | 'admin';
   is_active: boolean;
   verification_status: 'unverified' | 'pending' | 'verified' | 'rejected';
   company_id: string | null;
@@ -24,7 +24,7 @@ export interface AuthenticatedRequest extends Request {
 
 function normalizeRole(role: string): UserProfile['role'] {
   if (role === 'candidate') return 'job_seeker';
-  if (['job_seeker', 'recruiter', 'admin'].includes(role)) {
+  if (['job_seeker', 'admin'].includes(role)) {
     return role as UserProfile['role'];
   }
   return 'job_seeker';

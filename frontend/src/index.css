@@ -1105,6 +1105,50 @@ a:hover {
   margin-top: 0.35rem;
 }
 
+.jh-info-note {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  color: #1e40af;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--jh-radius-md);
+  font-weight: 500;
+  margin-bottom: 0.9rem;
+}
+
+.jh-profile-subsection {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--jh-gray-200);
+}
+
+.jh-profile-subsection-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.jh-profile-subsection-heading h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.jh-profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.jh-profile-list-item {
+  border: 1px solid var(--jh-gray-200);
+  border-radius: var(--jh-radius-md);
+  background: var(--jh-white);
+  padding: 1rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
 .jh-role-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

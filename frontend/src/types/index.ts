@@ -33,11 +33,33 @@ export interface Applicant {
   avatarColor: string;
   bio?: string;
   resumeUrl?: string;
+  location?: string;
+  yearsOfExperience?: number;
+  linkedinUrl?: string;
+  education?: ApplicantEducationEntry[];
+  workExperience?: ApplicantWorkExperienceEntry[];
   resumeFitPercent: number;
   personalityFitPercent: number;
   skills: string[];
   isRecommended: boolean;
   title: string;
+}
+
+export interface ApplicantEducationEntry {
+  school: string;
+  degree: string;
+  fieldOfStudy?: string;
+  startYear?: string;
+  endYear?: string;
+}
+
+export interface ApplicantWorkExperienceEntry {
+  company: string;
+  title: string;
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  description?: string;
 }
 
 export interface CareerMatch {

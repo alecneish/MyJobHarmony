@@ -3,7 +3,13 @@ import multer from 'multer';
 import fs from 'node:fs';
 import path from 'node:path';
 import { supabase } from '../db/database';
-import { Applicant, ApplicantCreateDto, ApplicantUpdateDto } from '../types';
+import {
+  Applicant,
+  ApplicantCreateDto,
+  ApplicantEducationEntry,
+  ApplicantUpdateDto,
+  ApplicantWorkExperienceEntry,
+} from '../types';
 
 const router = Router();
 
@@ -21,6 +27,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 const avatarPalette = ['#E67E22', '#3498DB', '#2ECC71', '#9B59B6', '#E74C3C', '#1ABC9C'];
+const PROFILE_META_MARKER = '[JH_PROFILE_META]';
 
 function splitCsv(v: unknown): string[] {
   if (typeof v !== 'string') return [];
@@ -46,19 +53,98 @@ function pickAvatarColor(name: string): string {
   return avatarPalette[hash % avatarPalette.length];
 }
 
+type ProfileMeta = {
+  location?: string;
+  yearsOfExperience?: number;
+  linkedinUrl?: string;
+  education?: ApplicantEducationEntry[];
+  workExperience?: ApplicantWorkExperienceEntry[];
+};
+
+function extractProfileMeta(rawBio: unknown): { plainBio: string; meta: ProfileMeta } {
+  const bio = typeof rawBio === 'string' ? rawBio : '';
+  const markerIndex = bio.lastIndexOf(PROFILE_META_MARKER);
+  if (markerIndex < 0) return { plainBio: bio.trim(), meta: {} };
+
+  const plainBio = bio.slice(0, markerIndex).trim();
+  const jsonPart = bio.slice(markerIndex + PROFILE_META_MARKER.length).trim();
+
+  try {
+    const parsed = JSON.parse(jsonPart) as ProfileMeta;
+    return {
+      plainBio,
+      meta: {
+        location: typeof parsed.location === 'string' ? parsed.location : undefined,
+        yearsOfExperience:
+          typeof parsed.yearsOfExperience === 'number' && Number.isFinite(parsed.yearsOfExperience)
+            ? parsed.yearsOfExperience
+            : undefined,
+        linkedinUrl: typeof parsed.linkedinUrl === 'string' ? parsed.linkedinUrl : undefined,
+        education: Array.isArray(parsed.education)
+          ? (parsed.education as ApplicantEducationEntry[])
+          : [],
+        workExperience: Array.isArray(parsed.workExperience)
+          ? (parsed.workExperience as ApplicantWorkExperienceEntry[])
+          : [],
+      },
+    };
+  } catch {
+    return { plainBio: bio.trim(), meta: {} };
+  }
+}
+
+function encodeProfileMeta(plainBio: string, meta: ProfileMeta): string {
+  const normalizedMeta: ProfileMeta = {
+    location: typeof meta.location === 'string' ? meta.location.trim() : '',
+    yearsOfExperience:
+      typeof meta.yearsOfExperience === 'number' && Number.isFinite(meta.yearsOfExperience)
+        ? Math.max(0, Math.round(meta.yearsOfExperience))
+        : undefined,
+    linkedinUrl: typeof meta.linkedinUrl === 'string' ? meta.linkedinUrl.trim() : '',
+    education: Array.isArray(meta.education) ? meta.education : [],
+    workExperience: Array.isArray(meta.workExperience) ? meta.workExperience : [],
+  };
+
+  return `${plainBio.trim()}\n\n${PROFILE_META_MARKER}${JSON.stringify(normalizedMeta)}`.trim();
+}
+
 function mapApplicant(row: any): Applicant {
+  const { plainBio, meta } = extractProfileMeta(row.Bio ?? row.description ?? '');
+  const rowEducation = Array.isArray(row.Education)
+    ? (row.Education as ApplicantEducationEntry[])
+    : Array.isArray(row.education)
+      ? (row.education as ApplicantEducationEntry[])
+      : [];
+  const rowWorkExperience = Array.isArray(row.WorkExperience)
+    ? (row.WorkExperience as ApplicantWorkExperienceEntry[])
+    : Array.isArray(row.work_experience)
+      ? (row.work_experience as ApplicantWorkExperienceEntry[])
+      : [];
+  const education = rowEducation.length ? rowEducation : meta.education ?? [];
+  const workExperience = rowWorkExperience.length ? rowWorkExperience : meta.workExperience ?? [];
+  const rowLocation = row.Location ?? row.location;
+  const rowYears = row.YearsOfExperience ?? row.years_of_experience;
+  const rowLinkedIn = row.LinkedInUrl ?? row.linkedin_url;
+
   return {
-    id: row.Id,
-    name: row.Name,
-    initials: row.Initials ?? '',
-    avatarColor: row.AvatarColor ?? '',
-    bio: row.Bio ?? undefined,
-    resumeUrl: row.ResumeUrl ?? undefined,
-    resumeFitPercent: row.ResumeFitPercent ?? 0,
-    personalityFitPercent: row.PersonalityFitPercent ?? 0,
-    skills: splitCsv(row.Skills),
-    isRecommended: Boolean(row.IsRecommended),
-    title: row.Title ?? '',
+    id: row.Id ?? row.id,
+    name: row.Name ?? row.full_name ?? '',
+    initials: row.Initials ?? row.initials ?? '',
+    avatarColor: row.AvatarColor ?? row.avatar_color ?? '',
+    bio: plainBio || undefined,
+    resumeUrl: row.ResumeUrl ?? row.resume_url ?? undefined,
+    location: (typeof rowLocation === 'string' ? rowLocation : meta.location) ?? undefined,
+    yearsOfExperience:
+      (typeof rowYears === 'number' && Number.isFinite(rowYears) ? rowYears : meta.yearsOfExperience) ??
+      undefined,
+    linkedinUrl: (typeof rowLinkedIn === 'string' ? rowLinkedIn : meta.linkedinUrl) ?? undefined,
+    education,
+    workExperience,
+    resumeFitPercent: row.ResumeFitPercent ?? row.resume_fit_percent ?? 0,
+    personalityFitPercent: row.PersonalityFitPercent ?? row.personality_fit_percent ?? 0,
+    skills: splitCsv(row.Skills ?? row.skills),
+    isRecommended: Boolean(row.IsRecommended ?? row.is_recommended),
+    title: row.Title ?? row.professional_title ?? '',
   };
 }
 
@@ -85,7 +171,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 router.post('/', async (req: Request<unknown, unknown, ApplicantCreateDto>, res: Response) => {
-  const { name, title, bio, skills, resumeUrl } = req.body ?? {};
+  const { id: rawId, name, title, bio, skills, resumeUrl, location, yearsOfExperience, linkedinUrl, education, workExperience } = (req.body ?? {}) as ApplicantCreateDto & { id?: number };
   const trimmedName = name?.trim();
   const trimmedTitle = title?.trim();
 
@@ -96,11 +182,21 @@ router.post('/', async (req: Request<unknown, unknown, ApplicantCreateDto>, res:
     return;
   }
 
+  const requestedId =
+    typeof rawId === 'number' && Number.isInteger(rawId) && rawId > 0 ? rawId : null;
+
   const payload = {
+    ...(requestedId ? { Id: requestedId } : {}),
     Name: trimmedName,
     Initials: buildInitials(trimmedName),
     AvatarColor: pickAvatarColor(trimmedName),
-    Bio: typeof bio === 'string' ? bio.trim() : null,
+    Bio: encodeProfileMeta(typeof bio === 'string' ? bio.trim() : '', {
+      location,
+      yearsOfExperience: typeof yearsOfExperience === 'number' ? yearsOfExperience : undefined,
+      linkedinUrl,
+      education: Array.isArray(education) ? education : [],
+      workExperience: Array.isArray(workExperience) ? workExperience : [],
+    }),
     ResumeUrl: typeof resumeUrl === 'string' ? resumeUrl.trim() : null,
     ResumeFitPercent: 0,
     PersonalityFitPercent: 0,
@@ -109,9 +205,14 @@ router.post('/', async (req: Request<unknown, unknown, ApplicantCreateDto>, res:
     Title: trimmedTitle,
   };
 
-  const { data, error } = await supabase.from('Applicants').insert(payload).select('*').single();
+  const { data, error } = await supabase
+    .from('Applicants')
+    .upsert(payload, { onConflict: 'Id' })
+    .select('*')
+    .single();
   if (error || !data) {
-    res.status(500).json({ message: 'Failed to create applicant profile' });
+    console.error('Failed to create applicant profile:', error);
+    res.status(500).json({ message: `Failed to create applicant profile (${error?.message ?? 'unknown'})` });
     return;
   }
 
@@ -125,7 +226,7 @@ router.patch('/:id', async (req: Request<{ id: string }, unknown, ApplicantUpdat
     return;
   }
 
-  const { name, title, bio, skills, resumeUrl } = req.body ?? {};
+  const { name, title, bio, skills, resumeUrl, location, yearsOfExperience, linkedinUrl, education, workExperience } = req.body ?? {};
   const updates: Record<string, unknown> = {};
 
   if (typeof name === 'string') {
@@ -148,8 +249,38 @@ router.patch('/:id', async (req: Request<{ id: string }, unknown, ApplicantUpdat
     updates.Title = trimmedTitle;
   }
 
-  if (typeof bio === 'string') {
-    updates.Bio = bio.trim();
+  const hasMetaUpdates =
+    typeof location === 'string' ||
+    typeof yearsOfExperience === 'number' ||
+    typeof linkedinUrl === 'string' ||
+    Array.isArray(education) ||
+    Array.isArray(workExperience);
+
+  if (typeof bio === 'string' || hasMetaUpdates) {
+    let baseBio = typeof bio === 'string' ? bio.trim() : '';
+    let baseMeta: ProfileMeta = {};
+
+    if (typeof bio !== 'string' && hasMetaUpdates) {
+      const { data: existing } = await supabase.from('Applicants').select('*').eq('Id', id).maybeSingle();
+      if (existing) {
+        const parsed = extractProfileMeta(existing.Bio ?? '');
+        baseBio = parsed.plainBio;
+        baseMeta = parsed.meta;
+      }
+    }
+
+    updates.Bio = encodeProfileMeta(baseBio, {
+      location: typeof location === 'string' ? location : baseMeta.location,
+      yearsOfExperience:
+        typeof yearsOfExperience === 'number' && Number.isFinite(yearsOfExperience)
+          ? yearsOfExperience
+          : baseMeta.yearsOfExperience,
+      linkedinUrl: typeof linkedinUrl === 'string' ? linkedinUrl : baseMeta.linkedinUrl,
+      education: Array.isArray(education) ? education : baseMeta.education ?? [],
+      workExperience: Array.isArray(workExperience)
+        ? workExperience
+        : baseMeta.workExperience ?? [],
+    });
   }
 
   if (Array.isArray(skills)) {
@@ -167,7 +298,8 @@ router.patch('/:id', async (req: Request<{ id: string }, unknown, ApplicantUpdat
 
   const { data, error } = await supabase.from('Applicants').update(updates).eq('Id', id).select('*').single();
   if (error || !data) {
-    res.status(500).json({ message: 'Failed to update applicant profile' });
+    console.error('Failed to update applicant profile:', error);
+    res.status(500).json({ message: `Failed to update applicant profile (${error?.message ?? 'unknown'})` });
     return;
   }
 

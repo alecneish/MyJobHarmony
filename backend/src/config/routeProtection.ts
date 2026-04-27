@@ -12,22 +12,16 @@
  *  3. Deactivated account on any auth route     -> 403 "Account is deactivated"
  *  4. Expired JWT on any auth route             -> 401 "Invalid or expired token"
  *  5. Legacy 'candidate' role in DB             -> normalized to 'job_seeker' in middleware
- *  6. Unverified recruiter on verified-only     -> 403 UNVERIFIED_RECRUITER
- *  7. Admin enum value stored but no routes     -> 403 on role-gated routes
- *  8. Frontend RequireAuth redirect             -> unauthenticated -> /login
- *  9. Frontend RequireRole redirect             -> wrong role -> /unauthorized
- * 10. Frontend apiClient 401 handling           -> signOut + /login redirect
- * 11. Cross-tenant: recruiter A cannot see recruiter B's analytics
- * 12. Candidate cannot access /recruit or /recruiter/* routes
- * 13. Recruiter cannot access /jobs/saved or /candidate/* routes
+ *  6. Admin enum value stored but no routes     -> 403 on role-gated routes
+ *  7. Frontend RequireAuth redirect             -> unauthenticated -> /login
+ *  8. Frontend RequireRole redirect             -> wrong role -> /unauthorized
+ *  9. Frontend apiClient 401 handling           -> signOut + /login redirect
  */
 
 export type AccessLevel =
   | 'public'
   | 'authenticated'
   | 'job_seeker'
-  | 'recruiter'
-  | 'verified_recruiter'
   | 'admin'
   | 'owner';
 
@@ -45,15 +39,6 @@ export const API_ROUTE_RULES: RouteRule[] = [
   { method: 'GET',  path: '/api/jobs/:id',           access: 'public',              description: 'Single job posting (public projection)' },
   { method: 'GET',  path: '/api/quiz/questions',     access: 'public',              description: 'Quiz questions' },
   { method: 'POST', path: '/api/quiz/submit',        access: 'public',              description: 'Submit quiz (optionalAuth binds user if present)' },
-
-  // ── Recruiter ──
-  { method: 'GET',  path: '/api/recruit',            access: 'recruiter',           description: 'Browse candidate applicants' },
-  { method: 'GET',  path: '/api/recruiter/company',  access: 'recruiter',           description: 'View own company profile' },
-  { method: 'PATCH',path: '/api/recruiter/company',  access: 'recruiter',           description: 'Edit own company profile' },
-  { method: 'POST', path: '/api/recruiter/jobs',     access: 'verified_recruiter',  description: 'Create a job posting' },
-  { method: 'PATCH',path: '/api/recruiter/jobs/:id', access: 'verified_recruiter',  description: 'Edit own job posting' },
-  { method: 'DELETE',path: '/api/recruiter/jobs/:id',access: 'verified_recruiter',  description: 'Delete own job posting' },
-  { method: 'GET',  path: '/api/recruiter/analytics',access: 'verified_recruiter',  description: 'Own posting analytics' },
 
   // ── Job Seeker ──
   { method: 'GET',  path: '/api/me/profile',         access: 'job_seeker',          description: 'View own candidate profile' },
@@ -92,33 +77,28 @@ export const FRONTEND_ROUTE_RULES: FrontendRouteRule[] = [
   { path: '/candidate/dashboard',access: 'job_seeker',  description: 'Candidate home dashboard' },
   { path: '/jobs/saved',         access: 'job_seeker',  description: 'Saved/bookmarked jobs' },
 
-  // ── Recruiter ──
-  { path: '/recruiter/dashboard',access: 'recruiter',   description: 'Recruiter home dashboard' },
-  { path: '/recruit',            access: 'recruiter',   description: 'Browse candidates' },
 ];
 
 /**
  * Phased rollout plan:
  *
  * Phase 1 (Foundation) - DONE
- *   - user_role enum migration (job_seeker, recruiter, admin)
+ *   - user_role enum migration (job_seeker, admin)
  *   - user_profiles lifecycle columns (is_active, deleted_at, verification_status)
- *   - Express auth middleware stack (authenticate, optionalAuth, requireRole, requireActive, requireVerifiedRecruiter)
+ *   - Express auth middleware stack (authenticate, optionalAuth, requireRole, requireActive)
  *
  * Phase 2 (API enforcement) - DONE
- *   - /api/recruit protected with recruiter role guard
  *   - /api/quiz/submit bound to authenticated user via optionalAuth
  *   - Global error handler for async middleware
  *
  * Phase 3 (Frontend gating) - DONE
- *   - RequireAuth, RequireRole, RoleGuard, RequireVerifiedRecruiter components
+ *   - RequireAuth, RequireRole, RoleGuard components
  *   - Route tree restructured with nested guard wrappers
  *   - Layout.tsx role-conditional navigation
  *   - apiClient with JWT injection and 401/403 handling
  *
  * Phase 4 (Feature RBAC completion) - NEXT
  *   - Implement /api/me/* candidate profile CRUD
- *   - Implement /api/recruiter/* company + job posting CRUD
  *   - Implement /api/messages/* with relationship enforcement
  *   - Server-side saved jobs (replace localStorage)
  *   - Supabase RLS policies for direct-client access paths

@@ -40,31 +40,3 @@ export function requireActive(
   }
   next();
 }
-
-/**
- * Requires both recruiter role AND verified verification_status.
- * Use for sensitive actions like posting jobs or viewing analytics.
- */
-export function requireVerifiedRecruiter(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
-  const { userProfile } = req as AuthenticatedRequest;
-  if (!userProfile) {
-    res.status(401).json({ error: 'Authentication required' });
-    return;
-  }
-  if (userProfile.role !== 'recruiter') {
-    res.status(403).json({ error: 'Recruiter access required' });
-    return;
-  }
-  if (userProfile.verification_status !== 'verified') {
-    res.status(403).json({
-      error: 'Recruiter verification required',
-      code: 'UNVERIFIED_RECRUITER',
-    });
-    return;
-  }
-  next();
-}
