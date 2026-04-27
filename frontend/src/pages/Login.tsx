@@ -12,8 +12,7 @@ export default function Login() {
 
   // Redirect already-authenticated users to their dashboard
   if (auth.user && !auth.loading) {
-    const dest = auth.isRecruiter ? '/recruiter/dashboard' : '/candidate/dashboard';
-    return <Navigate to={dest} replace />;
+    return <Navigate to="/candidate/dashboard" replace />;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -21,13 +20,8 @@ export default function Login() {
     setError(null);
     setSubmitting(true);
     try {
-      const { role } = await auth.signIn(email, password);
-      // Navigate based on the role returned from the profile lookup
-      if (role === 'recruiter') {
-        navigate('/recruiter/dashboard');
-      } else {
-        navigate('/candidate/dashboard');
-      }
+      await auth.signIn(email, password);
+      navigate('/candidate/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -38,7 +32,7 @@ export default function Login() {
   return (
     <div className="jh-auth-container">
       <div className="jh-auth-card">
-        <div className="jh-section-header" style={{ marginBottom: '1.25rem' }}>
+        <div className="jh-section-header jh-section-header--compact">
           <h2>Log in</h2>
           <p>Welcome back. Enter your email and password to continue.</p>
         </div>

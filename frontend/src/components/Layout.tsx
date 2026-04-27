@@ -9,7 +9,6 @@ export default function Layout() {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [serverHasQuizResults, setServerHasQuizResults] = useState<boolean | null>(null);
-  const isRecruiter = !!(user && userProfile?.role === 'recruiter');
 
   const localHasQuiz =
     typeof window !== 'undefined' &&
@@ -65,7 +64,7 @@ export default function Layout() {
                   Home
                 </NavLink>
               </li>
-              {!isRecruiter && (
+              {hasResults && (
                 <li>
                   <NavLink to="/jobs" end className={({ isActive }) => 'jh-nav-link' + (isActive ? ' active' : '')} onClick={closeMenu}>
                     Jobs
@@ -96,21 +95,6 @@ export default function Layout() {
                   <li>
                     <NavLink to="/jobs/saved" className={({ isActive }) => 'jh-nav-link' + (isActive ? ' active' : '')} onClick={closeMenu}>
                       Saved
-                    </NavLink>
-                  </li>
-                </>
-              )}
-
-              {isRecruiter && (
-                <>
-                  <li>
-                    <NavLink to="/recruiter/dashboard" className={({ isActive }) => 'jh-nav-link' + (isActive ? ' active' : '')} onClick={closeMenu}>
-                      Dashboard
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to="/recruit" className={({ isActive }) => 'jh-nav-link' + (isActive ? ' active' : '')} onClick={closeMenu}>
-                      Candidates
                     </NavLink>
                   </li>
                 </>
@@ -178,14 +162,14 @@ export default function Layout() {
         <div className="jh-footer-content">
           <div>
             <div className="jh-footer-brand">JobHarmony</div>
-            <p style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+            <p className="jh-footer-copy">
               &copy; 2026 JobHarmony. All rights reserved.
             </p>
           </div>
           <ul className="jh-footer-links">
             <li><NavLink to="/">Home</NavLink></li>
             <li><NavLink to="/quiz">Quiz</NavLink></li>
-            {!isRecruiter && <li><NavLink to="/jobs">Jobs</NavLink></li>}
+            {hasResults && <li><NavLink to="/jobs">Jobs</NavLink></li>}
             {user && <li><NavLink to="/profile/edit">Edit Profile</NavLink></li>}
           </ul>
         </div>

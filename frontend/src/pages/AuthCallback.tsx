@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabaseClient';
 /**
  * Handles the redirect after a user clicks the email confirmation link.
  * Supabase appends token fragments to the URL; this page exchanges them
- * for a session, then redirects to the appropriate dashboard.
+ * for a session, then redirects to the candidate dashboard.
  */
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -26,23 +26,7 @@ export default function AuthCallback() {
         return;
       }
 
-      // Determine role for navigation
-      const user = data.session.user;
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('role')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      let role = profile?.role ?? user.user_metadata?.role ?? 'job_seeker';
-      // Normalize legacy 'candidate' role to 'job_seeker'
-      if (role === 'candidate') role = 'job_seeker';
-
-      if (role === 'recruiter') {
-        navigate('/recruiter/dashboard', { replace: true });
-      } else {
-        navigate('/candidate/dashboard', { replace: true });
-      }
+      navigate('/candidate/dashboard', { replace: true });
     }
 
     handleCallback();
@@ -54,7 +38,7 @@ export default function AuthCallback() {
         <div className="jh-auth-card">
           <h2>Confirmation failed</h2>
           <p>{error}</p>
-          <a href="/login" className="jh-btn-primary" style={{ marginTop: '1rem', display: 'inline-block' }}>
+          <a href="/login" className="jh-btn-primary jh-btn-inline-spaced">
             Go to Login
           </a>
         </div>
@@ -63,7 +47,7 @@ export default function AuthCallback() {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+    <div className="jh-page-loading">
       <p>Confirming your account&hellip;</p>
     </div>
   );

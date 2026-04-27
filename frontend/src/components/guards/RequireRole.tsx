@@ -1,8 +1,9 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import type { UserRole } from '../../types';
 
 interface Props {
-  roles: Array<'job_seeker' | 'recruiter' | 'admin'>;
+  roles: UserRole[];
 }
 
 /**
@@ -16,7 +17,7 @@ export default function RequireRole({ roles }: Props) {
   // hasn't arrived yet (race condition right after sign-in).
   if (loading || (user && !userProfile)) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+      <div className="jh-loading-state">
         <p>Loading&hellip;</p>
       </div>
     );

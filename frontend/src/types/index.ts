@@ -15,7 +15,6 @@ export interface Job {
   id: number;
   title: string;
   company: string;
-  logoEmoji: string;
   location: string;
   salary: string;
   type: string;
@@ -56,7 +55,6 @@ export interface QuizResults {
   emotionalStability: number;
   motivationType: string;
   motivationDescription: string;
-  motivationIcon: string;
   careerMatches?: CareerMatch[];
 }
 
@@ -73,12 +71,7 @@ export interface JobsApiResponse {
   allLocations: string[];
 }
 
-export interface RecruitApiResponse {
-  recommendedApplicants: Applicant[];
-  allApplicants: Applicant[];
-}
-
-export type UserRole = 'job_seeker' | 'recruiter' | 'admin';
+export type UserRole = 'job_seeker' | 'admin';
 export type VerificationStatus = 'unverified' | 'pending' | 'verified' | 'rejected';
 
 export interface UserProfile {

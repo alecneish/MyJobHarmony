@@ -6,13 +6,18 @@ import postgres from 'postgres';
 // ── Supabase REST client ─────────────────────────────────────────
 const supabaseUrl = process.env.SUPABASE_URL?.trim();
 const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY?.trim();
+const supabasePublishableKey =
+  process.env.SUPABASE_PUBLISHABLE_KEY?.trim() ?? process.env.SUPABASE_ANON_KEY?.trim();
+const supabaseApiKey = supabaseSecretKey || supabasePublishableKey;
 
 if (!supabaseUrl) {
   throw new Error('SUPABASE_URL is not set');
 }
 
-if (!supabaseSecretKey) {
-  throw new Error('SUPABASE_SECRET_KEY is not set');
+if (!supabaseApiKey) {
+  throw new Error(
+    'SUPABASE_SECRET_KEY or SUPABASE_PUBLISHABLE_KEY/SUPABASE_ANON_KEY is not set',
+  );
 }
 
 function looksLikeStorageSecretKey(v: string): boolean {
@@ -21,7 +26,7 @@ function looksLikeStorageSecretKey(v: string): boolean {
   return /^[a-f0-9]{64,}$/i.test(v.trim()) && !v.trim().startsWith('sb_secret_');
 }
 
-if (looksLikeStorageSecretKey(supabaseSecretKey)) {
+if (supabaseSecretKey && looksLikeStorageSecretKey(supabaseSecretKey)) {
   throw new Error(
     [
       'SUPABASE_SECRET_KEY looks like the Storage (S3) Secret Key (hex).',
@@ -30,7 +35,7 @@ if (looksLikeStorageSecretKey(supabaseSecretKey)) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseSecretKey);
+export const supabase = createClient(supabaseUrl, supabaseApiKey);
 
 // ── Direct Postgres connection (via postgres.js) ─────────────────
 const connectionString = process.env.DATABASE_URL;

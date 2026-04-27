@@ -62,7 +62,6 @@ export default function JobCard({ job, onSaveToggle }: JobCardProps) {
       data-company={job.company}
     >
       <div className="jh-job-header">
-        <div className="jh-job-logo">{job.logoEmoji}</div>
         <div className="jh-job-info">
           <h3>{job.title}</h3>
           <div className="jh-job-company">{job.company}</div>
@@ -79,10 +78,10 @@ export default function JobCard({ job, onSaveToggle }: JobCardProps) {
       <div className="jh-job-fit-reason">{job.fitReason}</div>
 
       <div className="jh-job-meta">
-        <span>📍 {job.location}</span>
-        <span>💰 {job.salary}</span>
-        <span>💼 {job.type}</span>
-        <span>📅 {postedText}</span>
+        <span>Location: {job.location}</span>
+        <span>Salary: {job.salary}</span>
+        <span>Type: {job.type}</span>
+        <span>Posted: {postedText}</span>
       </div>
 
       <div className="jh-job-actions">
@@ -105,7 +104,7 @@ export default function JobCard({ job, onSaveToggle }: JobCardProps) {
           className={`jh-save-btn${isSaved ? ' saved' : ''}`}
           onClick={toggleSave}
         >
-          <span className="save-icon">{isSaved ? '♥' : '♡'}</span> Save
+          {isSaved ? 'Saved' : 'Save'}
         </button>
       </div>
     </div>

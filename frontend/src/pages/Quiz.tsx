@@ -13,9 +13,9 @@ type QuizTier = 'short' | 'medium' | 'full';
 const TIER_CONFIG: Record<QuizTier, { name: string; questions: number; minutes: number; description: string }> = {
   short: {
     name: 'Quick Pulse',
-    questions: 19,
+    questions: 10,
     minutes: 3,
-    description: 'One question per dimension — fast results with solid coverage across all areas.',
+    description: 'A quick 10-question check-in for fast, focused insights.',
   },
   medium: {
     name: 'Career Snapshot',
@@ -39,12 +39,12 @@ const LIKERT_OPTIONS = [
   { value: 5, label: 'Strongly Agree' },
 ];
 
-const INTEREST_OPTIONS = [
-  { value: 1, label: 'Not at all' },
-  { value: 2, label: 'Slightly' },
-  { value: 3, label: 'Moderately' },
-  { value: 4, label: 'Very' },
-  { value: 5, label: 'Extremely' },
+const SCALE_LEGEND: { label: string; description: string }[] = [
+  { label: 'Strongly Agree', description: 'This describes me very well.' },
+  { label: 'Agree', description: 'This somewhat describes me.' },
+  { label: 'Neutral', description: "I'm not sure, or this doesn't apply." },
+  { label: 'Disagree', description: "This doesn't really describe me." },
+  { label: 'Strongly Disagree', description: 'This does not describe me at all.' },
 ];
 
 export default function Quiz() {
@@ -208,7 +208,7 @@ export default function Quiz() {
   if (!tier) {
     return (
       <div className="jh-quiz-container">
-        <div className="jh-section-header" style={{ marginBottom: '2.5rem' }}>
+        <div className="jh-section-header jh-section-header--hero">
           <h2>Career Personality Quiz</h2>
           <p>Choose how much time you have. All versions use the same scoring engine.</p>
         </div>
@@ -225,7 +225,7 @@ export default function Quiz() {
               </div>
               <h3>{config.name}</h3>
               <p>{config.description}</p>
-              <span className="jh-tier-card-cta">Start →</span>
+              <span className="jh-tier-card-cta">Start</span>
             </button>
           ))}
         </div>
@@ -236,7 +236,7 @@ export default function Quiz() {
   // --- Loading state ---
   if (loading) {
     return (
-      <div className="jh-quiz-container" style={{ textAlign: 'center', padding: '4rem' }}>
+      <div className="jh-quiz-container jh-page-state">
         <p>Loading quiz...</p>
       </div>
     );
@@ -244,10 +244,10 @@ export default function Quiz() {
 
   if (questions.length === 0) {
     return (
-      <div className="jh-quiz-container" style={{ textAlign: 'center', padding: '4rem' }}>
+      <div className="jh-quiz-container jh-page-state">
         <p>Failed to load quiz questions. Please try again.</p>
-        <button className="jh-btn-secondary" style={{ marginTop: '1rem' }} onClick={() => setTier(null)}>
-          ← Back
+        <button className="jh-btn-secondary jh-mt-md" onClick={() => setTier(null)}>
+          Back
         </button>
       </div>
     );
@@ -257,47 +257,37 @@ export default function Quiz() {
   return (
     <div className="jh-quiz-container">
       {hasLastResults && (
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+        <div className="jh-results-shortcut">
           <Link to="/quiz/results" className="jh-btn-secondary">
             View my last results
           </Link>
         </div>
       )}
 
-      <div className="jh-section-header" style={{ marginBottom: '2rem' }}>
+      <div className="jh-section-header jh-section-header--spacious">
         <h2>{TIER_CONFIG[tier].name}</h2>
-        <p>Answer each question honestly — there are no right or wrong answers.</p>
+        <p>Answer each question honestly - there are no right or wrong answers.</p>
+      </div>
+
+      <div className="jh-quiz-scale-legend" aria-label="Rating scale explanation">
+        <h3>How to answer</h3>
+        <ul>
+          {SCALE_LEGEND.map((item) => (
+            <li key={item.label}>
+              <span>{item.label}</span> - {item.description}
+            </li>
+          ))}
+        </ul>
       </div>
 
       {showSavePrompt && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.45)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1.5rem',
-            zIndex: 50,
-          }}
-        >
-          <div
-            style={{
-              width: 'min(520px, 100%)',
-              background: 'white',
-              borderRadius: '12px',
-              padding: '1.25rem',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
-            }}
-          >
-            <h3 style={{ marginTop: 0 }}>Save your results</h3>
-            <p style={{ color: '#4b5563' }}>
+        <div role="dialog" aria-modal="true" className="jh-modal-backdrop">
+          <div className="jh-modal-card">
+            <h3 className="jh-modal-title">Save your results</h3>
+            <p className="jh-muted-copy">
               Your results are ready. To save them to your profile and access them on any device, please log in or sign up.
             </p>
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <div className="jh-inline-actions jh-inline-actions--end">
               <button className="jh-btn-secondary" onClick={() => navigate('/quiz/results')}>
                 Continue to results
               </button>
@@ -327,7 +317,7 @@ export default function Quiz() {
 
       <div className="jh-quiz-page">
         {pageQuestions.map((q, idx) => {
-          const options = q.questionFormat === 'Interest' ? INTEREST_OPTIONS : LIKERT_OPTIONS;
+          const options = LIKERT_OPTIONS;
           const selectedAnswer = answers[q.id];
           const globalIndex = currentPage * QUESTIONS_PER_PAGE + idx + 1;
 
@@ -360,14 +350,14 @@ export default function Quiz() {
           className="jh-btn-secondary"
           onClick={currentPage > 0 ? back : () => setTier(null)}
         >
-          ← Back
+          Back
         </button>
         <button
           className="jh-btn-primary"
           disabled={!pageComplete || submitting}
           onClick={next}
         >
-          {submitting ? 'Submitting…' : isLastPage ? 'See Results' : 'Next →'}
+          {submitting ? 'Submitting...' : isLastPage ? 'See Results' : 'Next'}
         </button>
       </div>
     </div>

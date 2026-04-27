@@ -12,7 +12,7 @@ export default function RequireAuth() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+      <div className="jh-loading-state">
         <p>Loading&hellip;</p>
       </div>
     );

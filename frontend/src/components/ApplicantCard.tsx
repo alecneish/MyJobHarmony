@@ -15,7 +15,7 @@ export default function ApplicantCard({ applicant }: ApplicantCardProps) {
           <div className="jh-applicant-name">
             {applicant.name}
             {applicant.isRecommended && (
-              <span className="jh-recommended-badge" style={{ marginLeft: '0.5rem' }}>
+              <span className="jh-recommended-badge jh-recommended-badge--inline">
                 Recommended
               </span>
             )}

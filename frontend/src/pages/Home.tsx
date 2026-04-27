@@ -9,9 +9,8 @@ export default function Home() {
           Discover jobs that align with your personality, skills, and values. Take our quick quiz
           and let JobHarmony guide your next career move.
         </p>
-        <div className="jh-hero-actions">
+        <div className="jh-hero-actions jh-hero-actions--single">
           <Link to="/quiz" className="jh-btn-primary">Take the Quiz</Link>
-          <Link to="/jobs" className="jh-btn-outline">Browse Jobs</Link>
         </div>
       </section>
 
@@ -26,7 +25,6 @@ export default function Home() {
             <div className="col-md-4">
               <div className="jh-step-card">
                 <span className="jh-step-number">1</span>
-                <span className="jh-step-icon">🧠</span>
                 <h3>Take the Quiz</h3>
                 <p>Answer 8 quick questions about your work style, preferences, and personality traits.</p>
               </div>
@@ -34,7 +32,6 @@ export default function Home() {
             <div className="col-md-4">
               <div className="jh-step-card">
                 <span className="jh-step-number">2</span>
-                <span className="jh-step-icon">📊</span>
                 <h3>Get Your Profile</h3>
                 <p>
                   Receive a personalized breakdown of your Big Five personality traits and motivation
@@ -45,7 +42,6 @@ export default function Home() {
             <div className="col-md-4">
               <div className="jh-step-card">
                 <span className="jh-step-number">3</span>
-                <span className="jh-step-icon">✨</span>
                 <h3>Discover Matches</h3>
                 <p>
                   Browse curated job listings ranked by how well they match your unique personality

@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Job, JobsApiResponse } from '../types';
 import JobCard from '../components/JobCard';
 import FilterPanel from '../components/FilterPanel';
-import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../lib/apiClient';
+import { useAuth } from '../context/AuthContext';
 
 const STORAGE_KEY = 'jh-saved-jobs';
 
@@ -17,9 +17,11 @@ function getSavedIds(): string[] {
 }
 
 export default function Jobs() {
-  const { userProfile } = useAuth();
+  const { user } = useAuth();
   const [data, setData] = useState<JobsApiResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hasQuizResults, setHasQuizResults] = useState(false);
+  const [checkingQuizGate, setCheckingQuizGate] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
@@ -29,9 +31,40 @@ export default function Jobs() {
   const [view, setView] = useState<'all' | 'saved'>('all');
   const [savedIds, setSavedIds] = useState<string[]>(() => getSavedIds());
 
-  if (userProfile?.role === 'recruiter') {
-    return <Navigate to="/recruiter/dashboard" replace />;
-  }
+  useEffect(() => {
+    let cancelled = false;
+    const localHasQuiz =
+      typeof window !== 'undefined' &&
+      Boolean(localStorage.getItem('jh-quiz-raw') || localStorage.getItem('jh-quiz-results'));
+
+    if (localHasQuiz) {
+      setHasQuizResults(true);
+      setCheckingQuizGate(false);
+      return;
+    }
+
+    if (!user) {
+      setHasQuizResults(false);
+      setCheckingQuizGate(false);
+      return;
+    }
+
+    (async () => {
+      try {
+        const r = await apiClient('/api/quiz/last');
+        if (cancelled) return;
+        setHasQuizResults(r.ok);
+      } catch {
+        if (!cancelled) setHasQuizResults(false);
+      } finally {
+        if (!cancelled) setCheckingQuizGate(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     let cancelled = false;
@@ -91,9 +124,31 @@ export default function Jobs() {
     setSearch('');
   }
 
+  if (checkingQuizGate) {
+    return (
+      <div className="jh-jobs-container">
+        <div className="jh-page-state">
+          <p>Checking your quiz progress...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasQuizResults) {
+    return (
+      <div className="jh-jobs-container">
+        <div className="jh-empty-state">
+          <h3>Take the quiz first</h3>
+          <p>You need quiz results before browsing jobs so we can rank matches for you.</p>
+          <Link to="/quiz" className="jh-btn-primary">Take the Quiz</Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="jh-jobs-container">
-      <div className="jh-section-header" style={{ marginBottom: '2rem' }}>
+      <div className="jh-section-header jh-section-header--spacious">
         <h2>{view === 'saved' ? 'Saved Jobs' : 'Job Listings'}</h2>
         <p>
           {view === 'saved'
@@ -103,7 +158,7 @@ export default function Jobs() {
       </div>
 
       {error && (
-        <div className="jh-empty-state" style={{ marginBottom: '1.5rem' }}>
+        <div className="jh-empty-state jh-empty-state--with-margin">
           <h3>Couldn’t load jobs</h3>
           <p>{error}</p>
         </div>
@@ -156,8 +211,7 @@ export default function Jobs() {
       )}
 
       {jobsToRender.length === 0 && data !== null && view === 'saved' && (
-        <div className="jh-empty-state" style={{ marginTop: '2rem' }}>
-          <span className="jh-empty-icon">🔖</span>
+        <div className="jh-empty-state jh-empty-state--with-top-margin">
           <h3>No Saved Jobs Yet</h3>
           <p>Save a few jobs from the All Jobs view to see them here.</p>
         </div>

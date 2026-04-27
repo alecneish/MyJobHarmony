@@ -2,31 +2,26 @@
 
 const OCEAN_DIMENSIONS = ['Openness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'EmotionalStability'] as const;
 
-const MOTIVATION_TYPES: Record<string, { type: string; description: string; icon: string }> = {
+const MOTIVATION_TYPES: Record<string, { type: string; description: string }> = {
   Openness: {
     type: 'The Innovator',
     description: "You thrive on creativity and new ideas. You're driven by curiosity and love exploring uncharted territory.",
-    icon: '💡',
   },
   Conscientiousness: {
     type: 'The Achiever',
     description: "You're goal-oriented and detail-driven. You find satisfaction in completing tasks with precision and excellence.",
-    icon: '🎯',
   },
   Extraversion: {
     type: 'The Connector',
     description: "You're energized by people and thrive in collaborative environments. Building relationships is your superpower.",
-    icon: '🤝',
   },
   Agreeableness: {
     type: 'The Harmonizer',
     description: "You're empathetic and cooperative. You excel at creating supportive environments where everyone can succeed.",
-    icon: '💚',
   },
   EmotionalStability: {
     type: 'The Anchor',
     description: "You're calm under pressure and bring stability to any team. Your resilience and composure inspire confidence.",
-    icon: '⚓',
   },
 };
 
@@ -75,7 +70,6 @@ export function persistQuizResultsLocal(
     emotionalStability: oceanScores.EmotionalStability,
     motivationType: motivation.type,
     motivationDescription: motivation.description,
-    motivationIcon: motivation.icon,
     careerMatches,
   };
 

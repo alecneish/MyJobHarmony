@@ -35,6 +35,8 @@ async function resolveUserId(req: Request): Promise<string | null> {
 
 router.get('/questions', async (req: Request, res: Response) => {
   const tierParam = (req.query.tier as string) || 'full';
+  const seedQuestions = getSeedQuizQuestions();
+  const seedById = new Map(seedQuestions.map((q) => [q.id, q]));
 
   const { data, error } = await supabase
     .from('QuizQuestions')
@@ -45,26 +47,24 @@ router.get('/questions', async (req: Request, res: Response) => {
     // Keep the app usable locally even if Supabase is misconfigured.
     if (error) console.error('Failed to load quiz questions from Supabase:', error);
     // Still apply tier filtering on seed data fallback
-    const seedQuestions = getSeedQuizQuestions();
     res.json(filterByTier(seedQuestions, tierParam));
     return;
   }
 
   // The DB Tier column defaults to 'Free' for all rows (never backfilled).
-  // Use the seed data's tier assignments as the source of truth.
-  const seedTierById = new Map(getSeedQuizQuestions().map(q => [q.id, q.tier]));
+  // Use seed data as source of truth for tier and question wording.
 
   const allQuestions: QuizQuestion[] = data.map((row: any) => ({
     id: row.Id,
-    text: row.QuestionText,
-    dimension: row.Dimension ?? '',
-    subdimension: row.Subdimension ?? '',
-    section: row.Section ?? '',
-    sectionOrder: row.SectionOrder ?? 0,
-    questionFormat: row.QuestionFormat ?? 'Likert',
-    isReverseScored: Boolean(row.IsReverseScored),
-    weight: Number(row.Weight ?? 1.0),
-    tier: seedTierById.get(row.Id) ?? row.Tier ?? 'Free',
+    text: seedById.get(row.Id)?.text ?? row.QuestionText,
+    dimension: seedById.get(row.Id)?.dimension ?? row.Dimension ?? '',
+    subdimension: seedById.get(row.Id)?.subdimension ?? row.Subdimension ?? '',
+    section: seedById.get(row.Id)?.section ?? row.Section ?? '',
+    sectionOrder: seedById.get(row.Id)?.sectionOrder ?? row.SectionOrder ?? 0,
+    questionFormat: seedById.get(row.Id)?.questionFormat ?? row.QuestionFormat ?? 'Likert',
+    isReverseScored: seedById.get(row.Id)?.isReverseScored ?? Boolean(row.IsReverseScored),
+    weight: seedById.get(row.Id)?.weight ?? Number(row.Weight ?? 1.0),
+    tier: seedById.get(row.Id)?.tier ?? row.Tier ?? 'Free',
   }));
 
   questionCache = allQuestions;
@@ -75,18 +75,11 @@ function filterByTier(allQuestions: QuizQuestion[], tierParam: string): QuizQues
   if (tierParam === 'medium') {
     return allQuestions.filter(q => q.tier === 'Free');
   } else if (tierParam === 'short') {
-    // One Free question per dimension, deterministic (first by ID order)
-    const seenDimensions = new Set<string>();
-    const questions: QuizQuestion[] = [];
-    for (const q of allQuestions.filter(q => q.tier === 'Free')) {
-      if (!seenDimensions.has(q.dimension)) {
-        seenDimensions.add(q.dimension);
-        questions.push(q);
-      }
-    }
-    return questions;
+    // 10-question snapshot from the Free pool (deterministic by ID order).
+    return allQuestions.filter(q => q.tier === 'Free').slice(0, 10);
   } else {
-    return allQuestions;
+    // Full assessment is fixed to 62 questions.
+    return allQuestions.slice(0, 62);
   }
 }
 
@@ -162,6 +155,8 @@ router.post('/submit', optionalAuth, async (req: Request, res: Response) => {
   // Use cached questions — avoids a DB round trip on every submission.
   // Cache is populated by GET /questions; fall back to seed data if not yet warm.
   if (!questionCache) {
+    const seedQuestions = getSeedQuizQuestions();
+    const seedById = new Map(seedQuestions.map((q) => [q.id, q]));
     const { data: qData, error: qErr } = await supabase
       .from('QuizQuestions')
       .select('*')
@@ -169,20 +164,19 @@ router.post('/submit', optionalAuth, async (req: Request, res: Response) => {
 
     if (qErr || !qData) {
       if (qErr) console.error('Failed to load quiz questions from Supabase for scoring:', qErr);
-      questionCache = getSeedQuizQuestions();
+      questionCache = seedQuestions;
     } else {
-      const seedTierById = new Map(getSeedQuizQuestions().map(q => [q.id, q.tier]));
       questionCache = qData.map((row: any) => ({
         id: row.Id,
-        text: row.QuestionText,
-        dimension: row.Dimension ?? '',
-        subdimension: row.Subdimension ?? '',
-        section: row.Section ?? '',
-        sectionOrder: row.SectionOrder ?? 0,
-        questionFormat: row.QuestionFormat ?? 'Likert',
-        isReverseScored: Boolean(row.IsReverseScored),
-        weight: Number(row.Weight ?? 1.0),
-        tier: seedTierById.get(row.Id) ?? row.Tier ?? 'Free',
+        text: seedById.get(row.Id)?.text ?? row.QuestionText,
+        dimension: seedById.get(row.Id)?.dimension ?? row.Dimension ?? '',
+        subdimension: seedById.get(row.Id)?.subdimension ?? row.Subdimension ?? '',
+        section: seedById.get(row.Id)?.section ?? row.Section ?? '',
+        sectionOrder: seedById.get(row.Id)?.sectionOrder ?? row.SectionOrder ?? 0,
+        questionFormat: seedById.get(row.Id)?.questionFormat ?? row.QuestionFormat ?? 'Likert',
+        isReverseScored: seedById.get(row.Id)?.isReverseScored ?? Boolean(row.IsReverseScored),
+        weight: seedById.get(row.Id)?.weight ?? Number(row.Weight ?? 1.0),
+        tier: seedById.get(row.Id)?.tier ?? row.Tier ?? 'Free',
       }));
     }
   }

@@ -98,15 +98,15 @@ export default function QuizResults() {
   if (!results) {
     if (loading) {
       return (
-        <div className="jh-results-container" style={{ textAlign: 'center', padding: '4rem' }}>
-          <p style={{ color: 'var(--jh-gray-600)' }}>Loading your results…</p>
+        <div className="jh-results-container jh-page-state">
+          <p className="jh-muted-copy">Loading your results...</p>
         </div>
       );
     }
     return (
-      <div className="jh-results-container" style={{ textAlign: 'center', padding: '4rem' }}>
-        <p style={{ color: 'var(--jh-gray-600)', marginBottom: '1.5rem' }}>
-          No results yet — take the quiz first.
+      <div className="jh-results-container jh-page-state">
+        <p className="jh-muted-copy jh-mb-md">
+          No results yet - take the quiz first.
         </p>
         <Link to="/quiz" className="jh-btn-primary">Take the Quiz</Link>
       </div>
@@ -125,10 +125,10 @@ export default function QuizResults() {
 
   return (
     <div className="jh-results-container jh-results-container--wide">
-      <div className="jh-section-header" style={{ marginBottom: '2rem' }}>
+      <div className="jh-section-header jh-section-header--spacious">
         <h2>Your Results</h2>
         {results.sessionId && (
-          <p style={{ fontFamily: 'monospace', fontSize: '0.78rem', color: 'var(--jh-gray-400)' }}>
+          <p className="jh-session-id">
             Session: {results.sessionId}
           </p>
         )}
@@ -230,7 +230,7 @@ export default function QuizResults() {
         </div>
       </div>
 
-      <div style={{ marginTop: '2rem' }}>
+      <div className="jh-mt-lg">
         <button className="jh-btn-secondary" onClick={handleRetake}>Retake Quiz</button>
       </div>
     </div>

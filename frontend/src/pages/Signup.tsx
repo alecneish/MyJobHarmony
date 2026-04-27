@@ -5,7 +5,6 @@ import { useAuth } from '../context/AuthContext';
 export default function Signup() {
   const auth = useAuth();
 
-  const [role, setRole] = useState<'recruiter' | 'job_seeker'>('job_seeker');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,8 +14,7 @@ export default function Signup() {
 
   // Redirect already-authenticated users to their dashboard
   if (auth.user && !auth.loading) {
-    const dest = auth.isRecruiter ? '/recruiter/dashboard' : '/candidate/dashboard';
-    return <Navigate to={dest} replace />;
+    return <Navigate to="/candidate/dashboard" replace />;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -24,7 +22,7 @@ export default function Signup() {
     setError(null);
     setSubmitting(true);
     try {
-      await auth.signUp(email, password, username.trim(), role);
+      await auth.signUp(email, password, username.trim());
       // Supabase may require email confirmation before a session is created.
       // Show a confirmation message instead of navigating to a protected route.
       setConfirmationSent(true);
@@ -38,10 +36,9 @@ export default function Signup() {
   if (confirmationSent) {
     return (
       <div className="jh-auth-container">
-        <div className="jh-auth-card" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>&#x2709;&#xFE0F;</div>
+        <div className="jh-auth-card jh-auth-card--center">
           <h2>Check your email</h2>
-          <p style={{ color: 'var(--jh-gray-600)', marginBottom: '1.5rem' }}>
+          <p className="jh-muted-copy jh-mb-md">
             We sent a confirmation link to <strong>{email}</strong>.
             Click the link in your inbox to activate your account, then log in.
           </p>
@@ -54,9 +51,9 @@ export default function Signup() {
   return (
     <div className="jh-auth-container">
       <div className="jh-auth-card">
-        <div className="jh-section-header" style={{ marginBottom: '1.25rem' }}>
+        <div className="jh-section-header jh-section-header--compact">
           <h2>Create an account</h2>
-          <p>Enter your details, then choose whether you're a candidate or a recruiter.</p>
+          <p>Enter your details to create your candidate account.</p>
         </div>
 
         {error && (
@@ -99,47 +96,6 @@ export default function Signup() {
             />
             <small>Minimum 6 characters.</small>
           </label>
-
-          <div className="jh-field">
-            <span>Role</span>
-            <div className="jh-role-grid">
-              <label
-                className={
-                  'jh-role-card' + (role === 'job_seeker' ? ' selected' : '')
-                }
-              >
-                <input
-                  type="radio"
-                  name="role"
-                  value="job_seeker"
-                  checked={role === 'job_seeker'}
-                  onChange={() => setRole('job_seeker')}
-                />
-                <div className="jh-role-title">Candidate</div>
-                <div className="jh-role-body">
-                  I'm looking for roles that fit my personality and work style.
-                </div>
-              </label>
-
-              <label
-                className={
-                  'jh-role-card' + (role === 'recruiter' ? ' selected' : '')
-                }
-              >
-                <input
-                  type="radio"
-                  name="role"
-                  value="recruiter"
-                  checked={role === 'recruiter'}
-                  onChange={() => setRole('recruiter')}
-                />
-                <div className="jh-role-title">Recruiter</div>
-                <div className="jh-role-body">
-                  I'm hiring and want to see candidates that match my team.
-                </div>
-              </label>
-            </div>
-          </div>
 
           <div className="jh-auth-actions">
             <button className="jh-btn-primary" type="submit" disabled={submitting}>
